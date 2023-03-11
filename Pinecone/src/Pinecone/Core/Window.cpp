@@ -1,8 +1,7 @@
 #include "pcpch.h"
 #include "Window.h"
 
-/// Temporary
-#include "Pinecone/Core/Application.h"
+#include "Pinecone/Events/ApplicationEvent.h"
 
 namespace Pinecone
 {
@@ -51,9 +50,21 @@ namespace Pinecone
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				data.Width = width;
+				data.Height = height;
+
+				WindowResizeEvent event(width, height);
+				data.EventCallback(event);
+			});
+
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 			{
-				Application::Get().Close();
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowCloseEvent event;
+				data.EventCallback(event);
 			});
 	}
 

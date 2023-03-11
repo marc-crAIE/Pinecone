@@ -12,6 +12,10 @@
 #define PC_EXPAND_MACRO(x) x
 #define PC_STRINGIFY_MACRO(x) #x
 
+#define BIT(x) (1 << x)
+
+#define PC_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
 namespace Pinecone
 {
 	template<typename T>

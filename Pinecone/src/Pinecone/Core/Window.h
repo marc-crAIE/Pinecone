@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "Pinecone/Core/Base.h"
+#include "Pinecone/Events/Event.h"
 #include "Pinecone/Renderer/OpenGLContext.h"
 
 #include <GLFW/glfw3.h>
@@ -25,6 +26,8 @@ namespace Pinecone
 	class Window
 	{
 	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
 		Window(const WindowProps& props);
 		~Window();
 
@@ -33,6 +36,7 @@ namespace Pinecone
 		unsigned int GetWidth() const { return m_Data.Width; }
 		unsigned int GetHeight() const { return m_Data.Height; }
 
+		void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled);
 		bool IsVSync() const { return m_Data.VSync; }
 
@@ -51,6 +55,8 @@ namespace Pinecone
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
+
+			EventCallbackFn EventCallback;
 		};
 
 		WindowData m_Data;
