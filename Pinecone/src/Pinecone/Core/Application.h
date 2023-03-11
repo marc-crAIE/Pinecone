@@ -6,6 +6,9 @@
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Events/ApplicationEvent.h"
 
+// TEMPORARY
+
+#include "Pinecone/Renderer/Shader.h"
 #include "Pinecone/Renderer/VertexArray.h"
 
 int main(int argc, char** argv);
@@ -40,6 +43,7 @@ namespace Pinecone
 
 		// Temporary stuff
 	private:
+		Ref<Shader> m_Shader;
 		Ref<VertexArray> m_VertexArray;
 	};
 
