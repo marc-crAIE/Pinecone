@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Pinecone/Renderer/VertexArray.h"
+
 namespace Pinecone
 {
 	class RenderCommand
@@ -10,5 +12,7 @@ namespace Pinecone
 		static void SetViewport(int x, int y, int width, int height);
 		static void SetClearColor(const glm::vec4& color);
 		static void Clear();
+
+		static void DrawIndexed(const Ref<VertexArray>& vertexArray);
 	};
 }

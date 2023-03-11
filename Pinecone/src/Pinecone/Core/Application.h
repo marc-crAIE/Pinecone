@@ -6,6 +6,8 @@
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Events/ApplicationEvent.h"
 
+#include "Pinecone/Renderer/VertexArray.h"
+
 int main(int argc, char** argv);
 
 namespace Pinecone
@@ -34,6 +36,11 @@ namespace Pinecone
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
+
+
+		// Temporary stuff
+	private:
+		Ref<VertexArray> m_VertexArray;
 	};
 
 	// To be defined in the client program

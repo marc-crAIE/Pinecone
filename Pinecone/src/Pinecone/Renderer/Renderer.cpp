@@ -14,6 +14,12 @@ namespace Pinecone
 	{
 	}
 
+	void Renderer::Submit(const Ref<VertexArray>& vertexArray)
+	{
+		vertexArray->Bind();
+		RenderCommand::DrawIndexed(vertexArray);
+	}
+
 	void Renderer::OnWindowResize(int width, int height)
 	{
 	}

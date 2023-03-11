@@ -6,6 +6,7 @@
 
 // TEMPORARY
 #include "Pinecone/Renderer/RenderCommand.h"
+#include <glad/glad.h>
 
 namespace Pinecone
 {
@@ -20,6 +21,32 @@ namespace Pinecone
 		m_Window->SetEventCallback(PC_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
+
+		/// TEMPORARY CODE
+
+		m_VertexArray = VertexArray::Create();
+
+		// Our vertex data (Vec3 (position), Vec4 (Colour))
+		// Note: Nothing happens with colour at the moment as we don't yet have shaders!
+		float vertices[3 * 7] = {
+			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+		};
+
+		// Create the vertex buffer
+		std::shared_ptr<VertexBuffer> vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
+		BufferLayout layout = {
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float4, "a_Color" }
+		};
+		vertexBuffer->SetLayout(layout);
+		m_VertexArray->AddVertexBuffer(vertexBuffer);
+
+		// Create the index buffer
+		uint32_t indices[3] = { 0, 1, 2 };
+		std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+		m_VertexArray->SetIndexBuffer(indexBuffer);
 	}
 
 	Application::~Application()
@@ -43,10 +70,12 @@ namespace Pinecone
 
 	void Application::Run()
 	{
-		RenderCommand::SetClearColor({ 1.0f, 0.0f, 1.0f, 1.0f });
+		RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 		while (m_Running)
 		{
 			RenderCommand::Clear();
+
+			Renderer::Submit(m_VertexArray);
 
 			m_Window->OnUpdate();
 		}
