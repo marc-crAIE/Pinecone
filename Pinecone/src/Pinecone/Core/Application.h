@@ -14,7 +14,7 @@ namespace Pinecone
 	{
 	public:
 		Application();
-		virtual ~Application() = default;
+		virtual ~Application();
 
 		void OnEvent(Event& e);
 

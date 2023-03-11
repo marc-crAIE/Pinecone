@@ -2,6 +2,10 @@
 #include "Application.h"
 
 #include "Pinecone/Core/Log.h"
+#include "Pinecone/Renderer/Renderer.h"
+
+// TEMPORARY
+#include "Pinecone/Renderer/RenderCommand.h"
 
 namespace Pinecone
 {
@@ -14,6 +18,13 @@ namespace Pinecone
 
 		m_Window = Window::Create();
 		m_Window->SetEventCallback(PC_BIND_EVENT_FN(Application::OnEvent));
+
+		Renderer::Init();
+	}
+
+	Application::~Application()
+	{
+		Renderer::Shutdown();
 	}
 
 	void Application::Close()
@@ -32,8 +43,11 @@ namespace Pinecone
 
 	void Application::Run()
 	{
+		RenderCommand::SetClearColor({ 1.0f, 0.0f, 1.0f, 1.0f });
 		while (m_Running)
 		{
+			RenderCommand::Clear();
+
 			m_Window->OnUpdate();
 		}
 	}
@@ -53,6 +67,7 @@ namespace Pinecone
 		}
 
 		m_Minimized = false;
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}
