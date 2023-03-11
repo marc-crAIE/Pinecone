@@ -1,0 +1,9 @@
+[submodule "Pinecone/vendor/GLFW"]
+	path = Pinecone/vendor/GLFW
+	url = https://github.com/marc-cr1810/glfw.git
+[submodule "Pinecone/vendor/glm"]
+	path = Pinecone/vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Pinecone/vendor/spdlog"]
+	path = Pinecone/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
