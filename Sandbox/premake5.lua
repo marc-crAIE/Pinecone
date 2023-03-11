@@ -18,7 +18,8 @@ project "Sandbox"
 		"%{wks.location}/Pinecone/vendor/spdlog/include",
 		"%{wks.location}/Pinecone/src",
 		"%{wks.location}/Pinecone/vendor",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.GLFW}",
 	}
 
 	links
@@ -30,16 +31,16 @@ project "Sandbox"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "AC_DEBUG"
+		defines "PC_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "AC_RELEASE"
+		defines "PC_RELEASE"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
-		defines "AC_DIST"
+		defines "PC_DIST"
 		runtime "Release"
 		optimize "on"

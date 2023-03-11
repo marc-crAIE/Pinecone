@@ -9,6 +9,9 @@
 	#define PC_DEBUGBREAK()
 #endif
 
+#define PC_EXPAND_MACRO(x) x
+#define PC_STRINGIFY_MACRO(x) #x
+
 namespace Pinecone
 {
 	template<typename T>
@@ -29,3 +32,4 @@ namespace Pinecone
 }
 
 #include "Pinecone/Core/Log.h"
+#include "Pinecone/Core/Assert.h"

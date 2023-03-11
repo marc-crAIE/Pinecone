@@ -9,10 +9,22 @@ namespace Pinecone
 
 	Application::Application()
 	{
+		PC_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
+
+		m_Window = Window::Create();
+	}
+
+	void Application::Close()
+	{
+		m_Running = false;
 	}
 
 	void Application::Run()
 	{
-		PC_CORE_INFO("Hello World!");
+		while (m_Running)
+		{
+			m_Window->OnUpdate();
+		}
 	}
 }
