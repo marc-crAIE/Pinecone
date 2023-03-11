@@ -23,7 +23,6 @@ namespace Pinecone {
 		static Ref<spdlog::logger> s_CoreLogger;
 		static Ref<spdlog::logger> s_ClientLogger;
 	};
-
 }
 
 template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
