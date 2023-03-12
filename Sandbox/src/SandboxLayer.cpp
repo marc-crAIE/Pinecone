@@ -1,5 +1,7 @@
 #include "SandboxLayer.h"
 
+#include "Scripts/CameraController.h"
+
 namespace Sandbox
 {
 	SandboxLayer::SandboxLayer()
@@ -22,6 +24,7 @@ namespace Sandbox
 		auto& cc = m_Camera.AddComponent<CameraComponent>();
 		cc.Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
 		cc.Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
+		m_Camera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
 	}
 
 	void SandboxLayer::OnDetach()
@@ -38,24 +41,6 @@ namespace Sandbox
 		if (Input::IsKeyPressed(Key::E))
 		{
 			pineconeTransform.Rotation -= glm::radians(glm::vec3{ 0.0f, 0.0f, 45.0f } * (float)ts);
-		}
-
-		auto& cameraTransform = m_Camera.GetComponent<TransformComponent>();
-		if (Input::IsKeyPressed(Key::W))
-		{
-			cameraTransform.Translation += glm::vec3{ 0.0f, 1.0f, 0.0f } * (float)ts;
-		}
-		if (Input::IsKeyPressed(Key::S))
-		{
-			cameraTransform.Translation += glm::vec3{ 0.0f, -1.0f, 0.0f } * (float)ts;
-		}
-		if (Input::IsKeyPressed(Key::A))
-		{
-			cameraTransform.Translation += glm::vec3{ -1.0f, 0.0f, 0.0f } * (float)ts;
-		}
-		if (Input::IsKeyPressed(Key::D))
-		{
-			cameraTransform.Translation += glm::vec3{ 1.0f, 0.0f, 0.0f } * (float)ts;
 		}
 
 		Renderer2D::ResetStats();

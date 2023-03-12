@@ -26,13 +26,31 @@ namespace Pinecone
 
 	void Scene::OnUpdate(Timestep ts)
 	{
+		// Update scripts
+		{
+			m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+				{
+					if (!nsc.Instance)
+					{
+						nsc.InstantiateFunction();
+						nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+
+						if (nsc.OnCreateFunction)
+							nsc.OnCreateFunction(nsc.Instance);
+					}
+
+			if (nsc.OnUpdateFunction)
+				nsc.OnUpdateFunction(nsc.Instance, ts);
+				});
+		}
+
 		// Get the main camera
 		Camera* mainCamera = nullptr;
 		glm::mat4* cameraTransform = nullptr;
 		auto cameras = m_Registry.view<TransformComponent, CameraComponent>();
-		for (auto entity : cameras)
+		for (auto go : cameras)
 		{
-			auto& [transform, camera] = cameras.get<TransformComponent, CameraComponent>(entity);
+			auto& [transform, camera] = cameras.get<TransformComponent, CameraComponent>(go);
 
 			if (camera.Primary)
 			{
@@ -64,9 +82,9 @@ namespace Pinecone
 		m_ViewportHeight = height;
 
 		auto view = m_Registry.view<CameraComponent>();
-		for (auto entity : view)
+		for (auto go : view)
 		{
-			auto& cameraComponent = view.get<CameraComponent>(entity);
+			auto& cameraComponent = view.get<CameraComponent>(go);
 			cameraComponent.Camera.SetViewportSize(width, height);
 		}
 	}

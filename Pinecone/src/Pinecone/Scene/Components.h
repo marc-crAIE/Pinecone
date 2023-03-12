@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pinecone/Scene/SceneCamera.h"
+#include "Pinecone/Scene/ScriptableGameObject.h"
 #include "Pinecone/Renderer/Texture2D.h"
 
 #include <glm/glm.hpp>
@@ -66,5 +67,29 @@ namespace Pinecone
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
+	};
+
+	// This a the component for native C++ scripting!
+	struct NativeScriptComponent
+	{
+		ScriptableGameObject* Instance = nullptr;
+
+		std::function<void()> InstantiateFunction;
+		std::function<void()> DestroyInstanceFunction;
+
+		std::function<void(ScriptableGameObject*)> OnCreateFunction;
+		std::function<void(ScriptableGameObject*)> OnDestroyFunction;
+		std::function<void(ScriptableGameObject*, Timestep)> OnUpdateFunction;
+
+		template<typename T>
+		void Bind()
+		{
+			InstantiateFunction = [&]() { Instance = new T(); };
+			DestroyInstanceFunction = [&]() { delete (T*)Instance; Instance = nullptr; };
+
+			OnCreateFunction = [](ScriptableGameObject* instance) { ((T*)instance)->OnCreate(); };
+			OnDestroyFunction = [](ScriptableGameObject* instance) { ((T*)instance)->OnDestroy(); };
+			OnUpdateFunction = [](ScriptableGameObject* instance, Timestep ts) { ((T*)instance)->OnUpdate(ts); };
+		}
 	};
 }
