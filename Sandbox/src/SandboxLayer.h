@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Pinecone.h"
+#include <Pinecone.h>
+#include <Pinecone/Scene/SceneCamera.h>
+#include <Pinecone/Events/KeyEvent.h>
 
 using namespace Pinecone;
 
@@ -18,9 +20,13 @@ namespace Sandbox
 		void OnUpdate() override;
 		void OnEvent(Event& e) override;
 	private:
+		bool OnKeyPressed(KeyPressedEvent& e);
+		bool OnWindowResized(WindowResizeEvent& e);
+
+	private:
 		Ref<Shader> m_Shader;
 		Ref<VertexArray> m_VertexArray;
 
-		Camera m_Camera;
+		SceneCamera m_Camera;
 	};
 }

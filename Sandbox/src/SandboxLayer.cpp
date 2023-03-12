@@ -3,15 +3,17 @@
 namespace Sandbox
 {
 	SandboxLayer::SandboxLayer()
-		: Layer("SandboxLayer"), m_Camera(glm::ortho(- 1.6f, 1.6f, -0.9f, 0.9f))
+		: Layer("SandboxLayer")
 	{ }
 
 	void SandboxLayer::OnAttach()
 	{
+		m_Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
+		m_Camera.SetOrthographic(10.0f, -1.0f, 1.0f);
+
 		m_VertexArray = VertexArray::Create();
 
 		// Our vertex data (Vec3 (position), Vec4 (Colour))
-		// Note: Nothing happens with colour at the moment as we don't yet have shaders!
 		float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
 			 0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
@@ -87,5 +89,18 @@ namespace Sandbox
 
 	void SandboxLayer::OnEvent(Event& e)
 	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowResizeEvent>(PC_BIND_EVENT_FN(SandboxLayer::OnWindowResized));
+	}
+
+	bool SandboxLayer::OnKeyPressed(KeyPressedEvent& e)
+	{
+		return false;
+	}
+
+	bool SandboxLayer::OnWindowResized(WindowResizeEvent& e)
+	{
+		m_Camera.SetViewportSize(e.GetWidth(), e.GetHeight());
+		return false;
 	}
 }
