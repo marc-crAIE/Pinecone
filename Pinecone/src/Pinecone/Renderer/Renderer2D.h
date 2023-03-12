@@ -15,6 +15,8 @@ namespace Pinecone
 		static void EndScene();
 		static void Flush();
 
+		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+
 		struct Statistics
 		{
 			uint32_t DrawCalls = 0;
