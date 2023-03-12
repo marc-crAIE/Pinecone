@@ -43,15 +43,16 @@ namespace Sandbox
 	{
 	}
 
-	void SandboxLayer::OnUpdate()
+	void SandboxLayer::OnUpdate(Timestep ts)
 	{
+		PC_INFO("FPS {0}", 1000 / ts.GetMilliseconds());
+
 		Renderer2D::ResetStats();
 		RenderCommand::Clear();
 
 		Renderer2D::BeginScene(m_Camera);
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-		Renderer2D::DrawQuad(transform, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+		Renderer2D::DrawQuad(glm::vec2(0.0f), glm::vec2(1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
 
 		Renderer2D::EndScene();
 	}

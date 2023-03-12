@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pinecone/Core/Base.h"
+#include "Pinecone/Core/Timestep.h"
 #include "Pinecone/Events/Event.h"
 
 namespace Pinecone
@@ -14,7 +15,7 @@ namespace Pinecone
 
 		virtual void OnAttach() { }
 		virtual void OnDetach() { }
-		virtual void OnUpdate() { }
+		virtual void OnUpdate(Timestep ts) { }
 		virtual void OnEvent(Event& event) { }
 
 		const std::string& GetName() const { return m_DebugName; }

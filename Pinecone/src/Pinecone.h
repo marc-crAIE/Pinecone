@@ -6,6 +6,7 @@
 #include "Pinecone/Core/Layer.h"
 #include "Pinecone/Core/Assert.h"
 #include "Pinecone/Core/Log.h"
+#include "Pinecone/Core/Timestep.h"
 
 #include "Pinecone/Core/Input.h"
 #include "Pinecone/Core/KeyCodes.h"

@@ -3,10 +3,7 @@
 
 #include "Pinecone/Core/Log.h"
 #include "Pinecone/Renderer/Renderer.h"
-
-// TEMPORARY
-#include "Pinecone/Renderer/RenderCommand.h"
-#include <glad/glad.h>
+#include "Pinecone/Utils/Utils.h"
 
 namespace Pinecone
 {
@@ -63,10 +60,14 @@ namespace Pinecone
 	{
 		while (m_Running)
 		{
+			float time = Time::GetTime();
+			Timestep ts = time - m_LastFrameTime;
+			m_LastFrameTime = time;
+
 			if (!m_Minimized)
 			{
 				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate();
+					layer->OnUpdate(ts);
 			}
 
 			m_Window->OnUpdate();

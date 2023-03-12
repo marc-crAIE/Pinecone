@@ -3,15 +3,10 @@
 #include "Pinecone/Core/Base.h"
 #include "Pinecone/Core/Window.h"
 #include "Pinecone/Core/LayerStack.h"
+#include "Pinecone/Core/Timestep.h"
 
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Events/ApplicationEvent.h"
-
-// TEMPORARY
-
-#include "Pinecone/Renderer/Shader.h"
-#include "Pinecone/Renderer/VertexArray.h"
-#include "Pinecone/Renderer/Camera.h"
 
 int main(int argc, char** argv);
 
@@ -42,6 +37,7 @@ namespace Pinecone
 		bool m_Running = true;
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;
+		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
