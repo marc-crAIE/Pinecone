@@ -18,10 +18,8 @@ namespace Sandbox
 		m_ActiveScene = CreateRef<Scene>();
 
 		m_Square = m_ActiveScene->CreateGameObject();
-		m_ActiveScene->GetRegistry().emplace<TransformComponent>(m_Square);
-		m_ActiveScene->GetRegistry().emplace<SpriteRendererComponent>(m_Square);
-
-		m_ActiveScene->GetRegistry().get<SpriteRendererComponent>(m_Square).Color = glm::vec4(0.2f, 0.4f, 0.8f, 1.0f);
+		auto& sprite = m_Square.AddComponent<SpriteComponent>();
+		sprite.Color = { 0.2f, 0.5f, 0.9f, 1.0f };
 	}
 
 	void SandboxLayer::OnDetach()

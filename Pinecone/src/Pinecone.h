@@ -13,6 +13,7 @@
 #include "Pinecone/Core/MouseCodes.h"
 
 #include "Pinecone/Scene/Scene.h"
+#include "Pinecone/Scene/GameObject.h"
 #include "Pinecone/Scene/Components.h"
 
 //// Renderer
