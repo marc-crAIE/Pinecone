@@ -51,7 +51,7 @@ namespace Pinecone
 			for (auto e : sprites)
 			{
 				auto& [transform, sprite] = sprites.get<TransformComponent, SpriteComponent>(e);
-				Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+				Renderer2D::DrawSprite(transform.GetTransform(), sprite);
 			}
 
 			Renderer2D::EndScene();

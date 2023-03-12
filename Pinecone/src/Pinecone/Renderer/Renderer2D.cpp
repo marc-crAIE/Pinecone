@@ -274,6 +274,14 @@ namespace Pinecone
 		s_Data.Stats.QuadCount++;
 	}
 
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteComponent& sprite)
+	{
+		if (sprite.Texture)
+			DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color);
+		else
+			DrawQuad(transform, sprite.Color);
+	}
+
 	void Renderer2D::NextBatch()
 	{
 		Flush();

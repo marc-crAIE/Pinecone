@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pinecone/Scene/SceneCamera.h"
+#include "Pinecone/Renderer/Texture2D.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -48,11 +49,14 @@ namespace Pinecone
 	struct SpriteComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> Texture;
+		float TilingFactor = 1.0f;
 
 		SpriteComponent() = default;
 		SpriteComponent(const SpriteComponent&) = default;
 		SpriteComponent(const glm::vec4& color)
-			: Color(color) {}
+			: Color(color)
+		{}
 	};
 
 	struct CameraComponent

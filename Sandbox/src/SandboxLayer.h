@@ -24,7 +24,6 @@ namespace Sandbox
 		bool OnWindowResized(WindowResizeEvent& e);
 	private:
 		Ref<Texture2D> m_PineconeTexture;
-		float m_PineconeRotation = 0.0f;
 
 		Ref<Scene> m_ActiveScene;
 

@@ -16,7 +16,7 @@ namespace Sandbox
 
 		m_Square = m_ActiveScene->CreateGameObject();
 		auto& sprite = m_Square.AddComponent<SpriteComponent>();
-		sprite.Color = { 0.2f, 0.5f, 0.9f, 1.0f };
+		sprite.Texture = m_PineconeTexture;
 
 		m_Camera = m_ActiveScene->CreateGameObject("Camera");
 		auto& cc = m_Camera.AddComponent<CameraComponent>();
@@ -30,13 +30,14 @@ namespace Sandbox
 
 	void SandboxLayer::OnUpdate(Timestep ts)
 	{
+		auto& pineconeTransform = m_Square.GetComponent<TransformComponent>();
 		if (Input::IsKeyPressed(Key::Q))
 		{
-			m_PineconeRotation += 45.0f * ts;
+			pineconeTransform.Rotation += glm::radians(glm::vec3{ 0.0f, 0.0f, 45.0f } * (float)ts);
 		}
 		if (Input::IsKeyPressed(Key::E))
 		{
-			m_PineconeRotation -= 45.0f * ts;
+			pineconeTransform.Rotation -= glm::radians(glm::vec3{ 0.0f, 0.0f, 45.0f } * (float)ts);
 		}
 
 		auto& cameraTransform = m_Camera.GetComponent<TransformComponent>();
