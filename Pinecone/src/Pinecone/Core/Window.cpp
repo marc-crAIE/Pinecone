@@ -5,6 +5,8 @@
 #include "Pinecone/Events/KeyEvent.h"
 #include "Pinecone/Events/MouseEvent.h"
 
+#include <GLFW/glfw3.h>
+
 namespace Pinecone
 {
 	static uint8_t s_GLFWWindowCount = 0;

@@ -19,7 +19,7 @@ project "Sandbox"
 		"%{wks.location}/Pinecone/src",
 		"%{wks.location}/Pinecone/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.entt}"
 	}
 
 	links

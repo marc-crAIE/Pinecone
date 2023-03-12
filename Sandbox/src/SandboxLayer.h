@@ -25,6 +25,11 @@ namespace Sandbox
 
 	private:
 		Ref<Texture2D> m_PineconeTexture;
+		float m_PineconeRotation = 0.0f;
+
+		Ref<Scene> m_ActiveScene;
+
+		entt::entity m_Square;
 
 		SceneCamera m_Camera;
 	};

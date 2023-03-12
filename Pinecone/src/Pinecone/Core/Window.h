@@ -6,8 +6,6 @@
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Renderer/OpenGLContext.h"
 
-#include <GLFW/glfw3.h>
-
 namespace Pinecone
 {
 	struct WindowProps

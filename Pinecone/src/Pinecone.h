@@ -12,6 +12,9 @@
 #include "Pinecone/Core/KeyCodes.h"
 #include "Pinecone/Core/MouseCodes.h"
 
+#include "Pinecone/Scene/Scene.h"
+#include "Pinecone/Scene/Components.h"
+
 //// Renderer
 #include "Pinecone/Renderer/Renderer.h"
 #include "Pinecone/Renderer/Renderer2D.h"
