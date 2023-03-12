@@ -13,6 +13,7 @@
 
 //// Renderer
 #include "Pinecone/Renderer/Renderer.h"
+#include "Pinecone/Renderer/Renderer2D.h"
 #include "Pinecone/Renderer/RenderCommand.h"
 
 #include "Pinecone/Renderer/Buffer.h"

@@ -45,7 +45,12 @@ namespace Sandbox
 
 	void SandboxLayer::OnUpdate()
 	{
+		Renderer2D::ResetStats();
 		RenderCommand::Clear();
+
+		Renderer2D::BeginScene(m_Camera);
+
+		Renderer2D::EndScene();
 
 		Renderer::BeginScene(m_Camera);
 

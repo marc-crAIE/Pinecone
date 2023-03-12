@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 #include "Pinecone/Renderer/RenderCommand.h"
+#include "Pinecone/Renderer/Renderer2D.h"
 
 namespace Pinecone
 {
@@ -10,10 +11,12 @@ namespace Pinecone
 	void Renderer::Init()
 	{
 		RenderCommand::Init();
+		Renderer2D::Init();
 	}
 
 	void Renderer::Shutdown()
 	{
+		Renderer2D::Shutdown();
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray)
