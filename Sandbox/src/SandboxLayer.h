@@ -24,8 +24,7 @@ namespace Sandbox
 		bool OnWindowResized(WindowResizeEvent& e);
 
 	private:
-		Ref<Shader> m_Shader;
-		Ref<VertexArray> m_VertexArray;
+		Ref<Texture2D> m_PineconeTexture;
 
 		SceneCamera m_Camera;
 	};

@@ -1,7 +1,7 @@
 #pragma once
 #include "Texture.h"
 
-#include <glad/glad.h>
+typedef unsigned int GLenum;
 
 namespace Pinecone
 {

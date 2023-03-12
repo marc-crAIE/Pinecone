@@ -1,32 +1,63 @@
 #type vertex
-#version 450 core
-			
+#version 440 core
+
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color;
+layout(location = 2) in vec2 a_TexCoord;
+layout(location = 3) in float a_TexIndex;
+layout(location = 4) in float a_TilingFactor;
 
 layout(std140, binding = 0) uniform Camera
 {
 	mat4 u_ViewProjection;
 };
-			
-out vec3 v_Position;
-out vec4 v_Color;
+
+struct VertexOutput
+{
+	vec4 Color;
+	vec2 TexCoord;
+	float TilingFactor;
+};
+
+layout(location = 0) out VertexOutput Output;
+layout(location = 3) out flat float v_TexIndex;
+
 void main()
 {
-	v_Position = a_Position;
-	v_Color = a_Color;
-	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
+	Output.Color = a_Color;
+	Output.TexCoord = a_TexCoord;
+	Output.TilingFactor = a_TilingFactor;
+	v_TexIndex = a_TexIndex;
+
+	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 }
 
 #type fragment
-#version 450 core
-			
-layout(location = 0) out vec4 color;
-			
-in vec3 v_Position;
-in vec4 v_Color;
+#version 440 core
+
+layout(location = 0) out vec4 o_Color;
+
+struct VertexOutput
+{
+	vec4 Color;
+	vec2 TexCoord;
+	float TilingFactor;
+};
+
+layout(location = 0) in VertexOutput Input;
+layout(location = 3) in flat float v_TexIndex;
+
+layout(binding = 0) uniform sampler2D u_Textures[32];
+
 void main()
 {
-	color = vec4(v_Position * 0.5 + 0.5, 1.0);
-	color = v_Color;
+	vec4 texColor = Input.Color;
+	highp int texIndex = int(v_TexIndex);
+
+	texColor *= texture(u_Textures[texIndex], Input.TexCoord * Input.TilingFactor);
+
+	if (texColor.a == 0.0)
+		discard;
+
+	o_Color = texColor;
 }

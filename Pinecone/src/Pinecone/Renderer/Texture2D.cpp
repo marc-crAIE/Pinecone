@@ -1,6 +1,7 @@
 #include "pcpch.h"
 #include "Texture2D.h"
 
+#include <glad/glad.h>
 #include <stb_image.h>
 
 namespace Pinecone

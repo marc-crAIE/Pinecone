@@ -22,5 +22,8 @@
 #include "Pinecone/Renderer/IndexBuffer.h"
 #include "Pinecone/Renderer/VertexArray.h"
 
+#include "Pinecone/Renderer/Texture.h"
+#include "Pinecone/Renderer/Texture2D.h"
+
 #include "Pinecone/Renderer/Shader.h"
 ////
