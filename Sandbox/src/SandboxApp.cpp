@@ -1,14 +1,24 @@
 #include <Pinecone.h>
 #include <Pinecone/Core/EntryPoint.h>
 
+#include "SandboxLayer.h"
+
 using namespace Pinecone;
 
-class SandboxApp : public Application
+namespace Sandbox
 {
-
-};
+	class SandboxApp : public Application
+	{
+	public:
+		SandboxApp()
+			: Application()
+		{
+			PushLayer(new SandboxLayer());
+		}
+	};
+}
 
 Application* Pinecone::CreateApplication()
 {
-	return new SandboxApp();
+	return new Sandbox::SandboxApp();
 }

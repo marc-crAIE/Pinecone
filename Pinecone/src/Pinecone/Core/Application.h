@@ -2,6 +2,7 @@
 
 #include "Pinecone/Core/Base.h"
 #include "Pinecone/Core/Window.h"
+#include "Pinecone/Core/LayerStack.h"
 
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Events/ApplicationEvent.h"
@@ -24,6 +25,9 @@ namespace Pinecone
 
 		void OnEvent(Event& e);
 
+		void PushLayer(Layer* layer);
+		void PushOverlay(Layer* overlay);
+
 		Window& GetWindow() { return *m_Window; }
 
 		void Close();
@@ -37,17 +41,10 @@ namespace Pinecone
 		Scope<Window> m_Window;
 		bool m_Running = true;
 		bool m_Minimized = false;
+		LayerStack m_LayerStack;
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
-
-
-		// Temporary stuff
-	private:
-		Ref<Shader> m_Shader;
-		Ref<VertexArray> m_VertexArray;
-
-		Camera m_Camera;
 	};
 
 	// To be defined in the client program
