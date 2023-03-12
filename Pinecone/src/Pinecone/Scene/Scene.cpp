@@ -27,22 +27,18 @@ namespace Pinecone
 	void Scene::OnUpdate(Timestep ts)
 	{
 		// Update scripts
-		{
-			m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+		m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+			{
+				if (!nsc.Instance)
 				{
-					if (!nsc.Instance)
-					{
-						nsc.InstantiateFunction();
-						nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->m_GameObject = GameObject{ gameObject, this };
 
-						if (nsc.OnCreateFunction)
-							nsc.OnCreateFunction(nsc.Instance);
-					}
+					nsc.Instance->OnCreate();
+				}
 
-			if (nsc.OnUpdateFunction)
-				nsc.OnUpdateFunction(nsc.Instance, ts);
-				});
-		}
+				nsc.Instance->OnUpdate(ts);
+			});
 
 		// Get the main camera
 		Camera* mainCamera = nullptr;
@@ -50,7 +46,7 @@ namespace Pinecone
 		auto cameras = m_Registry.view<TransformComponent, CameraComponent>();
 		for (auto go : cameras)
 		{
-			auto& [transform, camera] = cameras.get<TransformComponent, CameraComponent>(go);
+			auto [transform, camera] = cameras.get<TransformComponent, CameraComponent>(go);
 
 			if (camera.Primary)
 			{
@@ -68,7 +64,7 @@ namespace Pinecone
 			auto sprites = m_Registry.group<TransformComponent>(entt::get<SpriteComponent>);
 			for (auto e : sprites)
 			{
-				auto& [transform, sprite] = sprites.get<TransformComponent, SpriteComponent>(e);
+				auto [transform, sprite] = sprites.get<TransformComponent, SpriteComponent>(e);
 				Renderer2D::DrawSprite(transform.GetTransform(), sprite);
 			}
 

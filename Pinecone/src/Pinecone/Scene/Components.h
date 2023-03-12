@@ -74,22 +74,14 @@ namespace Pinecone
 	{
 		ScriptableGameObject* Instance = nullptr;
 
-		std::function<void()> InstantiateFunction;
-		std::function<void()> DestroyInstanceFunction;
-
-		std::function<void(ScriptableGameObject*)> OnCreateFunction;
-		std::function<void(ScriptableGameObject*)> OnDestroyFunction;
-		std::function<void(ScriptableGameObject*, Timestep)> OnUpdateFunction;
+		ScriptableGameObject* (*InstantiateScript)();
+		void (*DestroyScript)(NativeScriptComponent*);
 
 		template<typename T>
 		void Bind()
 		{
-			InstantiateFunction = [&]() { Instance = new T(); };
-			DestroyInstanceFunction = [&]() { delete (T*)Instance; Instance = nullptr; };
-
-			OnCreateFunction = [](ScriptableGameObject* instance) { ((T*)instance)->OnCreate(); };
-			OnDestroyFunction = [](ScriptableGameObject* instance) { ((T*)instance)->OnDestroy(); };
-			OnUpdateFunction = [](ScriptableGameObject* instance, Timestep ts) { ((T*)instance)->OnUpdate(ts); };
+			InstantiateScript = []() { return static_cast<ScriptableGameObject*>(new T()); };
+			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
 	};
 }
