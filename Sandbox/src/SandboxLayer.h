@@ -29,7 +29,6 @@ namespace Sandbox
 		Ref<Scene> m_ActiveScene;
 
 		GameObject m_Square;
-
-		SceneCamera m_Camera;
+		GameObject m_Camera;
 	};
 }

@@ -8,9 +8,6 @@ namespace Sandbox
 
 	void SandboxLayer::OnAttach()
 	{
-		m_Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
-		m_Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
-
 		m_PineconeTexture = Texture2D::Create("assets/textures/pinecone.png");
 
 		RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
@@ -20,6 +17,11 @@ namespace Sandbox
 		m_Square = m_ActiveScene->CreateGameObject();
 		auto& sprite = m_Square.AddComponent<SpriteComponent>();
 		sprite.Color = { 0.2f, 0.5f, 0.9f, 1.0f };
+
+		m_Camera = m_ActiveScene->CreateGameObject("Camera");
+		auto& cc = m_Camera.AddComponent<CameraComponent>();
+		cc.Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
+		cc.Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
 	}
 
 	void SandboxLayer::OnDetach()
@@ -32,22 +34,33 @@ namespace Sandbox
 		{
 			m_PineconeRotation += 45.0f * ts;
 		}
-		else if (Input::IsKeyPressed(Key::E))
+		if (Input::IsKeyPressed(Key::E))
 		{
 			m_PineconeRotation -= 45.0f * ts;
+		}
+
+		auto& cameraTransform = m_Camera.GetComponent<TransformComponent>();
+		if (Input::IsKeyPressed(Key::W))
+		{
+			cameraTransform.Translation += glm::vec3{ 0.0f, 1.0f, 0.0f } * (float)ts;
+		}
+		if (Input::IsKeyPressed(Key::S))
+		{
+			cameraTransform.Translation += glm::vec3{ 0.0f, -1.0f, 0.0f } * (float)ts;
+		}
+		if (Input::IsKeyPressed(Key::A))
+		{
+			cameraTransform.Translation += glm::vec3{ -1.0f, 0.0f, 0.0f } * (float)ts;
+		}
+		if (Input::IsKeyPressed(Key::D))
+		{
+			cameraTransform.Translation += glm::vec3{ 1.0f, 0.0f, 0.0f } * (float)ts;
 		}
 
 		Renderer2D::ResetStats();
 		RenderCommand::Clear();
 
-		Renderer2D::BeginScene(m_Camera);
-
 		m_ActiveScene->OnUpdate(ts);
-
-		Renderer2D::DrawRotatedQuad(glm::vec2(0.0f), glm::vec2(1.0f), glm::radians(45.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-		Renderer2D::DrawRotatedQuad(glm::vec2(1.0f), glm::vec2(1.0f), glm::radians(m_PineconeRotation), m_PineconeTexture);
-
-		Renderer2D::EndScene();
 	}
 
 	void SandboxLayer::OnEvent(Event& e)
@@ -64,7 +77,7 @@ namespace Sandbox
 
 	bool SandboxLayer::OnWindowResized(WindowResizeEvent& e)
 	{
-		m_Camera.SetViewportSize(e.GetWidth(), e.GetHeight());
+		m_ActiveScene->OnViewportResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 }
