@@ -9,15 +9,15 @@ namespace Sandbox
 	class CameraController : public ScriptableGameObject
 	{
 	public:
-		void OnCreate()
+		void OnCreate() override
 		{
 		}
 
-		void OnDestroy()
+		void OnDestory() override
 		{
 		}
 
-		void OnUpdate(Timestep ts)
+		void OnUpdate(Timestep ts) override
 		{
 			auto& transform = GetComponent<TransformComponent>();
 			float speed = 5.0f;
