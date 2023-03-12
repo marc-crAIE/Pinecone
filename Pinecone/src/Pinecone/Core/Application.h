@@ -10,6 +10,7 @@
 
 #include "Pinecone/Renderer/Shader.h"
 #include "Pinecone/Renderer/VertexArray.h"
+#include "Pinecone/Renderer/Camera.h"
 
 int main(int argc, char** argv);
 
@@ -45,6 +46,8 @@ namespace Pinecone
 	private:
 		Ref<Shader> m_Shader;
 		Ref<VertexArray> m_VertexArray;
+
+		Camera m_Camera;
 	};
 
 	// To be defined in the client program
