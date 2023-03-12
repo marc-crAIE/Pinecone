@@ -9,7 +9,7 @@ namespace Sandbox
 	void SandboxLayer::OnAttach()
 	{
 		m_Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
-		m_Camera.SetOrthographic(10.0f, -1.0f, 1.0f);
+		m_Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
 
 		m_VertexArray = VertexArray::Create();
 
@@ -34,40 +34,7 @@ namespace Sandbox
 		std::shared_ptr<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
-
-		std::string vertexSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-
-			uniform mat4 u_ViewProjection;
-			
-			out vec3 v_Position;
-			out vec4 v_Color;
-			void main()
-			{
-				v_Position = a_Position;
-				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
-			}
-		)";
-
-		std::string fragmentSrc = R"(
-			#version 330 core
-			
-			layout(location = 0) out vec4 color;
-			
-			in vec3 v_Position;
-			in vec4 v_Color;
-			void main()
-			{
-				color = vec4(v_Position * 0.5 + 0.5, 1.0);
-				color = v_Color;
-			}
-		)";
-
-		m_Shader = Shader::Create(vertexSrc, fragmentSrc);
+		m_Shader = Shader::Create("assets/shaders/Basic.glsl");
 
 		RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	}

@@ -1,10 +1,15 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
+typedef uint32_t GLenum;
+
 namespace Pinecone
 {
 	class Shader
 	{
 	public:
+		Shader(const std::string& filepath);
 		Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
 		~Shader();
 
@@ -22,7 +27,12 @@ namespace Pinecone
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 
+		static Ref<Shader> Create(const std::string& filepath);
 		static Ref<Shader> Create(const std::string& vertexSrc, const std::string& fragmentSrc);
+	private:
+		std::string ReadFile(const std::string& filepath);
+		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
+		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 	private:
 		uint32_t m_RendererID;
 	};
