@@ -79,6 +79,12 @@ namespace Pinecone
 
 	void Scene::DestroyGameObject(GameObject gameObject)
 	{
+		if (gameObject.HasComponent<NativeScriptComponent>())
+		{
+			auto nsc = gameObject.GetComponent<NativeScriptComponent>();
+			nsc.Instance->OnDestroy();
+			nsc.DestroyScript(&nsc);
+		}
 		m_Registry.destroy(gameObject);
 	}
 

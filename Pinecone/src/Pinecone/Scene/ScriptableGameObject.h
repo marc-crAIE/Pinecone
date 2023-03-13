@@ -7,10 +7,7 @@ namespace Pinecone
 	class ScriptableGameObject
 	{
 	public:
-		virtual ~ScriptableGameObject() 
-		{
-			OnDestroy();
-		}
+		virtual ~ScriptableGameObject() { }
 
 		//// GameObject functions
 
