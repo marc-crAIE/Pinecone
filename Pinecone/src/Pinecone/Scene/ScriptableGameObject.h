@@ -7,7 +7,10 @@ namespace Pinecone
 	class ScriptableGameObject
 	{
 	public:
-		virtual ~ScriptableGameObject() {}
+		virtual ~ScriptableGameObject() 
+		{
+			OnDestroy();
+		}
 
 		//// GameObject functions
 
@@ -42,7 +45,7 @@ namespace Pinecone
 		GameObject GetGameObject() const { return m_GameObject; }
 	protected:
 		virtual void OnCreate() {}
-		virtual void OnDestory() {}
+		virtual void OnDestroy() {}
 		virtual void OnUpdate(Timestep ts) {}
 	private:
 		GameObject m_GameObject;
