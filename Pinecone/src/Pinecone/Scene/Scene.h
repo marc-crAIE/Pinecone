@@ -15,6 +15,7 @@ namespace Pinecone
 		~Scene();
 
 		GameObject CreateGameObject(const std::string& name = std::string());
+		void DestroyGameObject(GameObject gameObject);
 
 		void OnUpdate(Timestep ts);
 

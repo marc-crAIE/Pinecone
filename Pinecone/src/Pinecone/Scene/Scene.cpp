@@ -24,6 +24,11 @@ namespace Pinecone
 		return gameObject;
 	}
 
+	void Scene::DestroyGameObject(GameObject gameObject)
+	{
+		m_Registry.destroy(gameObject);
+	}
+
 	void Scene::OnUpdate(Timestep ts)
 	{
 		// Update scripts
