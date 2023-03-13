@@ -21,9 +21,9 @@ namespace Pinecone
 		// Update scripts
 		m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
 			{
-				if (!nsc.Instance)
+				if (!nsc.Instantiated)
 				{
-					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instantiated = true;
 					nsc.Instance->m_GameObject = GameObject{ gameObject, this };
 					nsc.Instance->m_SceneContext = this;
 

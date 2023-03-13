@@ -24,7 +24,7 @@ namespace Sandbox
 		auto& cc = m_Camera.AddComponent<CameraComponent>();
 		cc.Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
 		cc.Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
-		m_Camera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+		m_Camera.AddComponent<NativeScriptComponent>().Bind<CameraController>(std::string("test"));
 
 		auto test = m_ActiveScene->GetGameObjectByTag("Pinecone");
 		test.GetComponent<SpriteComponent>().Color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);

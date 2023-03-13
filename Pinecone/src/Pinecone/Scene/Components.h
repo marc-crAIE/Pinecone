@@ -86,13 +86,14 @@ namespace Pinecone
 	{
 		ScriptableGameObject* Instance = nullptr;
 
-		ScriptableGameObject* (*InstantiateScript)();
 		void (*DestroyScript)(NativeScriptComponent*);
 
-		template<typename T>
-		void Bind()
+		bool Instantiated = false;
+
+		template<typename T, typename... Args>
+		void Bind(Args&&... args)
 		{
-			InstantiateScript = []() { return static_cast<ScriptableGameObject*>(new T()); };
+			Instance = static_cast<ScriptableGameObject*>(new T(std::forward<Args>(args)...));
 			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
 	};

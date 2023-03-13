@@ -9,6 +9,11 @@ namespace Sandbox
 	class CameraController : public ScriptableGameObject
 	{
 	public:
+		CameraController(std::string& test)
+		{
+			PC_INFO("CameraComponent: {0}", test);
+		}
+
 		void OnCreate() override
 		{
 			auto objects = GetScene()->GetGameObjectsByTag("TestObject");
