@@ -38,6 +38,8 @@ namespace Pinecone
 		//// Scene interation functions
 
 		Scene* GetScene() { return m_SceneContext; }
+
+		GameObject GetGameObject() const { return m_GameObject; }
 	protected:
 		virtual void OnCreate() {}
 		virtual void OnDestory() {}
