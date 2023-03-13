@@ -11,6 +11,8 @@ namespace Sandbox
 	public:
 		void OnCreate() override
 		{
+			auto objects = GetScene()->GetGameObjectsByTag("TestObject");
+			PC_INFO("TestObject Count: {0}", objects.size());
 		}
 
 		void OnDestory() override

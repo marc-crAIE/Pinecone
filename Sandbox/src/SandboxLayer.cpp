@@ -31,9 +31,6 @@ namespace Sandbox
 
 		for (int i = 0; i < 5; i++)
 			m_ActiveScene->CreateGameObject("TestObject");
-
-		auto objects = m_ActiveScene->GetGameObjectsByTag("TestObject");
-		PC_INFO("TestObject Count: {0}", objects.size());
 	}
 
 	void SandboxLayer::OnDetach()

@@ -25,6 +25,7 @@ namespace Pinecone
 				{
 					nsc.Instance = nsc.InstantiateScript();
 					nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+					nsc.Instance->m_SceneContext = this;
 
 					nsc.Instance->OnCreate();
 				}
