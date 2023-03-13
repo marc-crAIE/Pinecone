@@ -4,6 +4,7 @@
 #include "Pinecone/Renderer/Renderer2D.h"
 #include "Pinecone/Scene/GameObject.h"
 #include "Pinecone/Scene/Components.h"
+#include "Pinecone/Scene/ScriptableGameObject.h"
 
 namespace Pinecone
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pinecone/Scene/Scene.h"
+#include "Pinecone/Scene/Components.h"
 
 #include <entt.hpp>
 

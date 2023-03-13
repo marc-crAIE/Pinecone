@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Pinecone/Scene/SceneCamera.h"
-#include "Pinecone/Scene/ScriptableGameObject.h"
 #include "Pinecone/Renderer/Texture2D.h"
 
 #include <glm/glm.hpp>
@@ -70,6 +69,7 @@ namespace Pinecone
 	};
 
 	// This a the component for native C++ scripting!
+	class ScriptableGameObject;
 	struct NativeScriptComponent
 	{
 		ScriptableGameObject* Instance = nullptr;
