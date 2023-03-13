@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Pinecone/Core/UUID.h"
 #include "Pinecone/Scene/SceneCamera.h"
 #include "Pinecone/Renderer/Texture2D.h"
 
@@ -11,6 +12,17 @@
 
 namespace Pinecone
 {
+	struct IDComponent
+	{
+		UUID ID;
+
+		IDComponent() = default;
+		IDComponent(const IDComponent&) = default;
+
+		operator UUID& () { return ID; }
+		operator const UUID& () { return ID; }
+	};
+
 	struct TagComponent
 	{
 		std::string Tag;

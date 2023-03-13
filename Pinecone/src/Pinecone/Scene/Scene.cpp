@@ -16,20 +16,6 @@ namespace Pinecone
 	{
 	}
 
-	GameObject Scene::CreateGameObject(const std::string& name)
-	{
-		GameObject gameObject = { m_Registry.create(), this };
-		gameObject.AddComponent<TransformComponent>();
-		auto& tag = gameObject.AddComponent<TagComponent>();
-		tag.Tag = name.empty() ? "GameObject" : name;
-		return gameObject;
-	}
-
-	void Scene::DestroyGameObject(GameObject gameObject)
-	{
-		m_Registry.destroy(gameObject);
-	}
-
 	void Scene::OnUpdate(Timestep ts)
 	{
 		// Update scripts
@@ -76,6 +62,67 @@ namespace Pinecone
 
 			Renderer2D::EndScene();
 		}
+	}
+
+	GameObject Scene::CreateGameObject(const std::string& name)
+	{
+		GameObject gameObject = { m_Registry.create(), this };
+		UUID uuid;
+		gameObject.AddComponent<IDComponent>(uuid);
+		gameObject.AddComponent<TransformComponent>();
+		auto& tag = gameObject.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "GameObject" : name;
+		m_GameObjectMap[uuid] = gameObject;
+		return gameObject;
+	}
+
+	void Scene::DestroyGameObject(GameObject gameObject)
+	{
+		m_Registry.destroy(gameObject);
+	}
+
+	GameObject Scene::GetGameObjectByTag(std::string_view name)
+	{
+		auto view = m_Registry.view<TagComponent>();
+		for (auto gameObject : view)
+		{
+			const TagComponent& tc = view.get<TagComponent>(gameObject);
+			if (tc.Tag == name)
+				return GameObject{ gameObject, this };
+		}
+		return {};
+	}
+
+	GameObject Scene::GetGameObjectByUUID(UUID uuid)
+	{
+		if (m_GameObjectMap.find(uuid) != m_GameObjectMap.end())
+			return { m_GameObjectMap.at(uuid), this };
+		return {};
+	}
+
+	std::vector<GameObject> Scene::GetGameObjectsByTag(std::string_view name)
+	{
+		std::vector<GameObject> objects;
+		auto view = m_Registry.view<TagComponent>();
+		for (auto gameObject : view)
+		{
+			const TagComponent& tc = view.get<TagComponent>(gameObject);
+			if (tc.Tag == name)
+				objects.push_back(GameObject{ gameObject, this });
+		}
+		return objects;
+	}
+
+	GameObject Scene::GetPrimaryCameraGameObject()
+	{
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto gameObject : view)
+		{
+			const auto& camera = view.get<CameraComponent>(gameObject);
+			if (camera.Primary)
+				return GameObject{ gameObject, this };
+		}
+		return {};
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)

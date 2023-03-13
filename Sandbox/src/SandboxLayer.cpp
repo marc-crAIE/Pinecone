@@ -16,7 +16,7 @@ namespace Sandbox
 
 		m_ActiveScene = CreateRef<Scene>();
 
-		m_Square = m_ActiveScene->CreateGameObject();
+		m_Square = m_ActiveScene->CreateGameObject("Pinecone");
 		auto& sprite = m_Square.AddComponent<SpriteComponent>();
 		sprite.Texture = m_PineconeTexture;
 
@@ -25,6 +25,15 @@ namespace Sandbox
 		cc.Camera.SetViewportSize(Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
 		cc.Camera.SetOrthographic(5.0f, -1.0f, 1.0f);
 		m_Camera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
+		auto test = m_ActiveScene->GetGameObjectByTag("Pinecone");
+		test.GetComponent<SpriteComponent>().Color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+
+		for (int i = 0; i < 5; i++)
+			m_ActiveScene->CreateGameObject("TestObject");
+
+		auto objects = m_ActiveScene->GetGameObjectsByTag("TestObject");
+		PC_INFO("TestObject Count: {0}", objects.size());
 	}
 
 	void SandboxLayer::OnDetach()
