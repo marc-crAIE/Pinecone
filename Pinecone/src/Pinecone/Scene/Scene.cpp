@@ -30,11 +30,7 @@ namespace Pinecone
 					nsc.Instance->OnCreate();
 				}
 				
-				try
-				{
-					nsc.Instance->OnUpdate(ts);
-				}
-				catch (...) {}
+				nsc.Instance->OnUpdate(ts);
 			});
 
 		// Get the main camera
@@ -87,7 +83,6 @@ namespace Pinecone
 		{
 			auto nsc = gameObject.GetComponent<NativeScriptComponent>();
 			nsc.Instance->OnDestroy();
-			nsc.DestroyScript(&nsc);
 		}
 		gameObject.Destroy();
 	}
