@@ -44,10 +44,6 @@ namespace Pinecone
 
 		void Destroy()
 		{
-			if (m_EntityHandle == entt::null)
-				return;
-
-			m_EntityHandle = entt::null;
 			m_Scene->m_Registry.destroy(m_EntityHandle);
 		}
 

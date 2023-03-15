@@ -30,9 +30,11 @@ namespace Pinecone
 					nsc.Instance->OnCreate();
 				}
 				
-				// Check if the NSC Instance is null incase the object was destroyed before it was updated
-				if (nsc.Instance != nullptr)
+				try
+				{
 					nsc.Instance->OnUpdate(ts);
+				}
+				catch (...) {}
 			});
 
 		// Get the main camera
