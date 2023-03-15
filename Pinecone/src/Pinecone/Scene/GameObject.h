@@ -42,6 +42,15 @@ namespace Pinecone
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 
+		void Destroy()
+		{
+			if (m_EntityHandle == entt::null)
+				return;
+
+			m_EntityHandle = entt::null;
+			m_Scene->m_Registry.destroy(m_EntityHandle);
+		}
+
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }

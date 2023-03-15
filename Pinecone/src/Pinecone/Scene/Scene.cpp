@@ -29,8 +29,10 @@ namespace Pinecone
 
 					nsc.Instance->OnCreate();
 				}
-
-				nsc.Instance->OnUpdate(ts);
+				
+				// Check if the NSC Instance is null incase the object was destroyed before it was updated
+				if (nsc.Instance != nullptr)
+					nsc.Instance->OnUpdate(ts);
 			});
 
 		// Get the main camera
@@ -85,7 +87,7 @@ namespace Pinecone
 			nsc.Instance->OnDestroy();
 			nsc.DestroyScript(&nsc);
 		}
-		m_Registry.destroy(gameObject);
+		gameObject.Destroy();
 	}
 
 	GameObject Scene::GetGameObjectByTag(std::string_view name)

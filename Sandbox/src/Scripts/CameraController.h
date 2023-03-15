@@ -18,8 +18,6 @@ namespace Sandbox
 		{
 			auto objects = GetScene()->GetGameObjectsByTag("TestObject");
 			PC_INFO("TestObject Count: {0}", objects.size());
-
-			GetScene()->DestroyGameObject(GetGameObject());
 		}
 
 		void OnDestroy() override
