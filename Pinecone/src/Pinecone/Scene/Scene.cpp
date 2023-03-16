@@ -84,7 +84,8 @@ namespace Pinecone
 			auto nsc = gameObject.GetComponent<NativeScriptComponent>();
 			nsc.Instance->OnDestroy();
 		}
-		gameObject.Destroy();
+		m_GameObjectMap.erase(gameObject.GetUUID());
+		m_Registry.destroy(gameObject);
 	}
 
 	GameObject Scene::GetGameObjectByTag(std::string_view name)
