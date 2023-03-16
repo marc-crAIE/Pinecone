@@ -83,6 +83,8 @@ namespace Pinecone
 		{
 			auto nsc = gameObject.GetComponent<NativeScriptComponent>();
 			nsc.Instance->OnDestroy();
+			delete nsc.Instance;
+			nsc.Instance = nullptr;
 		}
 		m_GameObjectMap.erase(gameObject.GetUUID());
 		m_Registry.destroy(gameObject);
