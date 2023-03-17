@@ -7,3 +7,6 @@
 [submodule "Pinecone/vendor/spdlog"]
 	path = Pinecone/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Pinecone/vendor/msdf-atlas-gen"]
+	path = Pinecone/vendor/msdf-atlas-gen
+	url = https://github.com/marc-cr1810/msdf-atlas-gen.git
