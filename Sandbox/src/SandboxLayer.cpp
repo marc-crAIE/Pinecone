@@ -2,11 +2,15 @@
 
 #include "Scripts/CameraController.h"
 
+#include "Pinecone/Renderer/Font.h"
+
 namespace Sandbox
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("SandboxLayer")
-	{ }
+	{
+		Font font("assets/fonts/opensans/OpenSans-Regular.ttf");
+	}
 
 	void SandboxLayer::OnAttach()
 	{

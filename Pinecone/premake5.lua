@@ -33,6 +33,8 @@ project "Pinecone"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.msdfgen}",
+		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}"
 	}
@@ -41,6 +43,7 @@ project "Pinecone"
 	{
 		"GLFW",
 		"Glad",
+		"msdf-atlas-gen",
 		"opengl32.lib"
 	}
 
