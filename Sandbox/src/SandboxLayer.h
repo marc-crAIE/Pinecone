@@ -4,6 +4,8 @@
 #include <Pinecone/Scene/SceneCamera.h>
 #include <Pinecone/Events/KeyEvent.h>
 
+#include <Pinecone/Renderer/Font.h>
+
 using namespace Pinecone;
 
 namespace Sandbox
@@ -29,5 +31,7 @@ namespace Sandbox
 
 		GameObject m_Square;
 		GameObject m_Camera;
+
+		Font* m_Font;
 	};
 }

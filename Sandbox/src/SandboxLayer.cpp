@@ -2,14 +2,12 @@
 
 #include "Scripts/CameraController.h"
 
-#include "Pinecone/Renderer/Font.h"
-
 namespace Sandbox
 {
 	SandboxLayer::SandboxLayer()
 		: Layer("SandboxLayer")
 	{
-		Font font("assets/fonts/opensans/OpenSans-Regular.ttf");
+		m_Font = new Font("assets/fonts/opensans/OpenSans-Regular.ttf");
 	}
 
 	void SandboxLayer::OnAttach()
@@ -57,6 +55,13 @@ namespace Sandbox
 		RenderCommand::Clear();
 
 		m_ActiveScene->OnUpdate(ts);
+
+		Renderer2D::BeginScene(m_Camera.GetComponent<CameraComponent>().Camera);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+		Renderer2D::DrawQuad(transform, m_Font->GetAtlasTexture());
+
+		Renderer2D::EndScene();
 	}
 
 	void SandboxLayer::OnEvent(Event& e)

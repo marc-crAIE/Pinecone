@@ -8,7 +8,7 @@ namespace Pinecone
 	class Texture2D : public Texture
 	{
 	public:
-		Texture2D(uint32_t width, uint32_t height);
+		Texture2D(const TextureSpecification& specification);;
 		Texture2D(const std::string& filepath);
 		~Texture2D() override;
 
@@ -19,6 +19,8 @@ namespace Pinecone
 		uint32_t GetHeight() const override { return m_Height; }
 		uint32_t GetRendererID() const override { return m_RendererID; }
 
+		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
+
 		const std::string& GetFilePath() const override { return m_FilePath; }
 
 		bool IsLoaded() const override { return m_IsLoaded; }
@@ -28,12 +30,15 @@ namespace Pinecone
 			return m_RendererID == other.GetRendererID();
 		}
 
-		static Ref<Texture2D> Create(uint32_t width, uint32_t height);
+		static Ref<Texture2D> Create(const TextureSpecification& specification);
 		static Ref<Texture2D> Create(const std::string& filepath);
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Width, m_Height;
 		std::string m_FilePath;
+
+		TextureSpecification m_Specification;
+
 		bool m_IsLoaded = false;
 		GLenum m_InternalFormat, m_DataFormat;
 	};
