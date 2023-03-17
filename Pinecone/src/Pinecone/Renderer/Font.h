@@ -15,9 +15,16 @@ namespace Pinecone
 		Font(const std::filesystem::path& font);
 		~Font();
 
+		const MSDFData* GetMSDFData() const { return m_Data; }
 		Ref<Texture2D> GetAtlasTexture() const { return m_AtlasTexture; }
+
+		static Ref<Font> GetDefault();
+
+		static Ref<Font> Create(const std::filesystem::path& font);
 	private:
 		MSDFData* m_Data;
 		Ref<Texture2D> m_AtlasTexture;
+	private:
+		static Ref<Font> s_DefaultFont;
 	};
 }

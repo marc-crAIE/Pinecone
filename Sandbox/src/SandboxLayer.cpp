@@ -7,7 +7,7 @@ namespace Sandbox
 	SandboxLayer::SandboxLayer()
 		: Layer("SandboxLayer")
 	{
-		m_Font = new Font("assets/fonts/opensans/OpenSans-Regular.ttf");
+		m_Font = Font::GetDefault();
 	}
 
 	void SandboxLayer::OnAttach()
@@ -58,8 +58,9 @@ namespace Sandbox
 
 		Renderer2D::BeginScene(m_Camera.GetComponent<CameraComponent>().Camera);
 
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-		Renderer2D::DrawQuad(transform, m_Font->GetAtlasTexture());
+		//Renderer2D::DrawQuad(glm::mat4(1.0f), m_Font->GetAtlasTexture());
+
+		Renderer2D::DrawString("Hello World!", Font::GetDefault(), glm::mat4(1.0f), glm::vec4(1.0f));
 
 		Renderer2D::EndScene();
 	}

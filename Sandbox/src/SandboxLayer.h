@@ -32,6 +32,6 @@ namespace Sandbox
 		GameObject m_Square;
 		GameObject m_Camera;
 
-		Font* m_Font;
+		Ref<Font> m_Font;
 	};
 }

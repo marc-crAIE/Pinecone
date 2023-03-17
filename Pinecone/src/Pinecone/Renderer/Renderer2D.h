@@ -2,6 +2,7 @@
 
 #include "Pinecone/Renderer/Camera.h"
 #include "Pinecone/Renderer/Texture2D.h"
+#include "Pinecone/Renderer/Font.h"
 
 #include "Pinecone/Scene/Components.h"
 
@@ -32,6 +33,8 @@ namespace Pinecone
 		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
 		static void DrawSprite(const glm::mat4& transform, SpriteComponent& sprite);
+
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color);
 
 		struct Statistics
 		{
