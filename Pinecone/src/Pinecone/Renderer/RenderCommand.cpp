@@ -14,6 +14,7 @@ namespace Pinecone
 		const char* message,
 		const void* userParam)
 	{
+		// Call to the correct logger function depending on the severity of the OpenGL error
 		switch (severity)
 		{
 		case GL_DEBUG_SEVERITY_HIGH:         PC_CORE_CRITICAL(message); return;
@@ -27,6 +28,7 @@ namespace Pinecone
 
 	void RenderCommand::Init()
 	{
+		// If we are in debug mode, setup our OpenGL debug output message settings and callback function
 #ifdef PC_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -34,10 +36,11 @@ namespace Pinecone
 
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
 #endif
-
+		// Enable blending and use the alpha channel
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		// Enable depth testing and anti-aliasing of lines
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
 	}
@@ -59,8 +62,11 @@ namespace Pinecone
 
 	void RenderCommand::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
+		// Bind the vertex array
 		vertexArray->Bind();
+		// Get the count of the total number of indices from either the vertex array or the specified index count
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+		// Draw the elements with OpenGL
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 }

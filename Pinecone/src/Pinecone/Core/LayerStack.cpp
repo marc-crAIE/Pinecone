@@ -6,6 +6,8 @@ namespace Pinecone
 {
 	LayerStack::~LayerStack()
 	{
+		// When destructing the layer stack run the OnDetach function for
+		// each layer and delete it
 		for (Layer* layer : m_Layers)
 		{
 			layer->OnDetach();
@@ -15,6 +17,8 @@ namespace Pinecone
 
 	void LayerStack::PushLayer(Layer* layer)
 	{
+		// Add the layer onto the stack but before the first overlay layer
+		// m_LayerInsertIndex keeps track of where to insert the new layer
 		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
 		m_LayerInsertIndex++;
 	}

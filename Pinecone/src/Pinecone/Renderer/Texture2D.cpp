@@ -12,8 +12,8 @@ namespace Pinecone
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB;
-			case ImageFormat::RGBA8: return GL_RGBA;
+			case ImageFormat::RGB8:		return GL_RGB;
+			case ImageFormat::RGBA8:	return GL_RGBA;
 			}
 
 			PC_CORE_ASSERT(false);
@@ -24,8 +24,8 @@ namespace Pinecone
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB8;
-			case ImageFormat::RGBA8: return GL_RGBA8;
+			case ImageFormat::RGB8:		return GL_RGB8;
+			case ImageFormat::RGBA8:	return GL_RGBA8;
 			}
 
 			PC_CORE_ASSERT(false);
@@ -40,9 +40,11 @@ namespace Pinecone
 		m_InternalFormat = Utils::PineconeImageFormatToGLInternalFormat(m_Specification.Format);
 		m_DataFormat = Utils::PineconeImageFormatToGLDataFormat(m_Specification.Format);
 
+		// Create a new 2D texture based on data from our specification
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
 
+		// Configure the parameters for the texture
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -54,7 +56,10 @@ namespace Pinecone
 		: m_FilePath(filepath)
 	{
 		int width, height, channels;
+		// Make sure the first pixel read from the texture is on the bottom left
+		// Not doing this will make our textures appear to be upside down
 		stbi_set_flip_vertically_on_load(1);
+		// Load the texture data
 		stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 
 		if (data)
@@ -64,6 +69,7 @@ namespace Pinecone
 			m_Width = width;
 			m_Height = height;
 
+			// Figure out what the format of the texture is based on the amount of color channels
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
@@ -79,37 +85,47 @@ namespace Pinecone
 			m_InternalFormat = internalFormat;
 			m_DataFormat = dataFormat;
 
+			// Make sure the format is supported
 			PC_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
+			// Create a 2D texture with the width, height, and the format from the loaded texture
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
+			// Configure the parameters for the texture
 			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+			// Set the data of the texture
 			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
+			// Free the stb image data
 			stbi_image_free(data);
 		}
 	}
 
 	Texture2D::~Texture2D()
 	{
+		// Delete the texture
 		glDeleteTextures(1, &m_RendererID);
 	}
 
 	void Texture2D::SetData(void* data, uint32_t size)
 	{
+		// Get the bits per pixel
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		// Make sure the size of the data will fill the data of the entire texture
 		PC_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		// Set the data of the texture
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void Texture2D::Bind(uint32_t slot) const
 	{
+		// Bind the texture to the specified slot
 		glBindTextureUnit(slot, m_RendererID);
 	}
 

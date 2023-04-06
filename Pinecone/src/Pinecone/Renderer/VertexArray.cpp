@@ -5,8 +5,16 @@
 
 namespace Pinecone
 {
+	/// <summary>
+	/// Converts our Pinecone shader datat type to a OpenGL one
+	/// </summary>
+	/// <param name="type">The shader data type</param>
+	/// <returns>The OpenGL version of the shader data type</returns>
 	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	{
+		// Basically just return the OpenGL type of what our shader data type is
+		// There are really only 3 that we care about currently. 
+		// GL_FLOAT, GL_INT and GL_BOOL
 		switch (type)
 		{
 		case ShaderDataType::Float:    return GL_FLOAT;
@@ -22,37 +30,46 @@ namespace Pinecone
 		case ShaderDataType::Bool:     return GL_BOOL;
 		}
 
+		// The shader data type is not supported, this shouldn't occur if used properly
 		PC_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
 	VertexArray::VertexArray()
 	{
+		// Create the vertex array and store its ID generated from OpenGL
 		glCreateVertexArrays(1, &m_RendererID);
 	}
 
 	VertexArray::~VertexArray()
 	{
+		// Delete the vertex array
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
 	void VertexArray::Bind() const
 	{
+		// Bind the vertex array with our ID
 		glBindVertexArray(m_RendererID);
 	}
 
 	void VertexArray::Unbind() const
 	{
+		// Unbind our vertex array
 		glBindVertexArray(0);
 	}
 
 	void VertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
+		// Ensure that the vertex buffer has a buffer layout, the buffer layout is necessary to tell OpenGL
+		// the location and size of the data in the array
 		PC_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
+		// Bind the vertex array and the vertex buffer to setup the layout
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Bind();
 
+		// Get the buffer layout and pass the layout data to OpenGL
 		const auto& layout = vertexBuffer->GetLayout();
 		for (const auto& element : layout)
 		{
@@ -111,14 +128,17 @@ namespace Pinecone
 			}
 		}
 
+		// Add the vertex buffer data
 		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
 	void VertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
+		// Bind the vertex array and the index buffer
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();
 
+		// Set the index buffer data
 		m_IndexBuffer = indexBuffer;
 	}
 

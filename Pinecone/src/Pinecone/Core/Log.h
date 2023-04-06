@@ -15,6 +15,9 @@ namespace Pinecone {
 	class Log
 	{
 	public:
+		/// <summary>
+		/// Initialize the logger. Needs to be called before using logging functions/macros
+		/// </summary>
 		static void Init();
 
 		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
@@ -24,6 +27,9 @@ namespace Pinecone {
 		static Ref<spdlog::logger> s_ClientLogger;
 	};
 }
+
+// These functions are here so that we can easily print glm vectors, matrices, and quaternions
+// to the logger
 
 template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
 inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)

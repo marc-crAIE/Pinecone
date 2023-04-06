@@ -3,7 +3,9 @@
 #include <memory>
 
 #ifdef PC_DEBUG
+	// Allow the use of __debugbreak when debugging, this macro does nothing in release mode
 	#define PC_DEBUGBREAK() __debugbreak()
+	// Specify that assertion is allowed, not defined in release mode
 	#define PC_ENABLE_ASSERTS
 #else
 	#define PC_DEBUGBREAK()
@@ -12,12 +14,18 @@
 #define PC_EXPAND_MACRO(x) x
 #define PC_STRINGIFY_MACRO(x) #x
 
+// Bit shifting
 #define BIT(x) (1 << x)
 
+// Used to call event functions with the EventDispatcher::Dispatch function
 #define PC_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 namespace Pinecone
 {
+	// This code here is just a short hand names for unique and shared smart pointers.
+	// This also includes the functions to create them. Useful if I want to have pointer 
+	// but not always have to manage all of them. At the cost of memory of course
+
 	template<typename T>
 	using Scope = std::unique_ptr<T>;
 	template<typename T, typename ... Args>
