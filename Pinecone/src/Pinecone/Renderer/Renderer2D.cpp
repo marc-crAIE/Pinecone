@@ -76,6 +76,7 @@ namespace Pinecone
 		// Quads
 		s_Data.QuadVertexArray = VertexArray::Create();
 
+		// Create our vertex buffer and set the layout to be the same as the Renderer2D_Quad shader
 		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
 		s_Data.QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position"     },
@@ -84,13 +85,21 @@ namespace Pinecone
 			{ ShaderDataType::Float,  "a_TexIndex"     },
 			{ ShaderDataType::Float,  "a_TilingFactor" }
 		});
+		// Add the vertex buffer to the vertex array
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
+		// Create a new quad vertex buffer data array
 		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];
 		uint32_t* quadIndices = new uint32_t[s_Data.MaxIndices];
 
+		// Setup the quad indices for all quads. 
+		// Note: For every quad there are 4 vertices and 6 indices
 		uint32_t offset = 0;
 		for (uint32_t i = 0; i < s_Data.MaxIndices; i += 6)
 		{
+			// The indices point to a certain vertex. Two of the vertices are used twice 
+			// to draw a quad so that we don't have to store 6 vertices for each quad with
+			// two vertices. That is not necessary as two of the vertices share the exact 
+			// same position
 			quadIndices[i + 0] = offset + 0;
 			quadIndices[i + 1] = offset + 1;
 			quadIndices[i + 2] = offset + 2;
@@ -99,13 +108,17 @@ namespace Pinecone
 			quadIndices[i + 4] = offset + 3;
 			quadIndices[i + 5] = offset + 0;
 
+			// Make sure to offset the number of vertices to point to. As here are 4 vertices 
+			// for each quad, we increase the offset by 4
 			offset += 4;
 		}
 
+		// Create the index buffer using the index data we just made and add it to the vertex array
 		Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices, s_Data.MaxIndices);
 		s_Data.QuadVertexArray->SetIndexBuffer(quadIB);
 		delete[] quadIndices;
 
+		// The basic vertex positions for a quad. This is modified by the transform matrix when the quad is drawn
 		s_Data.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
@@ -114,61 +127,81 @@ namespace Pinecone
 		// Text
 		s_Data.TextVertexArray = VertexArray::Create();
 
+		// Create our vertex buffer and set the layout to be the same as the Renderer2D_Text shader
 		s_Data.TextVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(TextVertex));
 		s_Data.TextVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position"     },
 			{ ShaderDataType::Float4, "a_Color"        },
 			{ ShaderDataType::Float2, "a_TexCoord"     }
 			});
+		// Add the vertex buffer to the vertex array
 		s_Data.TextVertexArray->AddVertexBuffer(s_Data.TextVertexBuffer);
+		// This also uses the same indices that quads do so also add that to the vertex array
 		s_Data.TextVertexArray->SetIndexBuffer(quadIB);
+		// Create a new text vertex buffer array
 		s_Data.TextVertexBufferBase = new TextVertex[s_Data.MaxVertices];
-
+		
+		// Create a basic white texture. This is used for drawing 2D quads with only a color and no texture
 		s_Data.WhiteTexture = Texture2D::Create(TextureSpecification());
+		// As the default texture specification size is 1x1. We only need to set 1 pixel as a white color
 		uint32_t whiteTextureData = 0xffffffff;
 		s_Data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-		int32_t samplers[s_Data.MaxTextureSlots];
-		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
-			samplers[i] = i;
-
+		// Create the shaders
+		// Note: These shader files currently do need to exist in the client application
 		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");
 		s_Data.TextShader = Shader::Create("assets/shaders/Renderer2D_Text.glsl");
 
 		// Set first texture slot to 0
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
 
+		// Create a uniform buffer to pass our camera data into
 		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);
 	}
 
 	void Renderer2D::Shutdown()
 	{
+		// Delete our vertex buffer data arrays
 		delete[] s_Data.QuadVertexBufferBase;
+		delete[] s_Data.TextVertexBufferBase;
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera)
 	{
+		// Set the camera buffer view projection from the camera
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection();
+		// Then set the data in the uniform buffer, this will set the view projection in our shaders
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraBuffer));
 
+		// Start the first batch
 		StartBatch();
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
+		// Set the camera buffer view projection from the camera
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
+		// Then set the data in the uniform buffer, this will set the view projection in our shaders
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraBuffer));
 
+		// Start the first batch
 		StartBatch();
 	}
 
 	void Renderer2D::EndScene()
 	{
+		// Similar to Renderer::EndScene.
+		// End scene currently does nothing but this is for future proofing.
+		// The use of it is recommended as it may cause problems if the 
+		// engine is updated to give it use but the program does not currently 
+		// use it. All it really does is just call flush but may do more in tne future
+		// that flush should not do
 		Flush();
 	}
 
 	void Renderer2D::StartBatch()
 	{
+		// Initialize the 2D renderer data
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
 
@@ -183,6 +216,7 @@ namespace Pinecone
 		// Draw our quads
 		if (s_Data.QuadIndexCount)
 		{
+			// Get the size of our vertex data we added and set that data in the vertex buffer
 			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
 			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
 
@@ -190,22 +224,27 @@ namespace Pinecone
 			for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
 				s_Data.TextureSlots[i]->Bind(i);
 
+			// Bind the quad shader and draw our vertex data
 			s_Data.QuadShader->Bind();
 			RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
+			// Every time we draw something with the render command, we should increase our total drawcalls
 			s_Data.Stats.DrawCalls++;
 		}
 		
 		// Draw text
 		if (s_Data.TextIndexCount)
 		{
+			// Get the size of our vertex data we added and set that data in the vertex buffer
 			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.TextVertexBufferPtr - (uint8_t*)s_Data.TextVertexBufferBase);
 			s_Data.TextVertexBuffer->SetData(s_Data.TextVertexBufferBase, dataSize);
 
-			auto buf = s_Data.TextVertexBufferBase;
+			// Bind the font atlas texture to texture slot 0
 			s_Data.FontAtlasTexture->Bind(0);
 
+			// Bind the text shader and draw our vertex data
 			s_Data.TextShader->Bind();
 			RenderCommand::DrawIndexed(s_Data.TextVertexArray, s_Data.TextIndexCount);
+			// Every time we draw something with the render command, we should increase our total drawcalls
 			s_Data.Stats.DrawCalls++;
 		}
 	}
@@ -262,14 +301,16 @@ namespace Pinecone
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 	{
-		constexpr size_t quadVertexCount = 4;
+		const size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		const glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		const float tilingFactor = 1.0f;
 
+		// If the number of indices has surpassed the max number of indices. Then we start the next batch
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
 			NextBatch();
 
+		// Set the vertex data for every vertex in a quad
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
@@ -280,8 +321,10 @@ namespace Pinecone
 			s_Data.QuadVertexBufferPtr++;
 		}
 
+		// Increment the index count by the number of indices needed for a quad
 		s_Data.QuadIndexCount += 6;
 
+		// Update the number of quads in the statistics
 		s_Data.Stats.QuadCount++;
 	}
 
@@ -290,9 +333,11 @@ namespace Pinecone
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
+		// If the number of indices has surpassed the max number of indices. Then we start the next batch
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
 			NextBatch();
 
+		// Find what texture slot the texture we want to render is at
 		float textureIndex = 0.0f;
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
 		{
@@ -303,16 +348,23 @@ namespace Pinecone
 			}
 		}
 
+		// Check if we could not find the texture
+		// Note: Texture slot 0 is not used in this function as that is our white texture
+		//		 for drawing plain colored quads
 		if (textureIndex == 0.0f)
 		{
+			// Start a new batch if we exceed our max number of texture slots
 			if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
 				NextBatch();
 
+			// Set the texture in the texture slot at the current index
 			textureIndex = (float)s_Data.TextureSlotIndex;
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;
+			// Increase the current texture slot to be the next slot
 			s_Data.TextureSlotIndex++;
 		}
 
+		// Set the vertex data for every vertex in a quad
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
@@ -323,12 +375,16 @@ namespace Pinecone
 			s_Data.QuadVertexBufferPtr++;
 		}
 
+		// Increment the index count by the number of indices needed for a quad
 		s_Data.QuadIndexCount += 6;
+
+		// Update the number of quads in the statistics
 		s_Data.Stats.QuadCount++;
 	}
 
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteComponent& sprite)
 	{
+		// If the sprites texture is not null, draw a textured quad. Otherwise draw a colored quad
 		if (sprite.Texture)
 			DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color);
 		else
@@ -341,6 +397,7 @@ namespace Pinecone
 		const auto& metrics = fontGeometry.getMetrics();
 		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
 
+		// Set the font atlas texture to the texture created by the specified font
 		s_Data.FontAtlasTexture = fontAtlas;
 
 		double x = 0.0;
@@ -348,32 +405,48 @@ namespace Pinecone
 		double y = 0.0;
 		float lineHeightOffset = 0.0f;
 
+		// Loop through each character in the string
 		for (size_t i = 0; i < string.size(); i++)
 		{
 			char character = string[i];
+			// If it is a return character, skip
 			if (character == '\r')
 				continue;
 
 			if (character == '\n')
 			{
+				// Newline characters will reset the x position to 0 and increase the y position
+				// by the height of the text
 				x = 0;
 				y -= fsScale * metrics.lineHeight + lineHeightOffset;
 				continue;
 			}
+			// Get the glyph data from our font
 			auto glyph = fontGeometry.getGlyph(character);
+			// If it is unknown, use a different char that should be known to indicate that the font
+			// does not support that char
 			if (!glyph)
 				glyph = fontGeometry.getGlyph('?');
+			// If still unknown then exit the function and draw no text
 			if (!glyph)
 				return;
 
+			// If the char is a tab then we will use ' ' as the glyph
 			if (character == '\t')
 				glyph = fontGeometry.getGlyph(' ');
 
+			// Get the texture coordinates for the glyph in the font texture atlas
 			double al, ab, ar, at;
 			glyph->getQuadAtlasBounds(al, ab, ar, at);
 			glm::vec2 texCoordMin((float)al, (float)ab);
 			glm::vec2 texCoordMax((float)ar, (float)at);
 
+			float texelWidth = 1.0f / fontAtlas->GetWidth();
+			float texelHeight = 1.0f / fontAtlas->GetHeight();
+			texCoordMin *= glm::vec2(texelWidth, texelHeight);
+			texCoordMax *= glm::vec2(texelWidth, texelHeight);
+
+			// Get the size of the glyph
 			double pl, pb, pr, pt;
 			glyph->getQuadPlaneBounds(pl, pb, pr, pt);
 			glm::vec2 quadMin((float)pl, (float)pb);
@@ -383,12 +456,7 @@ namespace Pinecone
 			quadMin += glm::vec2(x, y);
 			quadMax += glm::vec2(x, y);
 
-			float texelWidth = 1.0f / fontAtlas->GetWidth();
-			float texelHeight = 1.0f / fontAtlas->GetHeight();
-			texCoordMin *= glm::vec2(texelWidth, texelHeight);
-			texCoordMax *= glm::vec2(texelWidth, texelHeight);
-
-			// render here
+			// Set the vertex data for the single char to draw
 			s_Data.TextVertexBufferPtr->Position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
 			s_Data.TextVertexBufferPtr->Color = color;
 			s_Data.TextVertexBufferPtr->TexCoord = texCoordMin;
@@ -409,9 +477,12 @@ namespace Pinecone
 			s_Data.TextVertexBufferPtr->TexCoord = { texCoordMax.x, texCoordMin.y };
 			s_Data.TextVertexBufferPtr++;
 
+			// Increment the index count by the number of indices needed for a quad
 			s_Data.TextIndexCount += 6;
+			// Update the number of quads in the statistics
 			s_Data.Stats.QuadCount++;
 
+			// Advance the x position if there is more chars in the string to render
 			if (i < string.size() - 1)
 			{
 				double advance = glyph->getAdvance();
@@ -426,12 +497,15 @@ namespace Pinecone
 
 	void Renderer2D::NextBatch()
 	{
+		// Draw the current batch
 		Flush();
+		// Then stat the new batch
 		StartBatch();
 	}
 
 	void Renderer2D::ResetStats()
 	{
+		// Reset the 2D renderer statistics by setting all of the data in it to 0
 		memset(&s_Data.Stats, 0, sizeof(Statistics));
 	}
 	

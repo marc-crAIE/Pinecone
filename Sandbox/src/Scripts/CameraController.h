@@ -32,19 +32,19 @@ namespace Sandbox
 
 			if (Input::IsKeyPressed(Key::W))
 			{
-				transform.Translation += glm::vec3{ 0.0f, speed, 0.0f } * (float)ts;
+				transform.Translation += glm::vec3{ 0.0f, -speed, 0.0f } * (float)ts;
 			}
 			if (Input::IsKeyPressed(Key::S))
 			{
-				transform.Translation += glm::vec3{ 0.0f, -speed, 0.0f } * (float)ts;
+				transform.Translation += glm::vec3{ 0.0f, +speed, 0.0f } * (float)ts;
 			}
 			if (Input::IsKeyPressed(Key::A))
 			{
-				transform.Translation += glm::vec3{ -speed, 0.0f, 0.0f } * (float)ts;
+				transform.Translation += glm::vec3{ +speed, 0.0f, 0.0f } * (float)ts;
 			}
 			if (Input::IsKeyPressed(Key::D))
 			{
-				transform.Translation += glm::vec3{ speed, 0.0f, 0.0f } * (float)ts;
+				transform.Translation += glm::vec3{ -speed, 0.0f, 0.0f } * (float)ts;
 			}
 		}
 	};
