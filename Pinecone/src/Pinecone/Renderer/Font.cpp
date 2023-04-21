@@ -41,11 +41,13 @@ namespace Pinecone {
 	Font::Font(const std::filesystem::path& filepath)
 		: m_Data(new MSDFData())
 	{
+		// Initialize the FreeType font library
 		msdfgen::FreetypeHandle* ft = msdfgen::initializeFreetype();
 		PC_CORE_ASSERT(ft);
 
 		std::string fileString = filepath.string();
 
+		// Load the font from the passed in file path
 		msdfgen::FontHandle* font = msdfgen::loadFont(ft, fileString.c_str());
 		if (!font)
 		{
@@ -53,16 +55,21 @@ namespace Pinecone {
 			return;
 		}
 
+		// Stores the first and last character values
 		struct CharsetRange
 		{
 			uint32_t Begin, End;
 		};
 
+		// Use a character range between 32 (space) and 255 as characters before 
+		// 32 are all special characters that cannot be seen.
+		// Ref: https://www.rapidtables.com/code/text/ascii-table.html
 		static const CharsetRange charsetRanges[] =
 		{
 			{ 0x0020, 0x00FF }
 		};
 
+		// Add the characters in our charset-range to the MSDF atlas charset
 		msdf_atlas::Charset charset;
 		for (CharsetRange range : charsetRanges)
 		{
@@ -70,8 +77,10 @@ namespace Pinecone {
 				charset.add(c);
 		}
 
+		// Initialize our font geometry
 		double fontScale = 1.0;
 		m_Data->FontGeometry = msdf_atlas::FontGeometry(&m_Data->Glyphs);
+		// Load the font glyphs from our charset into our font geometry
 		int glyphsLoaded = m_Data->FontGeometry.loadCharset(font, fontScale, charset);
 		PC_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
 
