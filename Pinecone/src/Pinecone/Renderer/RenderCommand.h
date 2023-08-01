@@ -39,5 +39,9 @@ namespace Pinecone
 		/// <param name="indexCount">The number of indices (set to 0 or leave as default to use 
 		/// the number in the vertex array)</param>
 		static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0);
+
+		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount);
+
+		static void SetLineWidth(float width);
 	};
 }

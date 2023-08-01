@@ -69,4 +69,15 @@ namespace Pinecone
 		// Draw the elements with OpenGL
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
+
+	void RenderCommand::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+	{
+		vertexArray->Bind();
+		glDrawArrays(GL_LINES, 0, vertexCount);
+	}
+
+	void RenderCommand::SetLineWidth(float width)
+	{
+		glLineWidth(width);
+	}
 }
