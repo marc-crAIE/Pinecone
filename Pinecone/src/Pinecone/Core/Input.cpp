@@ -25,6 +25,15 @@ namespace Pinecone
 		return state == GLFW_PRESS;
 	}
 
+	bool Input::IsMouseButtonReleased(MouseCode button)
+	{
+		// Get the GLFW window handle
+		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		// Get the state of the mouse button and return if it is released
+		auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
+		return state == GLFW_RELEASE;
+	}
+
 	glm::vec2 Input::GetMousePosition()
 	{
 		// Get the GLFW window handle

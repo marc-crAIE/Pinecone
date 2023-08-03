@@ -24,6 +24,12 @@ namespace Pinecone
 		/// <returns>True if the mouse button is pressed</returns>
 		static bool IsMouseButtonPressed(MouseCode button);
 		/// <summary>
+		/// Check if a mouse button is released
+		/// </summary>
+		/// <param name="button">The mouse button to check</param>
+		/// <returns>True if the mouse button is released</returns>
+		static bool IsMouseButtonReleased(MouseCode button);
+		/// <summary>
 		/// Get the mouse cursor position on the window (in pixels)
 		/// </summary>
 		/// <returns>The mouse cursor position</returns>
