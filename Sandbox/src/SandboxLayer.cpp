@@ -13,14 +13,19 @@ namespace Sandbox
 	void SandboxLayer::OnAttach()
 	{
 		m_PineconeTexture = Texture2D::Create("assets/textures/pinecone.png");
+		m_TreeTexture = Texture2D::Create(TextureSpecification(TextureFilter::NEAREST), "assets/textures/tree.png");
 
 		RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 
 		m_ActiveScene = CreateRef<Scene>();
 
 		m_Square = m_ActiveScene->CreateGameObject("Pinecone");
-		auto& sprite = m_Square.AddComponent<SpriteComponent>();
-		sprite.Texture = m_PineconeTexture;
+		auto& pSprite = m_Square.AddComponent<SpriteComponent>();
+		pSprite.Texture = m_PineconeTexture;
+
+		m_Square = m_ActiveScene->CreateGameObject("Tree");
+		auto& tSprite = m_Square.AddComponent<SpriteComponent>();
+		tSprite.Texture = m_TreeTexture;
 
 		m_Camera = m_ActiveScene->CreateGameObject("Camera");
 		auto& cc = m_Camera.AddComponent<CameraComponent>();

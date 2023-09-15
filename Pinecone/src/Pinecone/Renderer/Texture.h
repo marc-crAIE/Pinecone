@@ -11,12 +11,22 @@ namespace Pinecone
 		RGBA32F
 	};
 
+	enum class TextureFilter
+	{
+		NEAREST,
+		LINEAR
+	};
+
 	struct TextureSpecification
 	{
 		uint32_t Width = 1;
 		uint32_t Height = 1;
 		ImageFormat Format = ImageFormat::RGBA8;
 		bool GenerateMips = true;
+		TextureFilter Filter = TextureFilter::LINEAR;
+
+		TextureSpecification() = default;
+		TextureSpecification(TextureFilter filter) : Filter(filter) {}
 	};
 
 	class Texture

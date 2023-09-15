@@ -26,6 +26,7 @@ namespace Sandbox
 		bool OnWindowResized(WindowResizeEvent& e);
 	private:
 		Ref<Texture2D> m_PineconeTexture;
+		Ref<Texture2D> m_TreeTexture;
 
 		Ref<Scene> m_ActiveScene;
 
