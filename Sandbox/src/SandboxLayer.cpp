@@ -23,9 +23,10 @@ namespace Sandbox
 		auto& pSprite = m_Square.AddComponent<SpriteComponent>();
 		pSprite.Texture = m_PineconeTexture;
 
-		m_Square = m_ActiveScene->CreateGameObject("Tree");
-		auto& tSprite = m_Square.AddComponent<SpriteComponent>();
+		m_Tree = m_ActiveScene->CreateGameObject("Tree");
+		auto& tSprite = m_Tree.AddComponent<SpriteComponent>();
 		tSprite.Texture = m_TreeTexture;
+		tSprite.FlipY(true);
 
 		m_Camera = m_ActiveScene->CreateGameObject("Camera");
 		auto& cc = m_Camera.AddComponent<CameraComponent>();

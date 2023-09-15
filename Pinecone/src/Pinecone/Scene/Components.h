@@ -63,12 +63,16 @@ namespace Pinecone
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> Texture;
 		float TilingFactor = 1.0f;
+		glm::vec2 FlipAxies = { 0.0f, 0.0f };
 
 		SpriteComponent() = default;
 		SpriteComponent(const SpriteComponent&) = default;
 		SpriteComponent(const glm::vec4& color)
 			: Color(color)
 		{}
+
+		void FlipX(bool flipped) { FlipAxies.x = flipped; }
+		void FlipY(bool flipped) { FlipAxies.y = flipped; }
 	};
 
 	struct CameraComponent

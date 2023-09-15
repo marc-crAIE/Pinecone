@@ -371,10 +371,11 @@ namespace Pinecone
 		s_Data.Stats.QuadCount++;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, const glm::vec2& flipAxies)
 	{
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		glm::vec2 textCoordFlip = { flipAxies.x ? -1.0f : 1.0f, flipAxies.y ? -1.0f : 1.0f };
 
 		// If the number of indices has surpassed the max number of indices. Then we start the next batch
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
@@ -412,7 +413,7 @@ namespace Pinecone
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
 			s_Data.QuadVertexBufferPtr->Color = tintColor;
-			s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i] * textCoordFlip;
 			s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
 			s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
 			s_Data.QuadVertexBufferPtr++;
@@ -447,7 +448,7 @@ namespace Pinecone
 	{
 		// If the sprites texture is not null, draw a textured quad. Otherwise draw a colored quad
 		if (sprite.Texture)
-			DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color);
+			DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color, sprite.FlipAxies);
 		else
 			DrawQuad(transform, sprite.Color);
 	}

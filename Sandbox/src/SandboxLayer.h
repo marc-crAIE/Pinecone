@@ -31,6 +31,7 @@ namespace Sandbox
 		Ref<Scene> m_ActiveScene;
 
 		GameObject m_Square;
+		GameObject m_Tree;
 		GameObject m_Camera;
 
 		Ref<Font> m_Font;
