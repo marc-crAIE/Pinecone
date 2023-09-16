@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "Pinecone/Core/Base.h"
+#include "Pinecone/Debug/Instrumentor.h"
 
 namespace Pinecone
 {

@@ -26,16 +26,22 @@ namespace Pinecone
 
 	Window::Window(const WindowProps& props)
 	{
+		PC_PROFILE_FUNCTION();
+
 		Init(props);
 	}
 
 	Window::~Window()
 	{
+		PC_PROFILE_FUNCTION();
+
 		Shutdown();
 	}
 
 	void Window::Init(const WindowProps& props)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Store the window title, width and height into our window data
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
@@ -45,6 +51,7 @@ namespace Pinecone
 
 		if (s_GLFWWindowCount == 0)
 		{
+			PC_PROFILE_SCOPE("glfwInit");
 			// If there are no windows already, initialize GLFW
 			int success = glfwInit();
 			PC_CORE_ASSERT(success, "Could not initialize GLFW!");
@@ -52,14 +59,17 @@ namespace Pinecone
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		#ifdef PC_DEBUG
-		// Let the GLFW window know that we are in debug mode
-		glfwWindowHint(GLFW_CONTEXT_DEBUG, GLFW_TRUE);
-		#endif
+		{
+			PC_PROFILE_SCOPE("glfwCreateWindow");
+			#ifdef PC_DEBUG
+				// Let the GLFW window know that we are in debug mode
+				glfwWindowHint(GLFW_CONTEXT_DEBUG, GLFW_TRUE);
+			#endif
 
-		// Create the GLFW window using our window properties
-		m_Window = glfwCreateWindow(props.Width, props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		++s_GLFWWindowCount;
+			// Create the GLFW window using our window properties
+			m_Window = glfwCreateWindow(props.Width, props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+			++s_GLFWWindowCount;
+		}
 
 		// Create an OpenGL context for the window passing our new GLFW window handle
 		m_Context = OpenGLContext::Create(m_Window);
@@ -194,6 +204,8 @@ namespace Pinecone
 
 	void Window::Shutdown()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Destroy the GLFw widnow and remove 1 from the window count
 		glfwDestroyWindow(m_Window);
 		--s_GLFWWindowCount;
@@ -207,6 +219,8 @@ namespace Pinecone
 
 	void Window::OnUpdate()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Process GLFW events and swap the front and back buffers
 		glfwPollEvents();
 		m_Context->SwapBuffers();
@@ -214,6 +228,8 @@ namespace Pinecone
 
 	void Window::SetVSync(bool enabled)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Enable or disable v-sync
 		if (enabled)
 			glfwSwapInterval(1);

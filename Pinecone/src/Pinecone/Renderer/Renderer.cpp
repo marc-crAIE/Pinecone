@@ -10,6 +10,8 @@ namespace Pinecone
 
 	void Renderer::Init()
 	{
+		PC_PROFILE_FUNCTION();
+
 		RenderCommand::Init();
 		Renderer2D::Init();
 	}

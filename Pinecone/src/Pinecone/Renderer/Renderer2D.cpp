@@ -89,6 +89,8 @@ namespace Pinecone
 
 	void Renderer2D::Init()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Quads
 		s_Data.QuadVertexArray = VertexArray::Create();
 
@@ -189,6 +191,8 @@ namespace Pinecone
 
 	void Renderer2D::Shutdown()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Delete our vertex buffer data arrays
 		delete[] s_Data.QuadVertexBufferBase;
 		delete[] s_Data.TextVertexBufferBase;
@@ -196,6 +200,8 @@ namespace Pinecone
 
 	void Renderer2D::BeginScene(const Camera& camera)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Set the camera buffer view projection from the camera
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection();
 		// Then set the data in the uniform buffer, this will set the view projection in our shaders
@@ -207,6 +213,8 @@ namespace Pinecone
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Set the camera buffer view projection from the camera
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
 		// Then set the data in the uniform buffer, this will set the view projection in our shaders
@@ -218,6 +226,8 @@ namespace Pinecone
 
 	void Renderer2D::EndScene()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Similar to Renderer::EndScene.
 		// End scene currently does nothing but this is for future proofing.
 		// The use of it is recommended as it may cause problems if the 
@@ -244,6 +254,8 @@ namespace Pinecone
 
 	void Renderer2D::Flush()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Draw our quads
 		if (s_Data.QuadIndexCount)
 		{
@@ -299,6 +311,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		DrawQuad(transform, color);
@@ -311,6 +325,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		DrawQuad(transform, texture, tilingFactor, tintColor);
@@ -323,6 +339,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -336,6 +354,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -344,6 +364,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 	{
+		PC_PROFILE_FUNCTION();
+
 		const size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
 		const glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -373,6 +395,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, const glm::vec2& flipAxies)
 	{
+		PC_PROFILE_FUNCTION();
+
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		glm::vec2 textCoordFlip = { flipAxies.x ? -1.0f : 1.0f, flipAxies.y ? -1.0f : 1.0f };
@@ -433,6 +457,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color)
 	{
+		PC_PROFILE_FUNCTION();
+
 		s_Data.LineVertexBufferPtr->Position = p0;
 		s_Data.LineVertexBufferPtr->Color = color;
 		s_Data.LineVertexBufferPtr++;
@@ -455,6 +481,8 @@ namespace Pinecone
 
 	void Renderer2D::DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color)
 	{
+		PC_PROFILE_FUNCTION();
+
 		const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
 		const auto& metrics = fontGeometry.getMetrics();
 		Ref<Texture2D> fontAtlas = font->GetAtlasTexture();

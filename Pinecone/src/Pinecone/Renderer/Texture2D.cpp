@@ -37,6 +37,8 @@ namespace Pinecone
 	Texture2D::Texture2D(const TextureSpecification& specification)
 		: m_Specification(specification), m_Width(specification.Width), m_Height(specification.Height)
 	{
+		PC_PROFILE_FUNCTION();
+
 		m_InternalFormat = Utils::PineconeImageFormatToGLInternalFormat(m_Specification.Format);
 		m_DataFormat = Utils::PineconeImageFormatToGLDataFormat(m_Specification.Format);
 
@@ -57,24 +59,32 @@ namespace Pinecone
 	Texture2D::Texture2D(const std::string& filepath)
 		: m_FilePath(filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
 		CreateFromFile(filepath);
 	}
 
 	Texture2D::Texture2D(const TextureSpecification& specification, const std::string& filepath)
 		: m_Specification(specification), m_FilePath(filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
 		CreateFromFile(filepath);
 
 	}
 
 	Texture2D::~Texture2D()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Delete the texture
 		glDeleteTextures(1, &m_RendererID);
 	}
 
 	void Texture2D::SetData(void* data, uint32_t size)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the bits per pixel
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
 		// Make sure the size of the data will fill the data of the entire texture
@@ -85,6 +95,8 @@ namespace Pinecone
 
 	void Texture2D::Bind(uint32_t slot) const
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Bind the texture to the specified slot
 		glBindTextureUnit(slot, m_RendererID);
 	}
@@ -106,6 +118,8 @@ namespace Pinecone
 
 	void Texture2D::CreateFromFile(const std::string& filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
 		int width, height, channels;
 		// Make sure the first pixel read from the texture is on the bottom left
 		// Not doing this will make our textures appear to be upside down

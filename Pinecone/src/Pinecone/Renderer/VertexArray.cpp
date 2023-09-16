@@ -37,30 +37,40 @@ namespace Pinecone
 
 	VertexArray::VertexArray()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Create the vertex array and store its ID generated from OpenGL
 		glCreateVertexArrays(1, &m_RendererID);
 	}
 
 	VertexArray::~VertexArray()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Delete the vertex array
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
 	void VertexArray::Bind() const
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Bind the vertex array with our ID
 		glBindVertexArray(m_RendererID);
 	}
 
 	void VertexArray::Unbind() const
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Unbind our vertex array
 		glBindVertexArray(0);
 	}
 
 	void VertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Ensure that the vertex buffer has a buffer layout, the buffer layout is necessary to tell OpenGL
 		// the location and size of the data in the array
 		PC_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
@@ -134,6 +144,8 @@ namespace Pinecone
 
 	void VertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Bind the vertex array and the index buffer
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();

@@ -7,6 +7,8 @@ namespace Pinecone
 {
 	UniformBuffer::UniformBuffer(uint32_t size, uint32_t binding)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glCreateBuffers(1, &m_RendererID);
 		glNamedBufferData(m_RendererID, size, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID);
@@ -14,11 +16,15 @@ namespace Pinecone
 
 	UniformBuffer::~UniformBuffer()
 	{
+		PC_PROFILE_FUNCTION();
+
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
 	void UniformBuffer::SetData(const void* data, uint32_t size, uint32_t offset)
 	{
+		PC_PROFILE_FUNCTION();
+
 		glNamedBufferSubData(m_RendererID, offset, size, data);
 	}
 
