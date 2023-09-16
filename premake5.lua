@@ -28,6 +28,7 @@ group "Dependencies"
 	include "vendor/premake"
 	include "Pinecone/vendor/GLFW"
 	include "Pinecone/vendor/Glad"
+	include "Pinecone/vendor/imgui"
 	include "Pinecone/vendor/msdf-atlas-gen"
 group ""
 
