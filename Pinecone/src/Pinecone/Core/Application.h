@@ -8,6 +8,8 @@
 #include "Pinecone/Events/Event.h"
 #include "Pinecone/Events/ApplicationEvent.h"
 
+#include "Pinecone/ImGui/ImGuiLayer.h"
+
 int main(int argc, char** argv);
 
 namespace Pinecone
@@ -52,6 +54,8 @@ namespace Pinecone
 		/// </summary>
 		void Close();
 
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+
 		/// <summary>
 		/// Get the instance of the application
 		/// </summary>
@@ -78,7 +82,10 @@ namespace Pinecone
 		Scope<Window> m_Window;
 		bool m_Running = true;
 		bool m_Minimized = false;
+
 		LayerStack m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
+
 		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;

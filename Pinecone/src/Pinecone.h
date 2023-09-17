@@ -12,6 +12,8 @@
 #include "Pinecone/Core/KeyCodes.h"
 #include "Pinecone/Core/MouseCodes.h"
 
+#include "Pinecone/ImGui/ImGuiLayer.h"
+
 #include "Pinecone/Scene/Scene.h"
 #include "Pinecone/Scene/GameObject.h"
 #include "Pinecone/Scene/Components.h"
@@ -31,4 +33,5 @@
 #include "Pinecone/Renderer/Texture2D.h"
 
 #include "Pinecone/Renderer/Shader.h"
+#include "Pinecone/Renderer/Framebuffer.h"
 ////

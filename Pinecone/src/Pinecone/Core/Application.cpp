@@ -24,6 +24,9 @@ namespace Pinecone
 
 		// Initilize the renderer
 		Renderer::Init();
+
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -97,12 +100,21 @@ namespace Pinecone
 			if (!m_Minimized)
 			{
 				{
-					PC_PROFILE_SCOPE("layerStack OnUpdate");
+					PC_PROFILE_SCOPE("LayerStack OnUpdate");
 
 					// Update all of the layers
 					for (Layer* layer : m_LayerStack)
 						layer->OnUpdate(ts);
 				}
+
+				m_ImGuiLayer->Begin();
+				{
+					PC_PROFILE_SCOPE("LayerStack OnImGuiRender");
+
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+				}
+				m_ImGuiLayer->End();
 			}
 
 			// Update the window
