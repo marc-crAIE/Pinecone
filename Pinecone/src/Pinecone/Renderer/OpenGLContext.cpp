@@ -15,6 +15,8 @@ namespace Pinecone
 
     void OpenGLContext::Init()
     {
+        PC_PROFILE_FUNCTION();
+
         // Make the context of our window handle current to do our OpenGL drawing in
         glfwMakeContextCurrent(m_WindowHandle);
         // Initialize Glad to be able to call the OpenGL API functions
@@ -35,6 +37,8 @@ namespace Pinecone
 
     void OpenGLContext::SwapBuffers()
     {
+        PC_PROFILE_FUNCTION();
+
         glfwSwapBuffers(m_WindowHandle);
     }
 

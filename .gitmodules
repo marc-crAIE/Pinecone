@@ -10,3 +10,6 @@
 [submodule "Pinecone/vendor/msdf-atlas-gen"]
 	path = Pinecone/vendor/msdf-atlas-gen
 	url = https://github.com/marc-cr1810/msdf-atlas-gen.git
+[submodule "Pinecone/vendor/imgui"]
+	path = Pinecone/vendor/imgui
+	url = https://github.com/marc-crAIE/imgui.git

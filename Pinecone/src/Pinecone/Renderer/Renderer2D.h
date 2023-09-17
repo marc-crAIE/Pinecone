@@ -125,7 +125,7 @@ namespace Pinecone
 		/// <param name="texture">The texture to render the quad with</param>
 		/// <param name="tilingFactor">How should the texture be tiled (1 is to show the full texture without tiling)</param>
 		/// <param name="tintColor">The tint color (leave as white to render the texture in full colors)</param>
-		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), const glm::vec2& flipAxies = { 0.0f, 0.0f });
 
 		static void DrawLine(const glm::vec2& p0, const glm::vec2& p1, const glm::vec4& color);
 		static void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color);

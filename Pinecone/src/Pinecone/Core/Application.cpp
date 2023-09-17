@@ -11,6 +11,8 @@ namespace Pinecone
 
 	Application::Application()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Make sure there is only one instance of the application
 		PC_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -22,10 +24,15 @@ namespace Pinecone
 
 		// Initilize the renderer
 		Renderer::Init();
+
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Shutdown the renderer
 		Renderer::Shutdown();
 	}
@@ -38,6 +45,8 @@ namespace Pinecone
 
 	void Application::OnEvent(Event& e)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Create the event dispatcher
 		EventDispatcher dispatcher(e);
 		// Dispatch the specified event types to their appropriate functions
@@ -58,6 +67,8 @@ namespace Pinecone
 
 	void Application::PushLayer(Layer* layer)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Push the layer to the layer stack and call its OnAttach function
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
@@ -65,6 +76,8 @@ namespace Pinecone
 
 	void Application::PushOverlay(Layer* overlay)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Push the overlay to the layer stack and call its OnAttach function
 		m_LayerStack.PushOverlay(overlay);
 		overlay->OnAttach();
@@ -72,8 +85,12 @@ namespace Pinecone
 
 	void Application::Run()
 	{
+		PC_PROFILE_FUNCTION();
+
 		while (m_Running)
 		{
+			PC_PROFILE_SCOPE("RunLoop");
+
 			// Get the time in seconds since we had the previous frame
 			float time = Time::GetTime();
 			Timestep ts = time - m_LastFrameTime;
@@ -82,9 +99,22 @@ namespace Pinecone
 			// Don't update layers when minimized
 			if (!m_Minimized)
 			{
-				// Update all of the layers
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate(ts);
+				{
+					PC_PROFILE_SCOPE("LayerStack OnUpdate");
+
+					// Update all of the layers
+					for (Layer* layer : m_LayerStack)
+						layer->OnUpdate(ts);
+				}
+
+				m_ImGuiLayer->Begin();
+				{
+					PC_PROFILE_SCOPE("LayerStack OnImGuiRender");
+
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+				}
+				m_ImGuiLayer->End();
 			}
 
 			// Update the window
@@ -102,6 +132,8 @@ namespace Pinecone
 
 	bool Application::OnWindowResized(WindowResizeEvent& e)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// If the width and height is 0 then the window is most likely minimized
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{

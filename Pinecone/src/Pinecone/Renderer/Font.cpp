@@ -16,31 +16,42 @@ namespace Pinecone {
 	static Ref<Texture2D> CreateAndCacheAtlas(const std::string& fontName, float fontSize, const std::vector<msdf_atlas::GlyphGeometry>& glyphs,
 		const msdf_atlas::FontGeometry& fontGeometry, uint32_t width, uint32_t height)
 	{
+		PC_PROFILE_FUNCTION();
+
 		msdf_atlas::GeneratorAttributes attributes;
 		attributes.config.overlapSupport = true;
 		attributes.scanlinePass = true;
 
 		msdf_atlas::ImmediateAtlasGenerator<S, N, GenFunc, msdf_atlas::BitmapAtlasStorage<T, N>> generator(width, height);
-		generator.setAttributes(attributes);
-		generator.setThreadCount(8);
-		generator.generate(glyphs.data(), (int)glyphs.size());
+		{
+			PC_PROFILE_SCOPE("GenerateFontAtlas");
+			generator.setAttributes(attributes);
+			generator.setThreadCount(8);
+			generator.generate(glyphs.data(), (int)glyphs.size());
+		}
 
 		msdfgen::BitmapConstRef<T, N> bitmap = (msdfgen::BitmapConstRef<T, N>)generator.atlasStorage();
 
-		TextureSpecification spec;
-		spec.Width = bitmap.width;
-		spec.Height = bitmap.height;
-		spec.Format = ImageFormat::RGB8;
-		spec.GenerateMips = false;
+		{
+			PC_PROFILE_SCOPE("CreateFontTexture");
+			TextureSpecification spec;
+			spec.Width = bitmap.width;
+			spec.Height = bitmap.height;
+			spec.Format = ImageFormat::RGB8;
+			spec.GenerateMips = false;
+			spec.Filter = TextureFilter::LINEAR;
 
-		Ref<Texture2D> texture = Texture2D::Create(spec);
-		texture->SetData((void*)bitmap.pixels, bitmap.width * bitmap.height * 3);
-		return texture;
+			Ref<Texture2D> texture = Texture2D::Create(spec);
+			texture->SetData((void*)bitmap.pixels, bitmap.width * bitmap.height * 3);
+			return texture;
+		}
 	}
 
 	Font::Font(const std::filesystem::path& filepath)
 		: m_Data(new MSDFData())
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Initialize the FreeType font library
 		msdfgen::FreetypeHandle* ft = msdfgen::initializeFreetype();
 		PC_CORE_ASSERT(ft);
@@ -130,6 +141,8 @@ namespace Pinecone {
 
 	Font::~Font()
 	{
+		PC_PROFILE_FUNCTION();
+
 		delete m_Data;
 	}
 

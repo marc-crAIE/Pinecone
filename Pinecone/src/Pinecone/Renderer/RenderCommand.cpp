@@ -28,6 +28,8 @@ namespace Pinecone
 
 	void RenderCommand::Init()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// If we are in debug mode, setup our OpenGL debug output message settings and callback function
 #ifdef PC_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);

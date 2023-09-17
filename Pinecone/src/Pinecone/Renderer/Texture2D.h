@@ -19,6 +19,11 @@ namespace Pinecone
 		/// <param name="filepath">The file path to the texture file</param>
 		Texture2D(const std::string& filepath);
 		/// <summary>
+		/// The Texture2D constructor for creating a texture from a file with a texture specification
+		/// </summary>
+		/// <param name="specification">The texture specification</param>
+		Texture2D(const TextureSpecification& specification, const std::string& filepath);
+		/// <summary>
 		/// The Texture deconstructor
 		/// </summary>
 		~Texture2D() override;
@@ -91,6 +96,15 @@ namespace Pinecone
 		/// <param name="filepath">The file path to the texture file</param>
 		/// <returns>A shared pointer to a new Texture2D</returns>
 		static Ref<Texture2D> Create(const std::string& filepath);
+		/// <summary>
+		/// Create a smart shared pointer to a new Texture2D
+		/// </summary>
+		/// <param name="specification">The texture specification</param>
+		/// <param name="filepath">The file path to the texture file</param>
+		/// <returns>A shared pointer to a new Texture2D</returns>
+		static Ref<Texture2D> Create(const TextureSpecification& specification, const std::string& filepath);
+	private:
+		void CreateFromFile(const std::string& filepath);
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Width, m_Height;

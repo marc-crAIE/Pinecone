@@ -33,6 +33,9 @@ namespace Pinecone
 		/// </summary>
 		/// <param name="ts">The amount of time passed in seconds</param>
 		virtual void OnUpdate(Timestep ts) { }
+
+		virtual void OnImGuiRender() {}
+
 		/// <summary>
 		/// Called when an event has occured
 		/// </summary>

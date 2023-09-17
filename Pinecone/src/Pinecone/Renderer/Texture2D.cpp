@@ -37,6 +37,8 @@ namespace Pinecone
 	Texture2D::Texture2D(const TextureSpecification& specification)
 		: m_Specification(specification), m_Width(specification.Width), m_Height(specification.Height)
 	{
+		PC_PROFILE_FUNCTION();
+
 		m_InternalFormat = Utils::PineconeImageFormatToGLInternalFormat(m_Specification.Format);
 		m_DataFormat = Utils::PineconeImageFormatToGLDataFormat(m_Specification.Format);
 
@@ -44,9 +46,11 @@ namespace Pinecone
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
 
+		GLenum filter = m_Specification.Filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+
 		// Configure the parameters for the texture
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, filter);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, filter);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -55,6 +59,67 @@ namespace Pinecone
 	Texture2D::Texture2D(const std::string& filepath)
 		: m_FilePath(filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
+		CreateFromFile(filepath);
+	}
+
+	Texture2D::Texture2D(const TextureSpecification& specification, const std::string& filepath)
+		: m_Specification(specification), m_FilePath(filepath)
+	{
+		PC_PROFILE_FUNCTION();
+
+		CreateFromFile(filepath);
+
+	}
+
+	Texture2D::~Texture2D()
+	{
+		PC_PROFILE_FUNCTION();
+
+		// Delete the texture
+		glDeleteTextures(1, &m_RendererID);
+	}
+
+	void Texture2D::SetData(void* data, uint32_t size)
+	{
+		PC_PROFILE_FUNCTION();
+
+		// Get the bits per pixel
+		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		// Make sure the size of the data will fill the data of the entire texture
+		PC_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		// Set the data of the texture
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+	}
+
+	void Texture2D::Bind(uint32_t slot) const
+	{
+		PC_PROFILE_FUNCTION();
+
+		// Bind the texture to the specified slot
+		glBindTextureUnit(slot, m_RendererID);
+	}
+
+	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
+	{
+		return CreateRef<Texture2D>(specification);
+	}
+
+	Ref<Texture2D> Texture2D::Create(const std::string& filepath)
+	{
+		return CreateRef<Texture2D>(filepath);
+	}
+
+	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification, const std::string& filepath)
+	{
+		return CreateRef<Texture2D>(specification, filepath);
+	}
+
+	void Texture2D::CreateFromFile(const std::string& filepath)
+	{
+		PC_PROFILE_FUNCTION();
+
 		int width, height, channels;
 		// Make sure the first pixel read from the texture is on the bottom left
 		// Not doing this will make our textures appear to be upside down
@@ -68,6 +133,8 @@ namespace Pinecone
 
 			m_Width = width;
 			m_Height = height;
+			m_Specification.Width = m_Width;
+			m_Specification.Height = m_Height;
 
 			// Figure out what the format of the texture is based on the amount of color channels
 			GLenum internalFormat = 0, dataFormat = 0;
@@ -92,9 +159,12 @@ namespace Pinecone
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
+
+			GLenum filter = m_Specification.Filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
+
 			// Configure the parameters for the texture
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, filter);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, filter);
 
 			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -105,37 +175,5 @@ namespace Pinecone
 			// Free the stb image data
 			stbi_image_free(data);
 		}
-	}
-
-	Texture2D::~Texture2D()
-	{
-		// Delete the texture
-		glDeleteTextures(1, &m_RendererID);
-	}
-
-	void Texture2D::SetData(void* data, uint32_t size)
-	{
-		// Get the bits per pixel
-		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-		// Make sure the size of the data will fill the data of the entire texture
-		PC_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-		// Set the data of the texture
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
-	}
-
-	void Texture2D::Bind(uint32_t slot) const
-	{
-		// Bind the texture to the specified slot
-		glBindTextureUnit(slot, m_RendererID);
-	}
-
-	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
-	{
-		return CreateRef<Texture2D>(specification);
-	}
-
-	Ref<Texture2D> Texture2D::Create(const std::string& filepath)
-	{
-		return CreateRef<Texture2D>(filepath);
 	}
 }

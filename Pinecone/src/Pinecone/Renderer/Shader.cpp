@@ -28,6 +28,8 @@ namespace Pinecone
 
 	Shader::Shader(const std::string& filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Read the shader code form the file
 		std::string source = ReadFile(filepath);
 		// Then process the code into the shader types and their code
@@ -38,6 +40,8 @@ namespace Pinecone
 
 	Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Create a map of our shader types and their code
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
@@ -48,12 +52,16 @@ namespace Pinecone
 
 	Shader::~Shader()
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Delete the shader
 		glDeleteProgram(m_RendererID);
 	}
 
 	std::string Shader::ReadFile(const std::string& filepath)
 	{
+		PC_PROFILE_FUNCTION();
+
 		std::string result;
 		// Open the file
 		std::ifstream in(filepath, std::ios::in, std::ios::binary);
@@ -80,6 +88,8 @@ namespace Pinecone
 
 	std::unordered_map<GLenum, std::string> Shader::PreProcess(const std::string& source)
 	{
+		PC_PROFILE_FUNCTION();
+
 		std::unordered_map<GLenum, std::string> shaderSources;
 
 		// The token to look for that contains the shader type written after it in the shader code
@@ -112,6 +122,8 @@ namespace Pinecone
 
 	void Shader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Create a new program to attach our shaders to
 		GLuint program = glCreateProgram();
 		// Used to keep track of the created shader ID's
@@ -200,18 +212,24 @@ namespace Pinecone
 
 	void Shader::Bind() const
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Use our shader program
 		glUseProgram(m_RendererID);
 	}
 
 	void Shader::Unbind() const
 	{
+		PC_PROFILE_FUNCTION();
+
 		// No longer use this shader program
 		glUseProgram(0);
 	}
 
 	void Shader::UploadUniformInt(const std::string& name, int value)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1i(location, value);
@@ -219,6 +237,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, values);
@@ -226,6 +246,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformFloat(const std::string& name, float value)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1f(location, value);
@@ -233,6 +255,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformFloat2(const std::string& name, const glm::vec2& value)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2f(location, value.x, value.y);
@@ -240,6 +264,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformFloat3(const std::string& name, const glm::vec3& value)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform3f(location, value.x, value.y, value.z);
@@ -247,6 +273,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform4f(location, value.x, value.y, value.z, value.w);
@@ -254,6 +282,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
@@ -261,6 +291,8 @@ namespace Pinecone
 
 	void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
+		PC_PROFILE_FUNCTION();
+
 		// Get the location of the variable and set its value
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));

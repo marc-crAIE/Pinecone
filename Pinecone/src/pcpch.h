@@ -16,4 +16,6 @@
 #include "Pinecone/Core/Base.h"
 #include "Pinecone/Core/Log.h"
 
+#include "Pinecone/Debug/Instrumentor.h"
+
 #include <Windows.h>

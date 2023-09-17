@@ -32,6 +32,7 @@ project "Pinecone"
 		"vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}",
@@ -43,6 +44,7 @@ project "Pinecone"
 	{
 		"GLFW",
 		"Glad",
+		"ImGui",
 		"msdf-atlas-gen",
 		"opengl32.lib"
 	}
