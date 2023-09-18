@@ -78,6 +78,7 @@ namespace Pinecone
 	{
 		// Create a new game object with a new entity handle
 		GameObject gameObject = { m_Registry.create(), this };
+
 		// Generate a new random UUID
 		UUID uuid;
 		// Add the UUID and transform component
@@ -149,6 +150,11 @@ namespace Pinecone
 		}
 		// return all of the objects we found
 		return objects;
+	}
+
+	bool Scene::GameObjectExists(GameObject go)
+	{
+		return m_Registry.valid(go);
 	}
 
 	GameObject Scene::GetPrimaryCameraGameObject()

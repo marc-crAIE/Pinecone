@@ -65,6 +65,8 @@ namespace Pinecone
 		/// <returns>The found game objects</returns>
 		std::vector<GameObject> GetGameObjectsByTag(std::string_view name);
 
+		bool GameObjectExists(GameObject go);
+
 		/// <summary>
 		/// Gets the game object that has a camera component that is flagged as the 
 		/// primary camera. The entity handle of the game object returned is null if

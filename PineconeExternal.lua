@@ -2,6 +2,7 @@ IncludeDir = {}
 IncludeDir["stb_image"] = "%{wks.location}/Pinecone/Pinecone/vendor/stb_image"
 IncludeDir["GLFW"] = "%{wks.location}/Pinecone/Pinecone/vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Pinecone/Pinecone/vendor/Glad/include"
+IncludeDir["ImGui"] = "%{wks.location}/Pinecone/Pinecone/vendor/imgui"
 IncludeDir["glm"] = "%{wks.location}/Pinecone/Pinecone/vendor/glm"
 IncludeDir["entt"] = "%{wks.location}/Pinecone/Pinecone/vendor/entt/include"
 IncludeDir["msdfgen"] = "%{wks.location}/Pinecone/Pinecone/vendor/msdf-atlas-gen/msdfgen"
@@ -14,6 +15,7 @@ Library = {}
 group "Dependencies"
 	include "Pinecone/vendor/GLFW"
 	include "Pinecone/vendor/Glad"
+	include "Pinecone/vendor/imgui"
 	include "Pinecone/vendor/msdf-atlas-gen"
 group ""
 

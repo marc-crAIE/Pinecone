@@ -203,7 +203,12 @@ namespace Pinecone
 	}
 }
 
-#define PC_PROFILE 1
+#ifdef PC_DEBUG
+#	define PC_PROFILE 1
+#else
+#	define PC_PROFILE 0
+#endif
+
 #if PC_PROFILE
 // Resolve which function signature macro will be used. Note that this only
 // is resolved when the (pre)compiler starts, so the syntax highlighting
