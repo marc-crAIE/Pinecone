@@ -3,7 +3,7 @@ include "Dependencies.lua"
 
 workspace "Pinecone"
 	architecture "x86_64"
-	startproject "Sandbox"
+	startproject "Pinecone-Editor"
 
 	configurations
 	{
@@ -34,6 +34,10 @@ group ""
 
 group "Core"
 	include "Pinecone"
+group ""
+
+group "Tools"
+	include "Pinecone-Editor"
 group ""
 
 group "Misc"
