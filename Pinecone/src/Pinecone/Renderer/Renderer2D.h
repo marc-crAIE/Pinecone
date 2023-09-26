@@ -117,7 +117,7 @@ namespace Pinecone
 		/// </summary>
 		/// <param name="transform">The quads transform</param>
 		/// <param name="color">The color of the quad</param>
-		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 		/// <summary>
 		/// Draw a 2D quad with a given transform matrix and a texture
 		/// </summary>
@@ -125,17 +125,17 @@ namespace Pinecone
 		/// <param name="texture">The texture to render the quad with</param>
 		/// <param name="tilingFactor">How should the texture be tiled (1 is to show the full texture without tiling)</param>
 		/// <param name="tintColor">The tint color (leave as white to render the texture in full colors)</param>
-		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), const glm::vec2& flipAxies = { 0.0f, 0.0f });
+		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), const glm::vec2& flipAxies = { 0.0f, 0.0f }, int entityID = -1);
 
-		static void DrawLine(const glm::vec2& p0, const glm::vec2& p1, const glm::vec4& color);
-		static void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color);
+		static void DrawLine(const glm::vec2& p0, const glm::vec2& p1, const glm::vec4& color, int entityID = -1);
+		static void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color, int entityID = -1);
 
 		/// <summary>
 		/// Draw a 2D quad with a given transform and a sprite component to get the color and texture information from
 		/// </summary>
 		/// <param name="transform">The sprites transform</param>
 		/// <param name="sprite">The sprite component</param>
-		static void DrawSprite(const glm::mat4& transform, SpriteComponent& sprite);
+		static void DrawSprite(const glm::mat4& transform, SpriteComponent& sprite, int entityID);
 
 		/// <summary>
 		/// Draw a string with a given font, transform, and color
@@ -144,7 +144,7 @@ namespace Pinecone
 		/// <param name="font">The specified font (use Font::GetDefault for the default font)</param>
 		/// <param name="transform">The transform of the string</param>
 		/// <param name="color">The color to render the string with</param>
-		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color);
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 
 		struct Statistics
 		{

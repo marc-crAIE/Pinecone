@@ -66,7 +66,7 @@ namespace Pinecone
 			{
 				// Get the sprite and transform components of the game object and draw it to the screen
 				auto [transform, sprite] = sprites.get<TransformComponent, SpriteComponent>(e);
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite);
+				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)e);
 			}
 
 			// End our 2D scene drawing
