@@ -13,3 +13,6 @@
 [submodule "Pinecone/vendor/imgui"]
 	path = Pinecone/vendor/imgui
 	url = https://github.com/marc-crAIE/imgui.git
+[submodule "Pinecone/vendor/ImGuizmo"]
+	path = Pinecone/vendor/ImGuizmo
+	url = https://github.com/marc-crAIE/ImGuizmo.git
