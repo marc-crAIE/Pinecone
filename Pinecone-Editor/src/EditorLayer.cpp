@@ -26,6 +26,9 @@ namespace Pinecone
 
 		m_EditorScene = CreateRef<Scene>();
 
+		m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
+		m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
+
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 
 		m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
@@ -56,9 +59,6 @@ namespace Pinecone
 			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 		}
-
-		// Update
-		m_EditorCamera.OnUpdate(ts);
 
 		// Render
 		Renderer2D::ResetStats();
@@ -98,6 +98,8 @@ namespace Pinecone
 			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
 			m_HoveredGameObject = pixelData == -1 ? GameObject() : GameObject((entt::entity)pixelData, m_ActiveScene.get());
 		}
+
+		OnOverlayRender();
 
 		m_Framebuffer->Unbind();
 	}
@@ -253,6 +255,8 @@ namespace Pinecone
 			ImGui::PopStyleVar();
 		}
 
+		UIToolbar();
+
 		ImGui::End();
 	}
 
@@ -279,7 +283,17 @@ namespace Pinecone
 
 		switch (e.GetKeyCode())
 		{
-			// Gizmos
+		case Key::F5:
+		{
+			// Play and stop function key
+			if (m_SceneState == SceneState::Edit)
+				OnScenePlay();
+			else if (m_SceneState == SceneState::Play)
+				OnSceneStop();
+			break;
+		}
+
+		// Gizmos
 		case Key::Q:
 		{
 			if (!ImGuizmo::IsUsing())
@@ -315,5 +329,96 @@ namespace Pinecone
 				m_SceneHierarchyPanel.SetSelectedGameObject(m_HoveredGameObject);
 		}
 		return false;
+	}
+
+	void EditorLayer::OnScenePlay()
+	{
+		m_SceneState = SceneState::Play;
+
+		m_ActiveScene = Scene::Copy(m_EditorScene);
+		m_ActiveScene->OnRuntimeStart();
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_PropertiesPanel.SetSceneContext(m_ActiveScene);
+	}
+
+	void EditorLayer::OnSceneStop()
+	{
+		PC_CORE_ASSERT(m_SceneState == SceneState::Play);
+
+		if (m_SceneState == SceneState::Play)
+			m_ActiveScene->OnRuntimeStop();
+
+		m_SceneState = SceneState::Edit;
+
+		m_ActiveScene = m_EditorScene;
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_PropertiesPanel.SetSceneContext(m_ActiveScene);
+	}
+
+	void EditorLayer::OnOverlayRender()
+	{
+		if (m_SceneState == SceneState::Play)
+		{
+			GameObject camera = m_ActiveScene->GetPrimaryCameraGameObject();
+			if (!camera)
+				return;
+			Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
+		}
+		else
+		{
+			Renderer2D::BeginScene(m_EditorCamera);
+		}
+
+		GameObject selectedGO = m_SceneHierarchyPanel.GetSelectedGameObject();
+		if (selectedGO && m_SceneState != SceneState::Play)
+		{
+			if (selectedGO.HasComponent<SpriteComponent>())
+			{
+				TransformComponent tc = selectedGO.GetComponent<TransformComponent>();
+				Renderer2D::DrawRect(tc.GetTransform(), glm::vec4(1, 0.8, 0.2, 1));
+			}
+		}
+
+		Renderer2D::EndScene();
+	}
+
+	void EditorLayer::UIToolbar()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		auto& colors = ImGui::GetStyle().Colors;
+		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+		ImGuiID dockspace_id = ImGui::GetID("EditorDockspace");
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		bool toolbarEnabled = (bool)m_ActiveScene;
+
+		ImVec4 tintColor = ImVec4(1, 1, 1, 1);
+		if (!toolbarEnabled)
+			tintColor.w = 0.5f;
+
+		float size = ImGui::GetWindowHeight() - 2.5f;
+		{
+			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit) ? m_IconPlay : m_IconStop;
+			ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - ((m_SceneState != SceneState::Edit) ? 0 : (size * 0.5f)));
+			if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 1), ImVec2(1, 0), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
+			{
+				if (m_SceneState == SceneState::Edit)
+					OnScenePlay();
+				else if (m_SceneState == SceneState::Play)
+					OnSceneStop();
+			}
+		}
+
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+		ImGui::End();
 	}
 }

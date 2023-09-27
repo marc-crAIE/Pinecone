@@ -10,6 +10,7 @@ namespace Pinecone
 {
 	static std::unordered_map<UUID, Scene*> s_ActiveScenes;
 
+
 	Scene::Scene(const std::string& name)
 		: m_Name(name)
 	{
@@ -122,6 +123,17 @@ namespace Pinecone
 		return gameObject;
 	}
 
+	GameObject Scene::CreateGameObjectWithUUID(UUID uuid, const std::string& name)
+	{
+		GameObject gameObject = { m_Registry.create(), this };
+		gameObject.AddComponent<IDComponent>(uuid);
+		gameObject.AddComponent<TransformComponent>();
+		auto& tag = gameObject.AddComponent<TagComponent>();
+		tag.Tag = name.empty() ? "GameObject" : name;
+		m_GameObjectMap[uuid] = gameObject;
+		return gameObject;
+	}
+
 	void Scene::DestroyGameObject(GameObject gameObject)
 	{
 		// Check to make sure if the game object has a native script component
@@ -215,6 +227,70 @@ namespace Pinecone
 			if (!cameraComponent.FixedAspectRatio)
 				cameraComponent.Camera.SetViewportSize(width, height);
 		}
+	}
+	template<typename... Component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		([&]()
+			{
+				auto view = src.view<Component>();
+				for (auto srcEntity : view)
+				{
+					entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity));
+
+					auto& srcComponent = src.get<Component>(srcEntity);
+					dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+				}
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		CopyComponent<Component...>(dst, src, enttMap);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(GameObject dst, GameObject src)
+	{
+		([&]()
+			{
+				if (src.HasComponent<Component>())
+					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(ComponentGroup<Component...>, GameObject dst, GameObject src)
+	{
+		CopyComponentIfExists<Component...>(dst, src);
+	}
+
+	Ref<Scene> Scene::Copy(Ref<Scene> other)
+	{
+		Ref<Scene> newScene = CreateRef<Scene>();
+
+		newScene->m_ViewportWidth = other->m_ViewportWidth;
+		newScene->m_ViewportHeight = other->m_ViewportHeight;
+
+		auto& srcSceneRegistry = other->m_Registry;
+		auto& dstSceneRegistry = newScene->m_Registry;
+		std::unordered_map<UUID, entt::entity> enttMap;
+
+		// Create game objects in new scene
+		auto idView = srcSceneRegistry.view<IDComponent>();
+		for (auto e : idView)
+		{
+			UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
+			const auto& name = srcSceneRegistry.get<TagComponent>(e);
+			GameObject newGameObject = newScene->CreateGameObjectWithUUID(uuid, name);
+			enttMap[uuid] = (entt::entity)newGameObject;
+		}
+
+		// Copy components (except IDComponent and TagComponent)
+		CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		return newScene;
 	}
 
 	void Scene::RenderScene(EditorCamera& camera)

@@ -43,6 +43,7 @@ namespace Pinecone
 		/// <param name="name">The value of the tag component</param>
 		/// <returns></returns>
 		GameObject CreateGameObject(const std::string& name = std::string());
+		GameObject CreateGameObjectWithUUID(UUID uuid, const std::string& name = std::string());
 		/// <summary>
 		/// Destroys a game object and removes it from the scene
 		/// </summary>
@@ -87,6 +88,8 @@ namespace Pinecone
 		/// for all game objects with camera components
 		/// </summary>
 		void OnViewportResize(uint32_t width, uint32_t height);
+
+		static Ref<Scene> Copy(Ref<Scene> other);
 	private:
 		void RenderScene(EditorCamera& camera);
 	private:

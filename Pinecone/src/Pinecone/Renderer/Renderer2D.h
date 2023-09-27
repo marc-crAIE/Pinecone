@@ -131,6 +131,8 @@ namespace Pinecone
 		static void DrawLine(const glm::vec2& p0, const glm::vec2& p1, const glm::vec4& color, int entityID = -1);
 		static void DrawLine(const glm::vec3& p0, const glm::vec3& p1, const glm::vec4& color, int entityID = -1);
 
+		static void DrawRect(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+
 		/// <summary>
 		/// Draw a 2D quad with a given transform and a sprite component to get the color and texture information from
 		/// </summary>

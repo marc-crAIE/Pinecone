@@ -23,6 +23,14 @@ namespace Pinecone
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+
+		void OnScenePlay();
+		void OnSceneStop();
+
+		void OnOverlayRender();
+
+		// UI Panels
+		void UIToolbar();
 	private:
 		EditorCamera m_EditorCamera;
 
@@ -51,5 +59,8 @@ namespace Pinecone
 		bool m_StatsOpen = true;
 
 		GameObject m_HoveredGameObject;
+
+		// Editor resources
+		Ref<Texture2D> m_IconPlay, m_IconStop;
 	};
 }
