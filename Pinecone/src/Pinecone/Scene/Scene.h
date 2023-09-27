@@ -2,6 +2,7 @@
 
 #include "Pinecone/Core/UUID.h"
 #include "Pinecone/Core/Timestep.h"
+#include "Pinecone/Renderer/EditorCamera.h"
 
 #include <entt.hpp>
 
@@ -15,17 +16,25 @@ namespace Pinecone
 		/// <summary>
 		/// The Scene constructor
 		/// </summary>
-		Scene() = default;
+		Scene(const std::string& name = "Untitled");
 		/// <summary>
 		/// The Scene destructor
 		/// </summary>
 		~Scene() = default;
 
+		void OnRuntimeStart();
+		void OnRuntimeStop();
+
 		/// <summary>
-		/// Called when the scene is to be updated.
+		/// Called when the scene runtime is to be updated.
 		/// </summary>
 		/// <param name="ts">The amount of time passed (in seconds)</param>
-		void OnUpdate(Timestep ts);
+		void OnUpdateRuntime(Timestep ts);
+		/// <summary>
+		/// Called when the scene in editor mode is to be updated.
+		/// </summary>
+		/// <param name="ts">The amount of time passed (in seconds)</param>
+		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
 
 		/// <summary>
 		/// Create a new game object in the scene. Can also accept a name that will
@@ -79,11 +88,20 @@ namespace Pinecone
 		/// </summary>
 		void OnViewportResize(uint32_t width, uint32_t height);
 	private:
+		void RenderScene(EditorCamera& camera);
+	private:
+		UUID m_SceneID;
+		std::string m_Name;
+
 		entt::registry m_Registry;
 		std::unordered_map<UUID, entt::entity> m_GameObjectMap;
 
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+		bool m_Running = false;
+
+		entt::entity m_SceneEntity;
 
 		friend class GameObject;
+		friend class SceneHierarchyPanel;
 	};
 }

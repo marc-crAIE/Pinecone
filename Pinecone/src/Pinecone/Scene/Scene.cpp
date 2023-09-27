@@ -8,7 +8,31 @@
 
 namespace Pinecone
 {
-	void Scene::OnUpdate(Timestep ts)
+	static std::unordered_map<UUID, Scene*> s_ActiveScenes;
+
+	Scene::Scene(const std::string& name)
+		: m_Name(name)
+	{
+		// Create Scene entity
+		m_SceneEntity = m_Registry.create();
+		m_Registry.emplace<SceneComponent>(m_SceneEntity, m_SceneID);
+	}
+
+	void Scene::OnRuntimeStart()
+	{
+		m_Running = true;
+
+		s_ActiveScenes[m_SceneID] = this;
+	}
+
+	void Scene::OnRuntimeStop()
+	{
+		m_Running = false;
+
+		s_ActiveScenes.erase(m_SceneID);
+	}
+
+	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		// Update scripts
 		m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
@@ -72,6 +96,11 @@ namespace Pinecone
 			// End our 2D scene drawing
 			Renderer2D::EndScene();
 		}
+	}
+
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		RenderScene(camera);
 	}
 
 	GameObject Scene::CreateGameObject(const std::string& name)
@@ -183,7 +212,26 @@ namespace Pinecone
 		{
 			// Get the camera component and update its viewport
 			auto& cameraComponent = view.get<CameraComponent>(go);
-			cameraComponent.Camera.SetViewportSize(width, height);
+			if (!cameraComponent.FixedAspectRatio)
+				cameraComponent.Camera.SetViewportSize(width, height);
 		}
+	}
+
+	void Scene::RenderScene(EditorCamera& camera)
+	{
+		Renderer2D::BeginScene(camera);
+
+		// Draw sprites
+		{
+			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteComponent>);
+			for (auto entity : group)
+			{
+				auto [transform, sprite] = group.get<TransformComponent, SpriteComponent>(entity);
+
+				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			}
+		}
+
+		Renderer2D::EndScene();
 	}
 }

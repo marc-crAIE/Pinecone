@@ -86,7 +86,7 @@ namespace Sandbox
 		m_Framebuffer->Bind();
 		RenderCommand::Clear();
 
-		m_ActiveScene->OnUpdate(ts);
+		m_ActiveScene->OnUpdateRuntime(ts);
 
 		Renderer2D::BeginScene(m_Camera.GetComponent<CameraComponent>().Camera);
 

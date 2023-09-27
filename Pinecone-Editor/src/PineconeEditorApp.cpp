@@ -1,11 +1,9 @@
 #include <Pinecone.h>
 #include <Pinecone/Core/EntryPoint.h>
 
-using namespace Pinecone;
-
 #include "EditorLayer.h"
 
-namespace Pinecone_Editor
+namespace Pinecone
 {
 	class PineconeEditor : public Application
 	{
@@ -19,9 +17,9 @@ namespace Pinecone_Editor
 		~PineconeEditor()
 		{}
 	};
-}
 
-Application* Pinecone::CreateApplication()
-{
-	return new Pinecone_Editor::PineconeEditor();
+	Application* Pinecone::CreateApplication()
+	{
+		return new PineconeEditor();
+	}
 }

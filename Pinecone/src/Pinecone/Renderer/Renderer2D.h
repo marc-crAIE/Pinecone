@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pinecone/Renderer/Camera.h"
+#include "Pinecone/Renderer/EditorCamera.h"
 #include "Pinecone/Renderer/Texture2D.h"
 #include "Pinecone/Renderer/Font.h"
 
@@ -21,10 +22,10 @@ namespace Pinecone
 		static void Shutdown();
 
 		/// <summary>
-		/// Begin rendering a 2D scene
+		/// Begin rendering a 2D scene with an editor camera
 		/// </summary>
-		/// <param name="camera">The camera</param>
-		static void BeginScene(const Camera& camera);
+		/// <param name="camera">The editor camera</param>
+		static void BeginScene(const EditorCamera& camera);
 		/// <summary>
 		/// Begin rendering a 2D scene with a camera transform modifier
 		/// </summary>

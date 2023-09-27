@@ -79,6 +79,7 @@ namespace Pinecone
 	{
 		Pinecone::SceneCamera Camera;
 		bool Primary = true; // TODO: Probably should be managed directly by/moved to Scene
+		bool FixedAspectRatio = false;
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
@@ -100,5 +101,11 @@ namespace Pinecone
 			Instance = static_cast<ScriptableGameObject*>(new T(std::forward<Args>(args)...));
 			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
+	};
+
+	// For internal use
+	struct SceneComponent
+	{
+		UUID SceneID;
 	};
 }

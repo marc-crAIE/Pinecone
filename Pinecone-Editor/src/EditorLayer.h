@@ -3,9 +3,10 @@
 #include <Pinecone.h>
 #include <Pinecone/Renderer/EditorCamera.h>
 
-using namespace Pinecone;
+#include "Drawing/Panels/SceneHeirarchyPanel.h"
+#include "Drawing/Panels/PropertiesPanel.h"
 
-namespace Pinecone_Editor
+namespace Pinecone
 {
 	class EditorLayer : public Layer
 	{
@@ -35,12 +36,16 @@ namespace Pinecone_Editor
 
 		enum class SceneState
 		{
-			Edit = 0, Play = 1, Simulate = 2
+			Edit = 0, Play = 1
 		};
 		SceneState m_SceneState = SceneState::Edit;
 
 		Ref<Scene> m_ActiveScene;
 		Ref<Scene> m_EditorScene;
+
+		// Panels
+		SceneHierarchyPanel m_SceneHierarchyPanel;
+		PropertiesPanel m_PropertiesPanel;
 
 		bool m_ViewportOpen = true;
 		bool m_StatsOpen = true;

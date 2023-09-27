@@ -210,12 +210,12 @@ namespace Pinecone
 		delete[] s_Data.TextVertexBufferBase;
 	}
 
-	void Renderer2D::BeginScene(const Camera& camera)
+	void Renderer2D::BeginScene(const EditorCamera& camera)
 	{
 		PC_PROFILE_FUNCTION();
 
 		// Set the camera buffer view projection from the camera
-		s_Data.CameraBuffer.ViewProjection = camera.GetProjection();
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
 		// Then set the data in the uniform buffer, this will set the view projection in our shaders
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraBuffer));
 
