@@ -3,7 +3,8 @@
 
 #include "Pinecone/Core/Log.h"
 #include "Pinecone/Renderer/Renderer.h"
-#include "Pinecone/Utils/Utils.h"
+#include "Pinecone/Scripting/ScriptEngine.h"
+#include "Pinecone/Utils/PlatformUtils.h"
 
 namespace Pinecone
 {
@@ -25,6 +26,8 @@ namespace Pinecone
 		// Initilize the renderer
 		Renderer::Init();
 
+		ScriptEngine::Init();
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 	}
@@ -35,6 +38,8 @@ namespace Pinecone
 
 		// Shutdown the renderer
 		Renderer::Shutdown();
+
+		ScriptEngine::Shutdown();
 	}
 
 	void Application::Close()

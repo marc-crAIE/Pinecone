@@ -29,11 +29,13 @@ group "Dependencies"
 	include "Pinecone/vendor/GLFW"
 	include "Pinecone/vendor/Glad"
 	include "Pinecone/vendor/imgui"
+	include "Pinecone/vendor/yaml-cpp"
 	include "Pinecone/vendor/msdf-atlas-gen"
 group ""
 
 group "Core"
 	include "Pinecone"
+	include "Pinecone-ScriptCore"
 group ""
 
 group "Tools"

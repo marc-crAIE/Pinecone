@@ -105,6 +105,7 @@ namespace Pinecone
 		entt::entity m_SceneEntity;
 
 		friend class GameObject;
+		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
 	};
 }

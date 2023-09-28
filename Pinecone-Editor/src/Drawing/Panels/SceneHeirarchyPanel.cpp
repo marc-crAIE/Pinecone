@@ -8,7 +8,6 @@
 
 #include "../UIWidgets.h"
 
-
 namespace Pinecone
 {
 	SceneHierarchyPanel::SceneHierarchyPanel()
@@ -60,7 +59,7 @@ namespace Pinecone
 				if (ImGui::BeginPopupContextWindow(0, 1))
 				{
 					if (ImGui::MenuItem("Create Empty Game Object"))
-						m_Context->CreateGameObject("Empty Game Object");
+						m_Context->CreateGameObject("GameObject");
 
 					ImGui::EndPopup();
 				}

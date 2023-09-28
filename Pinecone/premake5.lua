@@ -41,7 +41,9 @@ project "Pinecone"
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}",
 		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.entt}"
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.mono}",
+		"%{IncludeDir.yaml_cpp}"
 	}
 
 	links
@@ -49,8 +51,11 @@ project "Pinecone"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"yaml-cpp",
 		"msdf-atlas-gen",
-		"opengl32.lib"
+		"opengl32.lib",
+
+		"%{Library.mono}",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -65,6 +70,10 @@ project "Pinecone"
 
 		links
 		{
+			"%{Library.WinSock}",
+			"%{Library.WinMM}",
+			"%{Library.WinVersion}",
+			"%{Library.BCrypt}",
 		}
 
 	filter "configurations:Debug"

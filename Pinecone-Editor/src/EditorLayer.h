@@ -5,6 +5,7 @@
 
 #include "Drawing/Panels/SceneHeirarchyPanel.h"
 #include "Drawing/Panels/PropertiesPanel.h"
+#include "Drawing/Panels/ContentBrowserPanel.h"
 
 namespace Pinecone
 {
@@ -29,6 +30,13 @@ namespace Pinecone
 
 		void OnOverlayRender();
 
+		void NewScene();
+		void OpenScene();
+		void OpenScene(const std::filesystem::path& path);
+		void SaveScene();
+		void SaveSceneAs();
+		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
+
 		// UI Panels
 		void UIToolbar();
 	private:
@@ -50,10 +58,12 @@ namespace Pinecone
 
 		Ref<Scene> m_ActiveScene;
 		Ref<Scene> m_EditorScene;
+		std::filesystem::path m_EditorScenePath;
 
 		// Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		PropertiesPanel m_PropertiesPanel;
+		ContentBrowserPanel m_ContentBrowserPanel;
 
 		bool m_ViewportOpen = true;
 		bool m_StatsOpen = true;

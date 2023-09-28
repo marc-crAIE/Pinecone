@@ -1,6 +1,8 @@
 #include "EditorLayer.h"
 
 #include <Pinecone/Math/Math.h>
+#include <Pinecone/Scene/SceneSerializer.h>
+#include <Pinecone/Utils/PlatformUtils.h>
 
 #include <imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,6 +11,8 @@
 
 namespace Pinecone
 {
+	extern const std::filesystem::path g_AssetPath;
+
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer")
 	{
@@ -157,8 +161,55 @@ namespace Pinecone
 
 		style.WindowMinSize.x = minWinSizeX;
 
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				// Disabling fullscreen would allow the window to be moved to the front of other windows, 
+				// which we can't undo at the moment without finer window depth/z control.
+				//ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
+				if (ImGui::MenuItem("New", "Ctrl+N"))
+					NewScene();
+
+				if (ImGui::MenuItem("Open...", "Ctrl+O"))
+					OpenScene();
+
+				if (ImGui::MenuItem("Save", "Ctrl+S"))
+					SaveScene();
+
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+					SaveSceneAs();
+
+				ImGui::Separator();
+				if (ImGui::MenuItem("Exit")) Application::Get().Close();
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("View"))
+			{
+				if (ImGui::MenuItem("Viewport"))
+					m_ViewportOpen = true;
+
+				if (ImGui::MenuItem("Scene Hierarchy"))
+					m_SceneHierarchyPanel.Open();
+
+				if (ImGui::MenuItem("Properties"))
+					m_PropertiesPanel.Open();
+
+				if (ImGui::MenuItem("Content Browser"))
+					m_ContentBrowserPanel.Open();
+
+				if (ImGui::MenuItem("Stats"))
+					m_StatsOpen = true;
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenuBar();
+		}
+
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_PropertiesPanel.OnImGuiRender(m_SceneHierarchyPanel.GetSelectedGameObject());
+		m_ContentBrowserPanel.OnImGuiRender();
 
 		// Stats
 		if (m_StatsOpen)
@@ -200,6 +251,38 @@ namespace Pinecone
 
 			uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+				{
+					const wchar_t* path = (const wchar_t*)payload->Data;
+					auto& file = std::filesystem::path(g_AssetPath) / path;
+
+					if (file.extension() == ".pscene")
+						OpenScene(file);
+					else if (
+						file.extension() == ".png" ||
+						file.extension() == ".jpg" ||
+						file.extension() == ".bmp"
+						)
+					{
+						if (m_HoveredGameObject)
+						{
+							if (m_HoveredGameObject.HasComponent<SpriteComponent>())
+							{
+								auto& src = m_HoveredGameObject.GetComponent<SpriteComponent>();
+								Ref<Texture2D> texture = Texture2D::Create(file.string());
+								if (texture->IsLoaded())
+									src.Texture = texture;
+								else
+									PC_WARN("Could not load texture {0}", file.filename().string());
+							}
+						}
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 
 			// Gizmos
 			GameObject selectedEntity = m_SceneHierarchyPanel.GetSelectedGameObject();
@@ -384,6 +467,71 @@ namespace Pinecone
 		Renderer2D::EndScene();
 	}
 
+	void EditorLayer::NewScene()
+	{
+		m_EditorScene = CreateRef<Scene>();
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
+		m_PropertiesPanel.SetSceneContext(m_EditorScene);
+
+		m_ActiveScene = m_EditorScene;
+	}
+
+	void EditorLayer::OpenScene()
+	{
+		OnSceneStop();
+		std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
+		if (!filepath.empty())
+			OpenScene(filepath);
+	}
+
+	void EditorLayer::OpenScene(const std::filesystem::path& path)
+	{
+		if (m_SceneState != SceneState::Edit)
+			OnSceneStop();
+
+		if (path.extension().string() != ".pscene")
+		{
+			PC_WARN("Could not load {0} as the file is not a scene file", path.filename().string());
+			return;
+		}
+
+		Ref<Scene> newScene = CreateRef<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.Deserialize(path.string()))
+		{
+			m_EditorScene = newScene;
+			m_SceneHierarchyPanel.SetContext(m_EditorScene);
+			m_PropertiesPanel.SetSceneContext(m_EditorScene);
+
+			m_ActiveScene = m_EditorScene;
+			m_EditorScenePath = path;
+		}
+	}
+
+	void EditorLayer::SaveScene()
+	{
+		if (m_EditorScenePath.empty())
+			SaveSceneAs();
+		else
+			SerializeScene(m_ActiveScene, m_EditorScenePath);
+	}
+
+	void EditorLayer::SaveSceneAs()
+	{
+		std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
+		if (!filepath.empty())
+		{
+			SerializeScene(m_ActiveScene, filepath);
+			m_EditorScenePath = filepath;
+		}
+	}
+
+	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
+	{
+		SceneSerializer serializer(scene);
+		serializer.Serialize(path.string());
+	}
+
 	void EditorLayer::UIToolbar()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
@@ -395,7 +543,6 @@ namespace Pinecone
 		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
-		ImGuiID dockspace_id = ImGui::GetID("EditorDockspace");
 		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
 		bool toolbarEnabled = (bool)m_ActiveScene;

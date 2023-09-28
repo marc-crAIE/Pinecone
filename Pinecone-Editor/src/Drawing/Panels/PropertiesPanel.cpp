@@ -11,7 +11,7 @@
 
 namespace Pinecone
 {
-	extern const std::filesystem::path g_AssetPath = "assets";
+	extern const std::filesystem::path g_AssetPath;
 
 	PropertiesPanel::PropertiesPanel()
 	{

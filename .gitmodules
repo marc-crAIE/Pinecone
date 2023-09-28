@@ -16,3 +16,6 @@
 [submodule "Pinecone/vendor/ImGuizmo"]
 	path = Pinecone/vendor/ImGuizmo
 	url = https://github.com/marc-crAIE/ImGuizmo.git
+[submodule "Pinecone/vendor/yaml-cpp"]
+	path = Pinecone/vendor/yaml-cpp
+	url = https://github.com/marc-cr1810/yaml-cpp.git
