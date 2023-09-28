@@ -2,6 +2,8 @@
 #include "Scene.h"
 
 #include "Pinecone/Renderer/Renderer2D.h"
+#include "Pinecone/Scripting/ScriptEngine.h"
+
 #include "Pinecone/Scene/GameObject.h"
 #include "Pinecone/Scene/Components.h"
 #include "Pinecone/Scene/ScriptableGameObject.h"
@@ -24,6 +26,19 @@ namespace Pinecone
 		m_Running = true;
 
 		s_ActiveScenes[m_SceneID] = this;
+
+		// Scripting
+		{
+			ScriptEngine::OnRuntimeStart(this);
+			// Instantiate all script entities
+
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
+			{
+				GameObject gameObject = { e, this };
+				ScriptEngine::OnCreateGameObject(gameObject);
+			}
+		}
 	}
 
 	void Scene::OnRuntimeStop()
@@ -31,29 +46,42 @@ namespace Pinecone
 		m_Running = false;
 
 		s_ActiveScenes.erase(m_SceneID);
+
+		// Stop the script engine
+		ScriptEngine::OnRuntimeStop();
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
 		// Update scripts
-		m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+		{
+			// C# Entity OnUpdate
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
 			{
-				// Check to make sure if the script component is not properly instantiated yet
-				if (!nsc.Instantiated)
-				{
-					// If it is in fact not, set the game object to the one it is attached to and the scene in which
-					// the game object exists in
-					nsc.Instance->m_GameObject = GameObject{ gameObject, this };
-					nsc.Instance->m_SceneContext = this;
-					nsc.Instantiated = true;
+				GameObject gameObject = { e, this };
+				ScriptEngine::OnUpdateGameObject(gameObject, ts);
+			}
 
-					// Call the scripts OnCreate function
-					nsc.Instance->OnCreate();
-				}
-				
-				// Call the scripts OnUpdate function
-				nsc.Instance->OnUpdate(ts);
-			});
+			m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+				{
+					// Check to make sure if the script component is not properly instantiated yet
+					if (!nsc.Instantiated)
+					{
+						// If it is in fact not, set the game object to the one it is attached to and the scene in which
+						// the game object exists in
+						nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+						nsc.Instance->m_SceneContext = this;
+						nsc.Instantiated = true;
+
+						// Call the scripts OnCreate function
+						nsc.Instance->OnCreate();
+					}
+
+					// Call the scripts OnUpdate function
+					nsc.Instance->OnUpdate(ts);
+				});
+		}
 
 		// Get the main camera
 		Camera* mainCamera = nullptr;

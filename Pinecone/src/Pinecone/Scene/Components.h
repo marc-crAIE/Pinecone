@@ -103,6 +103,15 @@ namespace Pinecone
 		}
 	};
 
+	// For C# scripting
+	struct ScriptComponent
+	{
+		std::string ClassName;
+
+		ScriptComponent() = default;
+		ScriptComponent(const ScriptComponent&) = default;
+	};
+
 	// For internal use
 	struct SceneComponent
 	{
@@ -117,5 +126,5 @@ namespace Pinecone
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteComponent,
 		CameraComponent,
-		NativeScriptComponent>;
+		NativeScriptComponent, ScriptComponent>;
 }

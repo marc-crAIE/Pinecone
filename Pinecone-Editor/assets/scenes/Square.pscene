@@ -18,6 +18,8 @@ GameObjects:
         OrthographicFar: 1
       Primary: true
       FixedAspectRatio: false
+    ScriptComponent:
+      ClassName: Sandbox.Camera
   - GameObject: 8293403256025707583
     TagComponent:
       Tag: Square

@@ -217,6 +217,16 @@ namespace Pinecone
 			out << YAML::EndMap; // CameraComponent
 		}
 
+		if (gameObject.HasComponent<ScriptComponent>())
+		{
+			auto& scriptComponent = gameObject.GetComponent<ScriptComponent>();
+
+			out << YAML::Key << "ScriptComponent";
+			out << YAML::BeginMap; // ScriptComponent
+			out << YAML::Key << "ClassName" << YAML::Value << scriptComponent.ClassName;
+			out << YAML::EndMap; // ScriptComponent
+		}
+
 		out << YAML::EndMap; // GameObject
 	}
 
@@ -326,6 +336,13 @@ namespace Pinecone
 
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+				}
+
+				auto scriptComponent = gameObject["ScriptComponent"];
+				if (scriptComponent)
+				{
+					auto& sc = deserializedGO.AddComponent<ScriptComponent>();
+					sc.ClassName = scriptComponent["ClassName"].as<std::string>();
 				}
 			}
 		}
