@@ -1,17 +1,19 @@
-﻿using Pinecone;
 using System;
+using Pinecone;
 
 namespace Sandbox
 {
     public class Camera : GameObject
     {
+        void OnCreate()
+        {
+
+        }
+
         void OnUpdate(float ts)
         {
             float speed = 3.0f;
             Vector3 velocity = Vector3.Zero;
-
-            if (Input.IsKeyDown(KeyCode.Space))
-                Console.WriteLine(ts);
 
             if (Input.IsKeyDown(KeyCode.Up))
                 velocity.Y = 1.0f;

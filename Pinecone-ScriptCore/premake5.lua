@@ -3,8 +3,8 @@ project "Pinecone-ScriptCore"
 	language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("%{wks.location}/Pinecone-Editor/Resources/Scripts")
-	objdir ("%{wks.location}/Pinecone-Editor/Resources/Scripts/Intermediates")
+	targetdir ("../Pinecone-Editor/Resources/Scripts")
+	objdir ("../Pinecone-Editor/Resources/Scripts/Intermediates")
 
 	files 
 	{

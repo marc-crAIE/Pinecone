@@ -81,7 +81,7 @@ namespace Pinecone
 				MonoType* managedType = mono_reflection_type_from_name(managedTypename.data(), ScriptEngine::GetCoreAssemblyImage());
 				if (!managedType)
 				{
-					PC_CORE_ERROR("Could not find component type {}", managedTypename);
+					PC_CORE_ERROR("Could not find C# component type {}", managedTypename);
 					return;
 				}
 				s_GameObjectHasComponentFuncs[managedType] = [](GameObject gameObject) { return gameObject.HasComponent<Component>(); };
