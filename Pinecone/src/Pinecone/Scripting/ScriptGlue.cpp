@@ -33,6 +33,26 @@ namespace Pinecone
 		return s_GameObjectHasComponentFuncs.at(managedType)(gameObject);
 	}
 
+	static uint64_t GameObject_FindGameObjectByName(MonoString* name)
+	{
+		char* nameCStr = mono_string_to_utf8(name);
+
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByTag(nameCStr);
+		mono_free(nameCStr);
+
+		if (!gameObject)
+			return 0;
+
+		return gameObject.GetUUID();
+	}
+
+	static MonoObject* GameObject_GetScriptInstance(UUID entityID)
+	{
+		return ScriptEngine::GetManagedInstance(entityID);
+	}
+
 #pragma endregion
 
 #pragma region TransformComponent
@@ -96,12 +116,18 @@ namespace Pinecone
 
 	void ScriptGlue::RegisterComponents()
 	{
+		PC_CORE_INFO("Registering C# component classes");
+
 		RegisterComponent(AllComponents{});
 	}
 
 	void ScriptGlue::RegisterFunctions()
 	{
+		PC_CORE_INFO("Registering C# internal functions");
+
 		PC_ADD_INTERNAL_CALL(GameObject_HasComponent);
+		PC_ADD_INTERNAL_CALL(GameObject_FindGameObjectByName);
+		PC_ADD_INTERNAL_CALL(GameObject_GetScriptInstance);
 
 		PC_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		PC_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);

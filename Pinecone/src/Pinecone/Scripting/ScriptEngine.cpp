@@ -6,9 +6,31 @@
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/object.h>
+#include <mono/metadata/tabledefs.h>
 
 namespace Pinecone
 {
+	static std::unordered_map<std::string, ScriptFieldType> s_ScriptFieldTypeMap =
+	{
+		{ "System.Single", ScriptFieldType::Float },
+		{ "System.Double", ScriptFieldType::Double },
+		{ "System.Boolean", ScriptFieldType::Bool },
+		{ "System.Char", ScriptFieldType::Char },
+		{ "System.Int16", ScriptFieldType::Short },
+		{ "System.Int32", ScriptFieldType::Int },
+		{ "System.Int64", ScriptFieldType::Long },
+		{ "System.Byte", ScriptFieldType::Byte },
+		{ "System.UInt16", ScriptFieldType::UShort },
+		{ "System.UInt32", ScriptFieldType::UInt },
+		{ "System.UInt64", ScriptFieldType::ULong },
+
+		{ "Pinecone.Vector2", ScriptFieldType::Vector2 },
+		{ "Pinecone.Vector3", ScriptFieldType::Vector3 },
+		{ "Pinecone.Vector4", ScriptFieldType::Vector4 },
+
+		{ "Pinecone.GameObject", ScriptFieldType::GameObject },
+	};
+
 	namespace Utils {
 
 		// TODO: move to FileSystem class
@@ -83,6 +105,20 @@ namespace Pinecone
 				PC_CORE_TRACE("{}.{}", nameSpace, name);
 			}
 		}
+
+		ScriptFieldType MonoTypeToScriptFieldType(MonoType* monoType)
+		{
+			std::string typeName = mono_type_get_name(monoType);
+
+			auto it = s_ScriptFieldTypeMap.find(typeName);
+			if (it == s_ScriptFieldTypeMap.end())
+			{
+				PC_CORE_ERROR("Unknown type: {}", typeName);
+				return ScriptFieldType::None;
+			}
+
+			return it->second;
+		}
 	}
 
 	struct ScriptEngineData
@@ -100,6 +136,7 @@ namespace Pinecone
 
 		std::unordered_map<std::string, Ref<ScriptClass>> GameObjectClasses;
 		std::unordered_map<UUID, Ref<ScriptInstance>> GameObjectInstances;
+		std::unordered_map<UUID, ScriptFieldMap> GameObjectScriptFields;
 
 		// Runtime
 		Scene* SceneContext = nullptr;
@@ -174,6 +211,22 @@ namespace Pinecone
 		s_Data->SceneContext = scene;
 	}
 
+	void ScriptEngine::OnRuntimeStop()
+	{
+		s_Data->SceneContext = nullptr;
+
+		s_Data->GameObjectInstances.clear();
+	}
+
+	Ref<ScriptInstance> ScriptEngine::GetGameObjectScriptInstance(UUID gameObjectID)
+	{
+		auto it = s_Data->GameObjectInstances.find(gameObjectID);
+		if (it == s_Data->GameObjectInstances.end())
+			return nullptr;
+
+		return it->second;
+	}
+
 	bool ScriptEngine::GameObjectClassExists(const std::string& fullClassName)
 	{
 		return s_Data->GameObjectClasses.find(fullClassName) != s_Data->GameObjectClasses.end();
@@ -184,8 +237,19 @@ namespace Pinecone
 		const auto& sc = gameObject.GetComponent<ScriptComponent>();
 		if (ScriptEngine::GameObjectClassExists(sc.ClassName))
 		{
+			UUID gameObjectID = gameObject.GetUUID();
+
 			Ref<ScriptInstance> instance = CreateRef<ScriptInstance>(s_Data->GameObjectClasses[sc.ClassName], gameObject);
 			s_Data->GameObjectInstances[gameObject.GetUUID()] = instance;
+
+			// Copy field values
+			if (s_Data->GameObjectScriptFields.find(gameObjectID) != s_Data->GameObjectScriptFields.end())
+			{
+				const ScriptFieldMap& fieldMap = s_Data->GameObjectScriptFields.at(gameObjectID);
+				for (const auto& [name, fieldInstance] : fieldMap)
+					instance->SetFieldValueInternal(name, fieldInstance.m_Buffer);
+			}
+
 			instance->InvokeOnCreate();
 		}
 	}
@@ -204,11 +268,12 @@ namespace Pinecone
 		return s_Data->SceneContext;
 	}
 
-	void ScriptEngine::OnRuntimeStop()
+	Ref<ScriptClass> ScriptEngine::GetGameObjectClass(const std::string& name)
 	{
-		s_Data->SceneContext = nullptr;
+		if (s_Data->GameObjectClasses.find(name) == s_Data->GameObjectClasses.end())
+			return nullptr;
 
-		s_Data->GameObjectInstances.clear();
+		return s_Data->GameObjectClasses.at(name);
 	}
 
 	std::unordered_map<std::string, Ref<ScriptClass>> ScriptEngine::GetGameObjectClasses()
@@ -216,11 +281,21 @@ namespace Pinecone
 		return s_Data->GameObjectClasses;
 	}
 
+	ScriptFieldMap& ScriptEngine::GetScriptFieldMap(GameObject gameObject)
+	{
+		PC_CORE_ASSERT(gameObject);
+
+		UUID gameObjectID = gameObject.GetUUID();
+		return s_Data->GameObjectScriptFields[gameObjectID];
+	}
+
 	void ScriptEngine::LoadAssemblyClasses()
 	{
+		PC_CORE_INFO("Loading C# assembly classes");
+
 		s_Data->GameObjectClasses.clear();
 
-		const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(s_Data->CoreAssemblyImage, MONO_TABLE_TYPEDEF);
+		const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(s_Data->AppAssemblyImage, MONO_TABLE_TYPEDEF);
 		int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
 		MonoClass* gameObjectClass = mono_class_from_name(s_Data->CoreAssemblyImage, "Pinecone", "GameObject");
 
@@ -229,28 +304,62 @@ namespace Pinecone
 			uint32_t cols[MONO_TYPEDEF_SIZE];
 			mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
-			const char* nameSpace = mono_metadata_string_heap(s_Data->CoreAssemblyImage, cols[MONO_TYPEDEF_NAMESPACE]);
-			const char* name = mono_metadata_string_heap(s_Data->CoreAssemblyImage, cols[MONO_TYPEDEF_NAME]);
+			const char* nameSpace = mono_metadata_string_heap(s_Data->AppAssemblyImage, cols[MONO_TYPEDEF_NAMESPACE]);
+			const char* className = mono_metadata_string_heap(s_Data->AppAssemblyImage, cols[MONO_TYPEDEF_NAME]);
 			std::string fullName;
 			if (strlen(nameSpace) != 0)
-				fullName = fmt::format("{}.{}", nameSpace, name);
+				fullName = fmt::format("{}.{}", nameSpace, className);
 			else
-				fullName = name;
+				fullName = className;
 
-			MonoClass* monoClass = mono_class_from_name(s_Data->CoreAssemblyImage, nameSpace, name);
+			MonoClass* monoClass = mono_class_from_name(s_Data->AppAssemblyImage, nameSpace, className);
 
 			if (monoClass == gameObjectClass)
 				continue;
 
 			bool isGameObject = mono_class_is_subclass_of(monoClass, gameObjectClass, false);
-			if (isGameObject)
-				s_Data->GameObjectClasses[fullName] = CreateRef<ScriptClass>(nameSpace, name);
+			if (!isGameObject)
+				continue;
+
+			Ref<ScriptClass> scriptClass = CreateRef<ScriptClass>(nameSpace, className);
+			s_Data->GameObjectClasses[fullName] = scriptClass;
+
+
+			// This routine is an iterator routine for retrieving the fields in a class.
+			// You must pass a gpointer that points to zero and is treated as an opaque handle
+			// to iterate over all of the elements. When no more values are available, the return value is NULL.
+
+			int fieldCount = mono_class_num_fields(monoClass);
+			PC_CORE_TRACE("{} has {} fields:", className, fieldCount);
+			void* iterator = nullptr;
+			while (MonoClassField* field = mono_class_get_fields(monoClass, &iterator))
+			{
+				const char* fieldName = mono_field_get_name(field);
+				uint32_t flags = mono_field_get_flags(field);
+				if (flags & FIELD_ATTRIBUTE_PUBLIC)
+				{
+					MonoType* type = mono_field_get_type(field);
+					ScriptFieldType fieldType = Utils::MonoTypeToScriptFieldType(type);
+					PC_CORE_TRACE("  {} ({})", fieldName, Utils::ScriptFieldTypeToString(fieldType));
+
+					scriptClass->m_Fields[fieldName] = { fieldType, fieldName, field };
+				}
+			}
 		}
+
+		auto& gameObjectClasses = s_Data->GameObjectClasses;
+		PC_CORE_WARN("Finished loading C# assembly classes");
 	}
 
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()
 	{
 		return s_Data->CoreAssemblyImage;
+	}
+
+	MonoObject* ScriptEngine::GetManagedInstance(UUID uuid)
+	{
+		PC_CORE_ASSERT(s_Data->GameObjectInstances.find(uuid) != s_Data->GameObjectInstances.end());
+		return s_Data->GameObjectInstances.at(uuid)->GetManagedObject();
 	}
 
 	MonoObject* ScriptEngine::InstantiateClass(MonoClass* monoClass)
@@ -311,5 +420,29 @@ namespace Pinecone
 			void* param = &ts;
 			m_ScriptClass->InvokeMethod(m_Instance, m_OnUpdateMethod, &param);
 		}
+	}
+
+	bool ScriptInstance::GetFieldValueInternal(const std::string& name, void* buffer)
+	{
+		const auto& fields = m_ScriptClass->GetFields();
+		auto it = fields.find(name);
+		if (it == fields.end())
+			return false;
+
+		const ScriptField& field = it->second;
+		mono_field_get_value(m_Instance, field.ClassField, buffer);
+		return true;
+	}
+
+	bool ScriptInstance::SetFieldValueInternal(const std::string& name, const void* value)
+	{
+		const auto& fields = m_ScriptClass->GetFields();
+		auto it = fields.find(name);
+		if (it == fields.end())
+			return false;
+
+		const ScriptField& field = it->second;
+		mono_field_set_value(m_Instance, field.ClassField, (void*)value);
+		return true;
 	}
 }

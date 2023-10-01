@@ -40,5 +40,20 @@ namespace Pinecone
             T component = new T() { GameObject = this };
             return component;
         }
+
+        public GameObject FindGameObjectByName(string name)
+        {
+            ulong gameObjectID = InternalCalls.GameObject_FindGameObjectByName(name);
+            if (gameObjectID == 0)
+                return null;
+
+            return new GameObject(gameObjectID);
+        }
+
+        public T As<T>() where T : GameObject, new()
+        {
+            object instance = InternalCalls.GameObject_GetScriptInstance(ID);
+            return instance as T;
+        }
     }
 }

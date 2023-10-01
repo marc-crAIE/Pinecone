@@ -11,6 +11,12 @@ namespace Pinecone
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool GameObject_HasComponent(ulong gameObjectID, Type componentType);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static ulong GameObject_FindGameObjectByName(string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static object GameObject_GetScriptInstance(ulong gameObjectID);
+
         #endregion
 
         #region TransformComponent

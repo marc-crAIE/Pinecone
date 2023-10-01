@@ -89,6 +89,8 @@ namespace Pinecone
 		/// </summary>
 		void OnViewportResize(uint32_t width, uint32_t height);
 
+		bool IsRunning() const { return m_Running; }
+
 		static Ref<Scene> Copy(Ref<Scene> other);
 	private:
 		void RenderScene(EditorCamera& camera);

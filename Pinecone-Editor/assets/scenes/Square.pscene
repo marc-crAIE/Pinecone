@@ -20,6 +20,10 @@ GameObjects:
       FixedAspectRatio: false
     ScriptComponent:
       ClassName: Sandbox.Camera
+      ScriptFields:
+        - Name: Speed
+          Type: Float
+          Data: 7
   - GameObject: 8293403256025707583
     TagComponent:
       Tag: Square

@@ -237,6 +237,9 @@ namespace Pinecone
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
+		if (m_ViewportWidth == width && m_ViewportHeight == height)
+			return;
+
 		// Update the viewport width and height
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;

@@ -5,6 +5,8 @@ namespace Sandbox
 {
     public class Camera : GameObject
     {
+        public float Speed = 3.0f;
+
         void OnCreate()
         {
 
@@ -12,7 +14,6 @@ namespace Sandbox
 
         void OnUpdate(float ts)
         {
-            float speed = 3.0f;
             Vector3 velocity = Vector3.Zero;
 
             if (Input.IsKeyDown(KeyCode.Up))
@@ -25,10 +26,8 @@ namespace Sandbox
             else if (Input.IsKeyDown(KeyCode.Right))
                 velocity.X = 1.0f;
 
-            velocity *= speed;
-
             Vector3 translation = Translation;
-            translation += velocity * ts;
+            translation += velocity * Speed * ts;
             Translation = translation;
         }
     }

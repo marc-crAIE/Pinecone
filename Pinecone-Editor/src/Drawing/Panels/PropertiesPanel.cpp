@@ -50,12 +50,12 @@ namespace Pinecone
 	}
 
 	template<typename T, typename UIFunction>
-	static void DrawComponent(const std::string& name, GameObject entity, ImTextureID texture, UIFunction uiFunction)
+	static void DrawComponent(const std::string& name, GameObject gameObject, ImTextureID texture, UIFunction uiFunction)
 	{
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
-		if (entity.HasComponent<T>())
+		if (gameObject.HasComponent<T>())
 		{
-			auto& component = entity.GetComponent<T>();
+			auto& component = gameObject.GetComponent<T>();
 			ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
@@ -85,7 +85,7 @@ namespace Pinecone
 			}
 
 			if (removeComponent)
-				entity.RemoveComponent<T>();
+				gameObject.RemoveComponent<T>();
 		}
 	}
 
@@ -109,7 +109,7 @@ namespace Pinecone
 
 			char buffer[256];
 			memset(buffer, 0, sizeof(buffer));
-			strcpy_s(buffer, sizeof(buffer), tag.c_str());
+			strncpy_s(buffer, sizeof(buffer), tag.c_str(), sizeof(buffer));
 			if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))
 			{
 				tag = std::string(buffer);
@@ -224,12 +224,12 @@ namespace Pinecone
 				}
 			});
 
-		DrawComponent<ScriptComponent>("Script", gameObject, (ImTextureID)m_SpriteRendererIcon->GetRendererID(), [](auto& component)
+		DrawComponent<ScriptComponent>("Script", gameObject, (ImTextureID)m_SpriteRendererIcon->GetRendererID(), [gameObject, scene = m_SceneContext](auto& component) mutable
 			{
 				bool scriptClassExists = ScriptEngine::GameObjectClassExists(component.ClassName);
 
 				static char buffer[64];
-				strcpy(buffer, component.ClassName.c_str());
+				strcpy_s(buffer, sizeof(buffer), component.ClassName.c_str());
 
 				if (!scriptClassExists)
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
@@ -239,6 +239,97 @@ namespace Pinecone
 
 				if (!scriptClassExists)
 					ImGui::PopStyleColor();
+
+				// Needs to be checked again
+				scriptClassExists = ScriptEngine::GameObjectClassExists(component.ClassName);
+
+				// Fields
+				bool sceneRunning = scene->IsRunning();
+				if (sceneRunning)
+				{
+					Ref<ScriptInstance> scriptInstance = ScriptEngine::GetGameObjectScriptInstance(gameObject.GetUUID());
+					if (scriptInstance)
+					{
+						const auto& fields = scriptInstance->GetScriptClass()->GetFields();
+						for (const auto& [name, field] : fields)
+						{
+							if (field.Type == ScriptFieldType::Float || field.Type == ScriptFieldType::Double)
+							{
+								float data = scriptInstance->GetFieldValue<float>(name);
+								if (ImGui::DragFloat(name.c_str(), &data))
+								{
+									scriptInstance->SetFieldValue(name, data);
+								}
+							}
+							else if (field.Type == ScriptFieldType::Vector3)
+							{
+								glm::vec3 vec3 = scriptInstance->GetFieldValue<glm::vec3>(name);
+								if (UI::DrawVec3Control(name, vec3))
+								{
+									scriptInstance->SetFieldValue(name, vec3);
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					if (scriptClassExists)
+					{
+						Ref<ScriptClass> gameObjectClass = ScriptEngine::GetGameObjectClass(component.ClassName);
+						const auto& fields = gameObjectClass->GetFields();
+
+						auto& gameObjectFields = ScriptEngine::GetScriptFieldMap(gameObject);
+						for (const auto& [name, field] : fields)
+						{
+							// Field has been set in editor
+							if (gameObjectFields.find(name) != gameObjectFields.end())
+							{
+								ScriptFieldInstance& scriptField = gameObjectFields.at(name);
+
+								// Display control to set it maybe
+								if (field.Type == ScriptFieldType::Float || field.Type == ScriptFieldType::Double)
+								{
+									float data = scriptField.GetValue<float>();
+									if (ImGui::DragFloat(name.c_str(), &data))
+										scriptField.SetValue(data);
+								}
+								else if (field.Type == ScriptFieldType::Vector3)
+								{
+									glm::vec3 vec3 = scriptField.GetValue<glm::vec3>();
+									if (UI::DrawVec3Control(name, vec3))
+									{
+										scriptField.SetValue(vec3);
+									}
+								}
+							}
+							else
+							{
+								// Display control to set it maybe
+								if (field.Type == ScriptFieldType::Float)
+								{
+									float data = 0.0f;
+									if (ImGui::DragFloat(name.c_str(), &data))
+									{
+										ScriptFieldInstance& fieldInstance = gameObjectFields[name];
+										fieldInstance.Field = field;
+										fieldInstance.SetValue(data);
+									}
+								}
+								else if (field.Type == ScriptFieldType::Vector3)
+								{
+									glm::vec3 vec3 = glm::vec3{ 0.0f, 0.0f, 0.0f };
+									if (UI::DrawVec3Control(name, vec3, 75.0f))
+									{
+										ScriptFieldInstance& fieldInstance = gameObjectFields[name];
+										fieldInstance.Field = field;
+										fieldInstance.SetValue(vec3);
+									}
+								}
+							}
+						}
+					}
+				}
 			});
 	}
 }
