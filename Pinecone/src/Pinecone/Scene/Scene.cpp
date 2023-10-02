@@ -16,7 +16,7 @@ namespace Pinecone
 	Scene::Scene(const std::string& name)
 		: m_Name(name)
 	{
-		// Create Scene entity
+		// Create Scene gameObject
 		m_SceneEntity = m_Registry.create();
 		m_Registry.emplace<SceneComponent>(m_SceneEntity, m_SceneID);
 	}
@@ -53,78 +53,75 @@ namespace Pinecone
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		// Update scripts
+		if (!m_Paused || m_StepFrames-- > 0)
 		{
-			// C# Entity OnUpdate
-			auto view = m_Registry.view<ScriptComponent>();
-			for (auto e : view)
+			// Update scripts
 			{
-				GameObject gameObject = { e, this };
-				ScriptEngine::OnUpdateGameObject(gameObject, ts);
-			}
-
-			m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+				// C# GameObject OnUpdate
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
 				{
-					// Check to make sure if the script component is not properly instantiated yet
-					if (!nsc.Instantiated)
+					GameObject gameObject = { e, this };
+					ScriptEngine::OnUpdateGameObject(gameObject, ts);
+				}
+
+				m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
 					{
-						// If it is in fact not, set the game object to the one it is attached to and the scene in which
-						// the game object exists in
-						nsc.Instance->m_GameObject = GameObject{ gameObject, this };
-						nsc.Instance->m_SceneContext = this;
-						nsc.Instantiated = true;
+						// Check to make sure if the script component is not properly instantiated yet
+						if (!nsc.Instantiated)
+						{
+							// If it is in fact not, set the game object to the one it is attached to and the scene in which
+							// the game object exists in
+							nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+							nsc.Instance->m_SceneContext = this;
+							nsc.Instantiated = true;
 
-						// Call the scripts OnCreate function
-						nsc.Instance->OnCreate();
-					}
+							// Call the scripts OnCreate function
+							nsc.Instance->OnCreate();
+						}
 
-					// Call the scripts OnUpdate function
-					nsc.Instance->OnUpdate(ts);
-				});
-		}
-
-		// Get the main camera
-		Camera* mainCamera = nullptr;
-		glm::mat4* cameraTransform = nullptr;
-		auto cameras = m_Registry.view<TransformComponent, CameraComponent>();
-		for (auto go : cameras)
-		{
-			// Get the camera and its transform
-			auto [transform, camera] = cameras.get<TransformComponent, CameraComponent>(go);
-
-			// Check if it is the primary camera
-			// TODO: Probably move primary camera handling to scene as we can have multiple primary
-			//		 cameras. All this will do is use the one first found and ignore the others.
-			//		 Meaning that when switching cameras during runtime, the client has to turn off 
-			//		 the previously set primary camera aswell.
-			if (camera.Primary)
-			{
-				// Store the SceneCamera and the game objects transform 
-				mainCamera = &camera.Camera;
-				cameraTransform = &transform.GetTransform();
-				// Exit the for loop as we found the primary camera
-				break;
+						// Call the scripts OnUpdate function
+						nsc.Instance->OnUpdate(ts);
+					});
 			}
 		}
 
-		// Render the 2D scene
+		// Render 2D
+		Camera* mainCamera = nullptr;
+		glm::mat4 cameraTransform;
+		{
+			auto view = m_Registry.view<TransformComponent, CameraComponent>();
+			for (auto gameObject : view)
+			{
+				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(gameObject);
+
+				if (camera.Primary)
+				{
+					mainCamera = &camera.Camera;
+					cameraTransform = transform.GetTransform();
+					break;
+				}
+			}
+		}
+
 		if (mainCamera)
 		{
-			// Begin our 2D scene drawing with our primary camera and the transform of its game objects position
-			Renderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
-			// Get all game objects that have a sprite and a transform component
-			auto sprites = m_Registry.group<TransformComponent>(entt::get<SpriteComponent>);
-			for (auto e : sprites)
+			// Draw sprites
 			{
-				// Get the sprite and transform components of the game object and draw it to the screen
-				auto [transform, sprite] = sprites.get<TransformComponent, SpriteComponent>(e);
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)e);
+				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteComponent>);
+				for (auto gameObject : group)
+				{
+					auto [transform, sprite] = group.get<TransformComponent, SpriteComponent>(gameObject);
+
+					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)gameObject);
+				}
 			}
 
-			// End our 2D scene drawing
 			Renderer2D::EndScene();
 		}
+
 	}
 
 	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
@@ -265,12 +262,12 @@ namespace Pinecone
 		([&]()
 			{
 				auto view = src.view<Component>();
-				for (auto srcEntity : view)
+				for (auto srcGameObject : view)
 				{
-					entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity));
+					entt::entity dstGameObject = enttMap.at(src.get<IDComponent>(srcGameObject));
 
-					auto& srcComponent = src.get<Component>(srcEntity);
-					dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+					auto& srcComponent = src.get<Component>(srcGameObject);
+					dst.emplace_or_replace<Component>(dstGameObject, srcComponent);
 				}
 			}(), ...);
 	}
@@ -295,6 +292,11 @@ namespace Pinecone
 	static void CopyComponentIfExists(ComponentGroup<Component...>, GameObject dst, GameObject src)
 	{
 		CopyComponentIfExists<Component...>(dst, src);
+	}
+
+	void Scene::Step(int frames)
+	{
+		m_StepFrames = frames;
 	}
 
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
@@ -331,11 +333,11 @@ namespace Pinecone
 		// Draw sprites
 		{
 			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteComponent>);
-			for (auto entity : group)
+			for (auto gameObject : group)
 			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteComponent>(entity);
+				auto [transform, sprite] = group.get<TransformComponent, SpriteComponent>(gameObject);
 
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)gameObject);
 			}
 		}
 

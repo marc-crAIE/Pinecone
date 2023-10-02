@@ -27,6 +27,7 @@ namespace Pinecone
 
 		void OnScenePlay();
 		void OnSceneStop();
+		void OnScenePause();
 
 		void OnOverlayRender();
 
@@ -71,6 +72,6 @@ namespace Pinecone
 		GameObject m_HoveredGameObject;
 
 		// Editor resources
-		Ref<Texture2D> m_IconPlay, m_IconStop;
+		Ref<Texture2D> m_IconPlay, m_IconStop, m_IconPause, m_IconStep;
 	};
 }
