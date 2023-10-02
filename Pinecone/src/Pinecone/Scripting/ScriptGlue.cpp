@@ -118,6 +118,7 @@ namespace Pinecone
 	{
 		PC_CORE_INFO("Registering C# component classes");
 
+		s_GameObjectHasComponentFuncs.clear();
 		RegisterComponent(AllComponents{});
 	}
 

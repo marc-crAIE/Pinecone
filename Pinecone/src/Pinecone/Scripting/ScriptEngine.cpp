@@ -132,6 +132,9 @@ namespace Pinecone
 		MonoAssembly* AppAssembly = nullptr;
 		MonoImage* AppAssemblyImage = nullptr;
 
+		std::filesystem::path CoreAssemblyFilepath;
+		std::filesystem::path AppAssemblyFilepath;
+
 		ScriptClass GameObjectClass;
 
 		std::unordered_map<std::string, Ref<ScriptClass>> GameObjectClasses;
@@ -149,12 +152,13 @@ namespace Pinecone
 		s_Data = new ScriptEngineData();
 
 		InitMono();
+		ScriptGlue::RegisterFunctions();
+
 		LoadAssembly("Resources/Scripts/Pinecone-ScriptCore.dll");
 		LoadAppAssembly("Projects/SandboxProject/Bin/Assembly-CSharp.dll");
 		LoadAssemblyClasses();
 
 		ScriptGlue::RegisterComponents();
-		ScriptGlue::RegisterFunctions();
 
 		// Retrieve and instantiate class
 		s_Data->GameObjectClass = ScriptClass("Pinecone", "GameObject", true);
@@ -179,10 +183,12 @@ namespace Pinecone
 
 	void ScriptEngine::ShutdownMono()
 	{
-		// NOTE: Mono is a little hard to shutdown, so maybe come back to this later
-		// (seems like Mono barely even knows how to shutdown Mono without crashing)
+		mono_domain_set(mono_get_root_domain(), false);
 
+		mono_domain_unload(s_Data->AppDomain);
 		s_Data->AppDomain = nullptr;
+
+		mono_jit_cleanup(s_Data->RootDomain);
 		s_Data->RootDomain = nullptr;
 	}
 
@@ -193,6 +199,7 @@ namespace Pinecone
 		mono_domain_set(s_Data->AppDomain, true);
 
 		// Move this maybe
+		s_Data->CoreAssemblyFilepath = filepath;
 		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
 		s_Data->CoreAssemblyImage = mono_assembly_get_image(s_Data->CoreAssembly);
 		// Utils::PrintAssemblyTypes(s_Data->CoreAssembly);
@@ -201,9 +208,26 @@ namespace Pinecone
 	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
 	{
 		// Move this maybe
+		s_Data->AppAssemblyFilepath = filepath;
 		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
 		// Utils::PrintAssemblyTypes(s_Data->AppAssembly);
+	}
+
+	void ScriptEngine::ReloadAssembly()
+	{
+		mono_domain_set(mono_get_root_domain(), false);
+
+		mono_domain_unload(s_Data->AppDomain);
+
+		LoadAssembly(s_Data->CoreAssemblyFilepath);
+		LoadAppAssembly(s_Data->AppAssemblyFilepath);
+		LoadAssemblyClasses();
+
+		ScriptGlue::RegisterComponents();
+
+		// Retrieve and instantiate class
+		s_Data->GameObjectClass = ScriptClass("Pinecone", "GameObject", true);
 	}
 
 	void ScriptEngine::OnRuntimeStart(Scene* scene)

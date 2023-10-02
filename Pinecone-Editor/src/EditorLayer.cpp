@@ -3,6 +3,7 @@
 #include <Pinecone/Math/Math.h>
 #include <Pinecone/Scene/SceneSerializer.h>
 #include <Pinecone/Utils/PlatformUtils.h>
+#include <Pinecone/Scripting/ScriptEngine.h>
 
 #include <imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -204,6 +205,13 @@ namespace Pinecone
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Script"))
+			{
+				if (ImGui::MenuItem("Reload Assembly", "Ctrl+R"))
+					ScriptEngine::ReloadAssembly();
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMenuBar();
 		}
 
@@ -397,8 +405,15 @@ namespace Pinecone
 		}
 		case Key::R:
 		{
-			if (!ImGuizmo::IsUsing())
-				m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			if (control)
+			{
+				ScriptEngine::ReloadAssembly();
+			}
+			else
+			{
+				if (!ImGuizmo::IsUsing())
+					m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			}
 			break;
 		}
 		}
