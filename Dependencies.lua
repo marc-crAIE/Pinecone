@@ -11,6 +11,7 @@ IncludeDir["ImGui"] = "%{wks.location}/Pinecone/vendor/ImGui"
 IncludeDir["ImGuizmo"] = "%{wks.location}/Pinecone/vendor/ImGuizmo"
 IncludeDir["entt"] = "%{wks.location}/Pinecone/vendor/entt/include"
 IncludeDir["mono"] = "%{wks.location}/Pinecone/vendor/mono/include"
+IncludeDir["filewatch"] = "%{wks.location}/Pinecone/vendor/filewatch"
 IncludeDir["msdfgen"] = "%{wks.location}/Pinecone/vendor/msdf-atlas-gen/msdfgen"
 IncludeDir["msdf_atlas_gen"] = "%{wks.location}/Pinecone/vendor/msdf-atlas-gen/msdf-atlas-gen"
 

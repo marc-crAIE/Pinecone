@@ -19,6 +19,7 @@ project "Pinecone-Editor"
 		"%{wks.location}/Pinecone/src",
 		"%{wks.location}/Pinecone/vendor",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.filewatch}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.ImGuizmo}"
 	}

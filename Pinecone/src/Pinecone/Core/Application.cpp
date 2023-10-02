@@ -88,6 +88,13 @@ namespace Pinecone
 		overlay->OnAttach();
 	}
 
+	void Application::SubmitToMainThread(const std::function<void()>& function)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+
+		m_MainThreadQueue.emplace_back(function);
+	}
+
 	void Application::Run()
 	{
 		PC_PROFILE_FUNCTION();
@@ -100,6 +107,8 @@ namespace Pinecone
 			float time = Time::GetTime();
 			Timestep ts = time - m_LastFrameTime;
 			m_LastFrameTime = time;
+
+			ExecuteMainThreadQueue();
 
 			// Don't update layers when minimized
 			if (!m_Minimized)
@@ -153,5 +162,15 @@ namespace Pinecone
 
 		// Return false as other layers might want to handle this event aswell
 		return false;
+	}
+
+	void Application::ExecuteMainThreadQueue()
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+
+		for (auto& func : m_MainThreadQueue)
+			func();
+
+		m_MainThreadQueue.clear();
 	}
 }

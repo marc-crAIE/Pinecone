@@ -61,6 +61,8 @@ namespace Pinecone
 		/// </summary>
 		/// <returns></returns>
 		static Application& Get() { return *s_Instance; }
+
+		void SubmitToMainThread(const std::function<void()>& function);
 	private:
 		/// <summary>
 		/// Start the application run loop
@@ -78,6 +80,8 @@ namespace Pinecone
 		/// <param name="e">The WindowResized event</param>
 		/// <returns>If the event was handled</returns>
 		bool OnWindowResized(WindowResizeEvent& e);
+
+		void ExecuteMainThreadQueue();
 	private:
 		Scope<Window> m_Window;
 		bool m_Running = true;
@@ -87,6 +91,9 @@ namespace Pinecone
 		ImGuiLayer* m_ImGuiLayer;
 
 		float m_LastFrameTime = 0.0f;
+
+		std::vector<std::function<void()>> m_MainThreadQueue;
+		std::mutex m_MainThreadQueueMutex;
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
