@@ -5,11 +5,15 @@
 
 #include "Pinecone/Core/Application.h"
 #include "Pinecone/Core/Timer.h"
+#include "Pinecone/Core/Buffer.h"
+#include "Pinecone/Core/FileSystem.h"
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/object.h>
 #include <mono/metadata/tabledefs.h>
+#include <mono/metadata/mono-debug.h>
+#include <mono/metadata/threads.h>
 
 #include <FileWatch.h>
 
@@ -38,43 +42,13 @@ namespace Pinecone
 
 	namespace Utils {
 
-		// TODO: move to FileSystem class
-		static char* ReadBytes(const std::filesystem::path& filepath, uint32_t* outSize)
+		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath, bool loadPDB = false)
 		{
-			std::ifstream stream(filepath, std::ios::binary | std::ios::ate);
-
-			if (!stream)
-			{
-				// Failed to open the file
-				return nullptr;
-			}
-
-			std::streampos end = stream.tellg();
-			stream.seekg(0, std::ios::beg);
-			uint64_t size = end - stream.tellg();
-
-			if (size == 0)
-			{
-				// File is empty
-				return nullptr;
-			}
-
-			char* buffer = new char[size];
-			stream.read((char*)buffer, size);
-			stream.close();
-
-			*outSize = (uint32_t)size;
-			return buffer;
-		}
-
-		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath)
-		{
-			uint32_t fileSize = 0;
-			char* fileData = ReadBytes(assemblyPath, &fileSize);
+			ScopedBuffer fileData = FileSystem::ReadFileBinary(assemblyPath);
 
 			// NOTE: We can't use this image for anything other than loading the assembly because this image doesn't have a reference to the assembly
 			MonoImageOpenStatus status;
-			MonoImage* image = mono_image_open_from_data_full(fileData, fileSize, 1, &status, 0);
+			MonoImage* image = mono_image_open_from_data_full(fileData.As<char>(), fileData.Size(), 1, &status, 0);
 
 			if (status != MONO_IMAGE_OK)
 			{
@@ -83,12 +57,22 @@ namespace Pinecone
 				return nullptr;
 			}
 
+			if (loadPDB)
+			{
+				std::filesystem::path pdbPath = assemblyPath;
+				pdbPath.replace_extension(".pdb");
+
+				if (std::filesystem::exists(pdbPath))
+				{
+					ScopedBuffer pdbFileData = FileSystem::ReadFileBinary(pdbPath);
+					mono_debug_open_image_from_memory(image, pdbFileData.As<const mono_byte>(), pdbFileData.Size());
+					PC_CORE_INFO("Loaded PDB {}", pdbPath);
+				}
+			}
+
 			std::string pathString = assemblyPath.string();
 			MonoAssembly* assembly = mono_assembly_load_from_full(image, pathString.c_str(), &status, 0);
 			mono_image_close(image);
-
-			// Don't forget to free the file data
-			delete[] fileData;
 
 			return assembly;
 		}
@@ -149,6 +133,8 @@ namespace Pinecone
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyReloadPending = false;
 
+		bool EnableDebugging = true;
+
 		// Runtime
 		Scene* SceneContext = nullptr;
 	};
@@ -176,8 +162,19 @@ namespace Pinecone
 		InitMono();
 		ScriptGlue::RegisterFunctions();
 
-		LoadAssembly("Resources/Scripts/Pinecone-ScriptCore.dll");
-		LoadAppAssembly("Projects/SandboxProject/Bin/Assembly-CSharp.dll");
+		bool status = LoadAssembly("Resources/Scripts/Pinecone-ScriptCore.dll");
+		if (!status)
+		{
+			PC_CORE_ERROR("[ScriptEngine] Could not load Pinecone-ScriptCore assembly.");
+			return;
+		}
+		status = LoadAppAssembly("Projects/SandboxProject/Bin/Assembly-CSharp.dll");
+		if (!status)
+		{
+			PC_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
+			return;
+		}
+
 		LoadAssemblyClasses();
 
 		ScriptGlue::RegisterComponents();
@@ -195,12 +192,28 @@ namespace Pinecone
 	void ScriptEngine::InitMono()
 	{
 		mono_set_assemblies_path("mono/lib");
+		
+		if (s_Data->EnableDebugging)
+		{
+			const char* argv[2] = {
+				"--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=n,loglevel=3,logfile=MonoDebugger.log",
+				"--soft-breakpoints"
+			};
+
+			mono_jit_parse_options(2, (char**)argv);
+			mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+		}
 
 		MonoDomain* rootDomain = mono_jit_init("PineconeJITRuntime");
 		PC_CORE_ASSERT(rootDomain);
 
 		// Store the root domain pointer
 		s_Data->RootDomain = rootDomain;
+
+		if (s_Data->EnableDebugging)
+			mono_debug_domain_create(s_Data->RootDomain);
+
+		mono_thread_set_main(mono_thread_current());
 	}
 
 	void ScriptEngine::ShutdownMono()
@@ -214,7 +227,7 @@ namespace Pinecone
 		s_Data->RootDomain = nullptr;
 	}
 
-	void ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAssembly(const std::filesystem::path& filepath)
 	{
 		// Create an App Domain
 		s_Data->AppDomain = mono_domain_create_appdomain("PineconeScriptRuntime", nullptr);
@@ -222,21 +235,26 @@ namespace Pinecone
 
 		// Move this maybe
 		s_Data->CoreAssemblyFilepath = filepath;
-		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
+		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath, s_Data->EnableDebugging);
+		if (s_Data->CoreAssembly == nullptr)
+			return false;
+
 		s_Data->CoreAssemblyImage = mono_assembly_get_image(s_Data->CoreAssembly);
-		// Utils::PrintAssemblyTypes(s_Data->CoreAssembly);
+		return true;
 	}
 
-	void ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
+	bool ScriptEngine::LoadAppAssembly(const std::filesystem::path& filepath)
 	{
 		// Move this maybe
 		s_Data->AppAssemblyFilepath = filepath;
-		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
+		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath, s_Data->EnableDebugging);
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
-		// Utils::PrintAssemblyTypes(s_Data->AppAssembly);
+		if (s_Data->AppAssembly == nullptr)
+			return false;
 
 		s_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
 		s_Data->AssemblyReloadPending = false;
+		return true;
 	}
 
 	void ScriptEngine::ReloadAssembly()
@@ -306,10 +324,15 @@ namespace Pinecone
 	void ScriptEngine::OnUpdateGameObject(GameObject gameObject, Timestep ts)
 	{
 		UUID gameObjectUUID = gameObject.GetUUID();
-		PC_CORE_ASSERT(s_Data->GameObjectInstances.find(gameObjectUUID) != s_Data->GameObjectInstances.end());
-
-		Ref<ScriptInstance> instance = s_Data->GameObjectInstances[gameObjectUUID];
-		instance->InvokeOnUpdate((float)ts);
+		if (s_Data->GameObjectInstances.find(gameObjectUUID) != s_Data->GameObjectInstances.end())
+		{
+			Ref<ScriptInstance> instance = s_Data->GameObjectInstances[gameObjectUUID];
+			instance->InvokeOnUpdate((float)ts);
+		}
+		else
+		{
+			PC_CORE_ERROR("Could not find ScriptInstance for entity {}", gameObjectUUID);
+		}
 	}
 
 	Scene* ScriptEngine::GetSceneContext()
@@ -436,7 +459,8 @@ namespace Pinecone
 
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
 	{
-		return mono_runtime_invoke(method, instance, params, nullptr);
+		MonoObject* exception = nullptr;
+		return mono_runtime_invoke(method, instance, params, &exception);
 	}
 
 	ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, GameObject gameObject)

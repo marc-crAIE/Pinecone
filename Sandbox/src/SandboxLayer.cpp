@@ -88,7 +88,7 @@ namespace Sandbox
 
 		m_ActiveScene->OnUpdateRuntime(ts);
 
-		Renderer2D::BeginScene(m_Camera.GetComponent<CameraComponent>().Camera);
+		Renderer2D::BeginScene(m_Camera.GetComponent<CameraComponent>().Camera, m_Camera.GetComponent<TransformComponent>().GetTransform());
 
 		//Renderer2D::DrawQuad(glm::mat4(1.0f), m_Font->GetAtlasTexture());
 
