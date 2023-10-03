@@ -1,9 +1,12 @@
 #pragma once
 
+#include "Pinecone/Core/Base.h"
+
+#include "Pinecone/Asset/EditorAssetManager.h"
+#include "Pinecone/Asset/RuntimeAssetManager.h"
+
 #include <string>
 #include <filesystem>
-
-#include "Pinecone/Core/Base.h"
 
 namespace Pinecone
 {
@@ -14,6 +17,7 @@ namespace Pinecone
 		std::filesystem::path StartScene;
 
 		std::filesystem::path AssetDirectory;
+		std::filesystem::path AssetRegistryPath; // Relative to AssetDirectory
 		std::filesystem::path ScriptModulePath;
 	};
 
@@ -32,6 +36,12 @@ namespace Pinecone
 			return GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory;
 		}
 
+		static std::filesystem::path GetAssetRegistryPath()
+		{
+			PC_CORE_ASSERT(s_ActiveProject);
+			return GetAssetDirectory() / s_ActiveProject->m_Config.AssetRegistryPath;
+		}
+
 		static std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
 		{
 			PC_CORE_ASSERT(s_ActiveProject);
@@ -41,6 +51,9 @@ namespace Pinecone
 		ProjectConfig& GetConfig() { return m_Config; }
 
 		static Ref<Project> GetActive() { return s_ActiveProject; }
+		std::shared_ptr<AssetManagerBase> GetAssetManager() { return m_AssetManager; }
+		std::shared_ptr<RuntimeAssetManager> GetRuntimeAssetManager() { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManager); }
+		std::shared_ptr<EditorAssetManager> GetEditorAssetManager() { return std::static_pointer_cast<EditorAssetManager>(m_AssetManager); }
 
 		static Ref<Project> New();
 		static Ref<Project> Load(const std::filesystem::path& path);
@@ -48,6 +61,7 @@ namespace Pinecone
 	private:
 		ProjectConfig m_Config;
 		std::filesystem::path m_ProjectDirectory;
+		std::shared_ptr<AssetManagerBase> m_AssetManager;
 
 		inline static Ref<Project> s_ActiveProject;
 	};

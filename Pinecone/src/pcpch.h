@@ -14,6 +14,7 @@
 #include <unordered_set>
 
 #include "Pinecone/Core/Base.h"
+#include "Pinecone/Core/Buffer.h"
 #include "Pinecone/Core/Log.h"
 
 #include "Pinecone/Debug/Instrumentor.h"

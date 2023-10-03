@@ -1,0 +1,13 @@
+AssetRegistry:
+  - Handle: 4969318665651811206
+    FilePath: Textures/Duck.png
+    Type: AssetType::Texture2D
+  - Handle: 10273349853563090241
+    FilePath: Textures/tree.png
+    Type: AssetType::Texture2D
+  - Handle: 12017165357745209745
+    FilePath: Textures/pinecone.png
+    Type: AssetType::Texture2D
+  - Handle: 14857564387911807885
+    FilePath: Textures/Checkerboard.png
+    Type: AssetType::Texture2D

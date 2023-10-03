@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Pinecone/Core/Buffer.h"
+#include "Pinecone/Asset/Asset.h"
+
 namespace Pinecone
 {
 	enum class ImageFormat
@@ -29,7 +32,7 @@ namespace Pinecone
 		TextureSpecification(TextureFilter filter) : Filter(filter) {}
 	};
 
-	class Texture
+	class Texture : public Asset
 	{
 	public:
 		/// <summary>
@@ -37,12 +40,8 @@ namespace Pinecone
 		/// </summary>
 		virtual ~Texture() = default;
 
-		/// <summary>
-		/// Set the texture data (pixels)
-		/// </summary>
-		/// <param name="data">The pixel data</param>
-		/// <param name="size">The total size of the pixel data</param>
-		virtual void SetData(void* data, uint32_t size) = 0;
+		virtual void SetData(Buffer data) = 0;
+
 		/// <summary>
 		/// Bind the texture to a texture slot
 		/// </summary>
@@ -70,12 +69,6 @@ namespace Pinecone
 		/// </summary>
 		/// <returns>The texture specification</returns>
 		virtual const TextureSpecification& GetSpecification() const = 0;
-
-		/// <summary>
-		/// Get the file path which the texture was created from
-		/// </summary>
-		/// <returns></returns>
-		virtual const std::string& GetFilePath() const = 0;
 
 		/// <summary>
 		/// Is the texture loaded?

@@ -24,6 +24,7 @@ namespace Pinecone
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+		bool OnWindowDrop(WindowDropEvent& e);
 
 		void OnScenePlay();
 		void OnSceneStop();

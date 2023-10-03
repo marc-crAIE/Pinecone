@@ -62,7 +62,7 @@ namespace Pinecone
 	struct SpriteComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
-		Ref<Texture2D> Texture;
+		AssetHandle Texture = 0;
 		float TilingFactor = 1.0f;
 		glm::vec2 FlipAxies = { 0.0f, 0.0f };
 

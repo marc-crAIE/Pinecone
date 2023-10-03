@@ -2,6 +2,8 @@
 
 #include "Scripts/CameraController.h"
 
+#include <Pinecone/Asset/TextureImporter.h>
+
 #include <imgui/imgui.h>
 
 namespace Sandbox
@@ -24,8 +26,8 @@ namespace Sandbox
 		fbSpec.Height = 720;
 		m_Framebuffer = Framebuffer::Create(fbSpec); 
 
-		m_PineconeTexture = Texture2D::Create("assets/textures/pinecone.png");
-		m_TreeTexture = Texture2D::Create(TextureSpecification(TextureFilter::NEAREST), "assets/textures/tree.png");
+		m_PineconeTexture = TextureImporter::LoadTexture2D("assets/textures/pinecone.png");
+		m_TreeTexture = TextureImporter::LoadTexture2D("assets/textures/tree.png"); // TODO: Asset configuration
 
 		RenderCommand::SetClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 
@@ -33,11 +35,11 @@ namespace Sandbox
 
 		m_Square = m_ActiveScene->CreateGameObject("Pinecone");
 		auto& pSprite = m_Square.AddComponent<SpriteComponent>();
-		pSprite.Texture = m_PineconeTexture;
+		pSprite.Texture = m_PineconeTexture->Handle;
 
 		m_Tree = m_ActiveScene->CreateGameObject("Tree");
 		auto& tSprite = m_Tree.AddComponent<SpriteComponent>();
-		tSprite.Texture = m_TreeTexture;
+		tSprite.Texture = m_TreeTexture->Handle;
 		tSprite.FlipY(true);
 
 		m_Camera = m_ActiveScene->CreateGameObject("Camera");
@@ -92,7 +94,7 @@ namespace Sandbox
 
 		//Renderer2D::DrawQuad(glm::mat4(1.0f), m_Font->GetAtlasTexture());
 
-		Renderer2D::DrawString("Hello World!", Font::GetDefault(), glm::mat4(1.0f), glm::vec4(1.0f));
+		//Renderer2D::DrawString("Hello World!", Font::GetDefault(), glm::mat4(1.0f), glm::vec4(1.0f));
 
 		Renderer2D::EndScene();
 

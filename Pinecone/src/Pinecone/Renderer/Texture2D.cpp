@@ -34,7 +34,7 @@ namespace Pinecone
 
 	}
 
-	Texture2D::Texture2D(const TextureSpecification& specification)
+	Texture2D::Texture2D(const TextureSpecification& specification, Buffer data)
 		: m_Specification(specification), m_Width(specification.Width), m_Height(specification.Height)
 	{
 		PC_PROFILE_FUNCTION();
@@ -54,23 +54,9 @@ namespace Pinecone
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	}
 
-	Texture2D::Texture2D(const std::string& filepath)
-		: m_FilePath(filepath)
-	{
-		PC_PROFILE_FUNCTION();
-
-		CreateFromFile(filepath);
-	}
-
-	Texture2D::Texture2D(const TextureSpecification& specification, const std::string& filepath)
-		: m_Specification(specification), m_FilePath(filepath)
-	{
-		PC_PROFILE_FUNCTION();
-
-		CreateFromFile(filepath);
-
+		if (data)
+			SetData(data);
 	}
 
 	Texture2D::~Texture2D()
@@ -81,16 +67,16 @@ namespace Pinecone
 		glDeleteTextures(1, &m_RendererID);
 	}
 
-	void Texture2D::SetData(void* data, uint32_t size)
+	void Texture2D::SetData(Buffer data)
 	{
 		PC_PROFILE_FUNCTION();
 
 		// Get the bits per pixel
 		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
 		// Make sure the size of the data will fill the data of the entire texture
-		PC_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		PC_CORE_ASSERT(data.Size == m_Width * m_Height * bpp, "Data must be entire texture!");
 		// Set the data of the texture
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data.Data);
 	}
 
 	void Texture2D::Bind(uint32_t slot) const
@@ -101,79 +87,8 @@ namespace Pinecone
 		glBindTextureUnit(slot, m_RendererID);
 	}
 
-	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
+	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification, Buffer data)
 	{
-		return CreateRef<Texture2D>(specification);
-	}
-
-	Ref<Texture2D> Texture2D::Create(const std::string& filepath)
-	{
-		return CreateRef<Texture2D>(filepath);
-	}
-
-	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification, const std::string& filepath)
-	{
-		return CreateRef<Texture2D>(specification, filepath);
-	}
-
-	void Texture2D::CreateFromFile(const std::string& filepath)
-	{
-		PC_PROFILE_FUNCTION();
-
-		int width, height, channels;
-		// Make sure the first pixel read from the texture is on the bottom left
-		// Not doing this will make our textures appear to be upside down
-		stbi_set_flip_vertically_on_load(1);
-		// Load the texture data
-		stbi_uc* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-
-		if (data)
-		{
-			m_IsLoaded = true;
-
-			m_Width = width;
-			m_Height = height;
-			m_Specification.Width = m_Width;
-			m_Specification.Height = m_Height;
-
-			// Figure out what the format of the texture is based on the amount of color channels
-			GLenum internalFormat = 0, dataFormat = 0;
-			if (channels == 4)
-			{
-				internalFormat = GL_RGBA8;
-				dataFormat = GL_RGBA;
-			}
-			else if (channels == 3)
-			{
-				internalFormat = GL_RGB8;
-				dataFormat = GL_RGB;
-			}
-
-			m_InternalFormat = internalFormat;
-			m_DataFormat = dataFormat;
-
-			// Make sure the format is supported
-			PC_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
-
-			// Create a 2D texture with the width, height, and the format from the loaded texture
-			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-			glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
-
-
-			GLenum filter = m_Specification.Filter == TextureFilter::NEAREST ? GL_NEAREST : GL_LINEAR;
-
-			// Configure the parameters for the texture
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, filter);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, filter);
-
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-			// Set the data of the texture
-			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
-
-			// Free the stb image data
-			stbi_image_free(data);
-		}
+		return CreateRef<Texture2D>(specification, data);
 	}
 }

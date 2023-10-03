@@ -1,6 +1,7 @@
 #include "ContentBrowserPanel.h"
 
 #include <Pinecone/Project/Project.h>
+#include <Pinecone/Asset/TextureImporter.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -10,33 +11,42 @@ namespace Pinecone
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_BaseDirectory(Project::GetAssetDirectory()), m_CurrentDirectory(m_BaseDirectory)
 	{
-		m_DirectoryIcon = Texture2D::Create("Resources/Icons/Panels/ContentBrowser/DirectoryIcon.png");
-		m_SceneIcon = Texture2D::Create("Resources/Icons/Panels/ContentBrowser/SceneIcon.png");
-		m_FileIcon = Texture2D::Create("Resources/Icons/Panels/ContentBrowser/FileIcon.png");
-		m_FileEmptyIcon = Texture2D::Create("Resources/Icons/Panels/ContentBrowser/FileEmptyIcon.png");
-		m_FileGLSLIcon = Texture2D::Create("Resources/Icons/Panels/ContentBrowser/FileGLSLIcon.png");
+		m_TreeNodes.push_back(TreeNode("."));
+
+		m_DirectoryIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/DirectoryIcon.png");
+		m_SceneIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/SceneIcon.png");
+		m_FileIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/FileIcon.png");
+		m_FileEmptyIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/FileEmptyIcon.png");
+		m_FileGLSLIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/FileGLSLIcon.png");
+
+		RefreshAssetTree();
+
+		m_Mode = Mode::FileSystem;
 	}
 
 	void ContentBrowserPanel::OnImGuiRender()
 	{
-		if (!m_Open)
-			return;
+		ImGui::Begin("Content Browser");
 
-		ImGui::Begin("Content Browser", &m_Open);
-
-		if (ImGui::Button("<-"))
+		const char* label = m_Mode == Mode::Asset ? "Asset" : "File";
+		if (ImGui::Button(label))
 		{
-			if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
+			m_Mode = m_Mode == Mode::Asset ? Mode::FileSystem : Mode::Asset;
+		}
+
+		if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("<-"))
 			{
 				m_CurrentDirectory = m_CurrentDirectory.parent_path();
 			}
 		}
 
-		ImGui::Separator();
 
-		static float padding = 4.0f;
-		static float thumbnailSize = 72.0f;
-		float cellSize = thumbnailSize + padding * 2;
+		static float padding = 16.0f;
+		static float thumbnailSize = 128.0f;
+		float cellSize = thumbnailSize + padding;
 
 		float panelWidth = ImGui::GetContentRegionAvail().x;
 		int columnCount = (int)(panelWidth / cellSize);
@@ -45,54 +55,147 @@ namespace Pinecone
 
 		ImGui::Columns(columnCount, 0, false);
 
-		for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
+		if (m_Mode == Mode::Asset)
 		{
-			const auto& path = directoryEntry.path();
-			std::filesystem::path relativePath(path);
-			std::string filenameString = path.filename().string();
+			TreeNode* node = &m_TreeNodes[0];
 
-			ImGui::PushID(filenameString.c_str());
-			Ref<Texture2D> icon = directoryEntry.file_size() > 0 ? m_FileIcon : m_FileEmptyIcon;
-			if (!directoryEntry.is_directory() && relativePath.has_extension())
+			auto currentDir = std::filesystem::relative(m_CurrentDirectory, Project::GetAssetDirectory());
+			for (const auto& p : currentDir)
 			{
-				std::string extension = relativePath.extension().string();
-				if (extension == ".ascene")
-					icon = m_SceneIcon;
-				else if (extension == ".glsl")
-					icon = m_FileGLSLIcon;
-			}
-			else
-				icon = m_DirectoryIcon;
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+				// If only one level
+				if (node->Path == currentDir)
+					break;
 
-			if (ImGui::BeginDragDropSource())
-			{
-				const wchar_t* itemPath = relativePath.c_str();
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
-				ImGui::Image((ImTextureID)icon->GetRendererID(), ImVec2{ 16.0f, 16.0f }, ImVec2(0, 1), ImVec2(1, 0));
-				ImGui::SameLine();
-				ImGui::Text(path.string().c_str());
-				ImGui::EndDragDropSource();
+				if (node->Children.find(p) != node->Children.end())
+				{
+					node = &m_TreeNodes[node->Children[p]];
+					continue;
+				}
+				else
+				{
+					// Can't find path
+					PC_CORE_ASSERT(false);
+				}
+
 			}
 
-			ImGui::PopStyleColor();
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			for (const auto& [item, treeNodeIndex] : node->Children)
 			{
-				if (directoryEntry.is_directory())
-					m_CurrentDirectory /= path.filename();
+				bool isDirectory = std::filesystem::is_directory(Project::GetAssetDirectory() / item);
 
+				std::string itemStr = item.generic_string();
+
+				ImGui::PushID(itemStr.c_str());
+				Ref<Texture2D> icon = isDirectory ? m_DirectoryIcon : m_FileIcon;
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+				ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+
+				if (ImGui::BeginPopupContextItem())
+				{
+					if (ImGui::MenuItem("Import"))
+					{
+						auto relativePath = std::filesystem::relative(item, Project::GetAssetDirectory());
+						Project::GetActive()->GetEditorAssetManager()->ImportAsset(relativePath);
+					}
+					ImGui::EndPopup();
+				}
+
+				ImGui::PopStyleColor();
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					if (isDirectory)
+						m_CurrentDirectory /= item.filename();
+				}
+
+				ImGui::TextWrapped(itemStr.c_str());
+
+				ImGui::NextColumn();
+
+				ImGui::PopID();
 			}
-			ImGui::TextWrapped(filenameString.c_str());
+		}
+		else
+		{
+			for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
+			{
+				const auto& path = directoryEntry.path();
+				std::string filenameString = path.filename().string();
 
-			ImGui::NextColumn();
+				ImGui::PushID(filenameString.c_str());
+				Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+				ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
 
-			ImGui::PopID();
+				if (ImGui::BeginPopupContextItem())
+				{
+					if (ImGui::MenuItem("Import"))
+					{
+						auto relativePath = std::filesystem::relative(path, Project::GetAssetDirectory());
+						Project::GetActive()->GetEditorAssetManager()->ImportAsset(relativePath);
+					}
+					ImGui::EndPopup();
+				}
+
+				if (ImGui::BeginDragDropSource())
+				{
+					std::filesystem::path relativePath(path);
+					const wchar_t* itemPath = relativePath.c_str();
+					ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
+					ImGui::EndDragDropSource();
+				}
+
+				ImGui::PopStyleColor();
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					if (directoryEntry.is_directory())
+						m_CurrentDirectory /= path.filename();
+				}
+
+				ImGui::TextWrapped(filenameString.c_str());
+
+				ImGui::NextColumn();
+
+				ImGui::PopID();
+			}
 		}
 
 		ImGui::Columns(1);
 
+		ImGui::Separator();
+
+		ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
+		ImGui::SliderFloat("Padding", &padding, 0, 32);
+
 		// TODO: status bar
 		ImGui::End();
+	}
+
+	void ContentBrowserPanel::RefreshAssetTree()
+	{
+		const auto& assetRegistry = Project::GetActive()->GetEditorAssetManager()->GetAssetRegistry();
+		for (const auto& [handle, metadata] : assetRegistry)
+		{
+			uint32_t currentNodeIndex = 0;
+
+			for (const auto& p : metadata.FilePath)
+			{
+				auto it = m_TreeNodes[currentNodeIndex].Children.find(p.generic_string());
+				if (it != m_TreeNodes[currentNodeIndex].Children.end())
+				{
+					currentNodeIndex = it->second;
+				}
+				else
+				{
+					// add node
+					TreeNode newNode(p);
+					newNode.Parent = currentNodeIndex;
+					m_TreeNodes.push_back(newNode);
+
+					m_TreeNodes[currentNodeIndex].Children[p] = m_TreeNodes.size() - 1;
+					currentNodeIndex = m_TreeNodes.size() - 1;
+				}
+
+			}
+		}
 	}
 }

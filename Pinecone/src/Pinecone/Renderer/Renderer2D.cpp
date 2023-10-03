@@ -7,6 +7,8 @@
 #include "Pinecone/Renderer/UniformBuffer.h"
 #include "Pinecone/Renderer/MSDFData.h"
 
+#include "Pinecone/Asset/AssetManager.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -186,7 +188,7 @@ namespace Pinecone
 		s_Data.WhiteTexture = Texture2D::Create(TextureSpecification());
 		// As the default texture specification size is 1x1. We only need to set 1 pixel as a white color
 		uint32_t whiteTextureData = 0xffffffff;
-		s_Data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+		s_Data.WhiteTexture->SetData(Buffer(&whiteTextureData, sizeof(uint32_t)));
 
 		// Create the shaders
 		// Note: These shader files currently do need to exist in the client application
@@ -409,6 +411,7 @@ namespace Pinecone
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, const glm::vec2& flipAxies, int entityID)
 	{
 		PC_PROFILE_FUNCTION();
+		PC_CORE_VERIFY(texture);
 
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
@@ -502,7 +505,10 @@ namespace Pinecone
 	{
 		// If the sprites texture is not null, draw a textured quad. Otherwise draw a colored quad
 		if (sprite.Texture)
-			DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color, sprite.FlipAxies, entityID);
+		{
+			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(sprite.Texture);
+			DrawQuad(transform, texture, sprite.TilingFactor, sprite.Color, sprite.FlipAxies, entityID);
+		}
 		else
 			DrawQuad(transform, sprite.Color, entityID);
 	}

@@ -200,6 +200,18 @@ namespace Pinecone
 				// Run the callback function (typically Application::OnEvent)
 				data.EventCallback(event);
 			});
+
+		glfwSetDropCallback(m_Window, [](GLFWwindow* window, int pathCount, const char* paths[])
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				std::vector<std::filesystem::path> filepaths(pathCount);
+				for (int i = 0; i < pathCount; i++)
+					filepaths[i] = paths[i];
+
+				WindowDropEvent event(std::move(filepaths));
+				data.EventCallback(event);
+			});
 	}
 
 	void Window::Shutdown()

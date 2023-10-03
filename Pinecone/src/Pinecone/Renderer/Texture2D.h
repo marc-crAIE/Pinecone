@@ -8,32 +8,14 @@ namespace Pinecone
 	class Texture2D : public Texture
 	{
 	public:
-		/// <summary>
-		/// The Texture2D constructor for creating a texture based on a texture specification
-		/// </summary>
-		/// <param name="specification">The texture specification</param>
-		Texture2D(const TextureSpecification& specification);
-		/// <summary>
-		/// The Texture2D constructor for creating a texture from a file
-		/// </summary>
-		/// <param name="filepath">The file path to the texture file</param>
-		Texture2D(const std::string& filepath);
-		/// <summary>
-		/// The Texture2D constructor for creating a texture from a file with a texture specification
-		/// </summary>
-		/// <param name="specification">The texture specification</param>
-		Texture2D(const TextureSpecification& specification, const std::string& filepath);
+
+		Texture2D(const TextureSpecification& specification, Buffer data = Buffer());
 		/// <summary>
 		/// The Texture deconstructor
 		/// </summary>
 		~Texture2D() override;
 
-		/// <summary>
-		/// Set the texture data (pixels)
-		/// </summary>
-		/// <param name="data">The pixel data</param>
-		/// <param name="size">The total size of the pixel data</param>
-		void SetData(void* data, uint32_t size) override;
+		virtual void SetData(Buffer data) override;
 		/// <summary>
 		/// Bind the texture to a texture slot
 		/// </summary>
@@ -63,12 +45,6 @@ namespace Pinecone
 		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
 
 		/// <summary>
-		/// Get the file path which the texture was created from
-		/// </summary>
-		/// <returns></returns>
-		const std::string& GetFilePath() const override { return m_FilePath; }
-
-		/// <summary>
 		/// Is the texture loaded?
 		/// </summary>
 		/// <returns>True if the texture is loaded</returns>
@@ -84,31 +60,13 @@ namespace Pinecone
 			return m_RendererID == other.GetRendererID();
 		}
 
-		/// <summary>
-		/// Create a smart shared pointer to a new Texture2D
-		/// </summary>
-		/// <param name="specification">The texture specification</param>
-		/// <returns>A shared pointer to a new Texture2D</returns>
-		static Ref<Texture2D> Create(const TextureSpecification& specification);
-		/// <summary>
-		/// Create a smart shared pointer to a new Texture2D
-		/// </summary>
-		/// <param name="filepath">The file path to the texture file</param>
-		/// <returns>A shared pointer to a new Texture2D</returns>
-		static Ref<Texture2D> Create(const std::string& filepath);
-		/// <summary>
-		/// Create a smart shared pointer to a new Texture2D
-		/// </summary>
-		/// <param name="specification">The texture specification</param>
-		/// <param name="filepath">The file path to the texture file</param>
-		/// <returns>A shared pointer to a new Texture2D</returns>
-		static Ref<Texture2D> Create(const TextureSpecification& specification, const std::string& filepath);
-	private:
-		void CreateFromFile(const std::string& filepath);
+		static Ref<Texture2D> Create(const TextureSpecification& specification, Buffer data = Buffer());
+
+		static AssetType GetStaticType() { return AssetType::Texture2D; }
+		virtual AssetType GetType() const { return GetStaticType(); }
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Width, m_Height;
-		std::string m_FilePath;
 
 		TextureSpecification m_Specification;
 

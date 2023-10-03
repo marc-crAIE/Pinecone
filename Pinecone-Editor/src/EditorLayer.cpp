@@ -5,6 +5,8 @@
 #include <Pinecone/Utils/PlatformUtils.h>
 #include <Pinecone/Scripting/ScriptEngine.h>
 
+#include <Pinecone/Asset/TextureImporter.h>
+
 #include <imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -32,10 +34,10 @@ namespace Pinecone
 
 		m_EditorScene = CreateRef<Scene>();
 
-		m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
-		m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
-		m_IconPause = Texture2D::Create("Resources/Icons/PauseButton.png");
-		m_IconStep = Texture2D::Create("Resources/Icons/StepButton.png");
+		m_IconPlay = TextureImporter::LoadTexture2D("Resources/Icons/PlayButton.png");
+		m_IconStop = TextureImporter::LoadTexture2D("Resources/Icons/StopButton.png");
+		m_IconPause = TextureImporter::LoadTexture2D("Resources/Icons/PauseButton.png");
+		m_IconStep = TextureImporter::LoadTexture2D("Resources/Icons/StepButton.png");
 
 		auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
 		if (commandLineArgs.Count > 1)
@@ -300,12 +302,14 @@ namespace Pinecone
 						{
 							if (m_HoveredGameObject.HasComponent<SpriteComponent>())
 							{
+#if 0
 								auto& src = m_HoveredGameObject.GetComponent<SpriteComponent>();
 								Ref<Texture2D> texture = Texture2D::Create(file.string());
 								if (texture->IsLoaded())
 									src.Texture = texture;
 								else
 									PC_WARN("Could not load texture {0}", file.filename().string());
+#endif
 							}
 						}
 					}
@@ -499,6 +503,13 @@ namespace Pinecone
 				m_SceneHierarchyPanel.SetSelectedGameObject(m_HoveredGameObject);
 		}
 		return false;
+	}
+
+	bool EditorLayer::OnWindowDrop(WindowDropEvent& e)
+	{
+		//AssetManager::ImportAsset();
+
+		return true;
 	}
 
 	void EditorLayer::OnScenePlay()

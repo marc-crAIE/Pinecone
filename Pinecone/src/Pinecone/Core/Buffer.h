@@ -18,6 +18,10 @@ namespace Pinecone
 			Allocate(size);
 		}
 
+		Buffer(const void* data, uint64_t size)
+			: Data((uint8_t*)data), Size(size)
+		{}
+
 		Buffer(const Buffer&) = default;
 
 		static Buffer Copy(Buffer other)
@@ -31,13 +35,13 @@ namespace Pinecone
 		{
 			Release();
 
-			Data = new uint8_t[size];
+			Data = (uint8_t*)malloc(size);
 			Size = size;
 		}
 
 		void Release()
 		{
-			delete[] Data;
+			free(Data);
 			Data = nullptr;
 			Size = 0;
 		}

@@ -11,6 +11,10 @@
 	#define PC_DEBUGBREAK()
 #endif
 
+#ifndef PC_DIST
+	#define PC_ENABLE_VERIFY
+#endif
+
 #define PC_EXPAND_MACRO(x) x
 #define PC_STRINGIFY_MACRO(x) #x
 

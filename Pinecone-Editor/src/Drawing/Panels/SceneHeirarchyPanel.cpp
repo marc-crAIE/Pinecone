@@ -1,6 +1,7 @@
 #include "SceneHeirarchyPanel.h"
 
 #include <Pinecone/Scene/Components.h>
+#include <Pinecone/Asset/TextureImporter.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -12,8 +13,8 @@ namespace Pinecone
 {
 	SceneHierarchyPanel::SceneHierarchyPanel()
 	{
-		m_SceneIcon = Texture2D::Create("Resources/Icons/Panels/SceneHierachy/SceneIcon.png");
-		m_GameObjectIcon = Texture2D::Create("Resources/Icons/Panels/SceneHierachy/GameObjectIcon.png");
+		m_SceneIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/SceneHierachy/SceneIcon.png");
+		m_GameObjectIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/SceneHierachy/GameObjectIcon.png");
 	}
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
