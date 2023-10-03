@@ -15,6 +15,17 @@
 
 namespace Pinecone
 {
+	namespace Utils 
+	{
+		std::string MonoStringToString(MonoString* string)
+		{
+			char* cStr = mono_string_to_utf8(string);
+			std::string str(cStr);
+			mono_free(cStr);
+			return str;
+		}
+	}
+
 	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> s_GameObjectHasComponentFuncs;
 #define PC_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Pinecone.InternalCalls::" #Name, Name)
 
@@ -48,9 +59,9 @@ namespace Pinecone
 		return gameObject.GetUUID();
 	}
 
-	static MonoObject* GameObject_GetScriptInstance(UUID entityID)
+	static MonoObject* GameObject_GetScriptInstance(UUID gameObjectID)
 	{
-		return ScriptEngine::GetManagedInstance(entityID);
+		return ScriptEngine::GetManagedInstance(gameObjectID);
 	}
 
 #pragma endregion
@@ -75,6 +86,106 @@ namespace Pinecone
 		PC_CORE_ASSERT(gameObject);
 
 		gameObject.GetComponent<TransformComponent>().Translation = *translation;
+	}
+
+#pragma endregion
+
+#pragma region TextComponent
+
+	static MonoString* TextComponent_GetText(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		return ScriptEngine::CreateString(tc.TextString.c_str());
+	}
+
+	static void TextComponent_SetText(UUID gameObjectID, MonoString* textString)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		tc.TextString = Utils::MonoStringToString(textString);
+	}
+
+	static void TextComponent_GetColor(UUID gameObjectID, glm::vec4* color)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		*color = tc.Color;
+	}
+
+	static void TextComponent_SetColor(UUID gameObjectID, glm::vec4* color)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		tc.Color = *color;
+	}
+
+	static float TextComponent_GetKerning(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		return tc.Kerning;
+	}
+
+	static void TextComponent_SetKerning(UUID gameObjectID, float kerning)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		tc.Kerning = kerning;
+	}
+
+	static float TextComponent_GetLineSpacing(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		return tc.LineSpacing;
+	}
+
+	static void TextComponent_SetLineSpacing(UUID gameObjectID, float lineSpacing)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+		PC_CORE_ASSERT(gameObject.HasComponent<TextComponent>());
+
+		auto& tc = gameObject.GetComponent<TextComponent>();
+		tc.LineSpacing = lineSpacing;
 	}
 
 #pragma endregion
@@ -132,6 +243,15 @@ namespace Pinecone
 
 		PC_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		PC_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
+
+		PC_ADD_INTERNAL_CALL(TextComponent_GetText);
+		PC_ADD_INTERNAL_CALL(TextComponent_SetText);
+		PC_ADD_INTERNAL_CALL(TextComponent_GetColor);
+		PC_ADD_INTERNAL_CALL(TextComponent_SetColor);
+		PC_ADD_INTERNAL_CALL(TextComponent_GetKerning);
+		PC_ADD_INTERNAL_CALL(TextComponent_SetKerning);
+		PC_ADD_INTERNAL_CALL(TextComponent_GetLineSpacing);
+		PC_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
 
 		PC_ADD_INTERNAL_CALL(Input_IsKeyDown);
 	}

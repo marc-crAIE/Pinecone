@@ -1,5 +1,27 @@
 Scene: Untitled
 GameObjects:
+  - GameObject: 1824447257229301051
+    TagComponent:
+      Tag: Text
+    TransformComponent:
+      Translation: [-1.74297333, 1.777668, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    TextComponent:
+      TextString: "Hello world!\nWhats up?"
+      Color: [1, 1, 1, 1]
+      Kerning: 0
+      LineSpacing: 0
+  - GameObject: 8293403256025707583
+    TagComponent:
+      Tag: Square
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      TilingFactor: 1
   - GameObject: 3624414789048311778
     TagComponent:
       Tag: Camera
@@ -24,13 +46,3 @@ GameObjects:
         - Name: Speed
           Type: Float
           Data: 7
-  - GameObject: 8293403256025707583
-    TagComponent:
-      Tag: Square
-    TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
-      TilingFactor: 1
