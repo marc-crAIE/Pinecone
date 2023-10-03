@@ -140,14 +140,14 @@ namespace Pinecone
 		/// <param name="sprite">The sprite component</param>
 		static void DrawSprite(const glm::mat4& transform, SpriteComponent& sprite, int entityID);
 
-		/// <summary>
-		/// Draw a string with a given font, transform, and color
-		/// </summary>
-		/// <param name="string">The string to render to the screen</param>
-		/// <param name="font">The specified font (use Font::GetDefault for the default font)</param>
-		/// <param name="transform">The transform of the string</param>
-		/// <param name="color">The color to render the string with</param>
-		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+		struct TextParams
+		{
+			glm::vec4 Color{ 1.0f };
+			float Kerning = 0.0f;
+			float LineSpacing = 0.0f;
+		};
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID = -1);
+		static void DrawString(const std::string& string, const glm::mat4& transform, const TextComponent& component, int entityID = -1);
 
 		struct Statistics
 		{

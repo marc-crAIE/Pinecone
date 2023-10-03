@@ -3,6 +3,7 @@
 #include "Pinecone/Core/UUID.h"
 #include "Pinecone/Scene/SceneCamera.h"
 #include "Pinecone/Renderer/Texture2D.h"
+#include "Pinecone/Renderer/Font.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -112,6 +113,15 @@ namespace Pinecone
 		ScriptComponent(const ScriptComponent&) = default;
 	};
 
+	struct TextComponent
+	{
+		std::string TextString;
+		Ref<Font> FontAsset = Font::GetDefault();
+		glm::vec4 Color { 1.0f };
+		float Kerning = 0.0f;
+		float LineSpacing = 0.0f;
+	};
+
 	// For internal use
 	struct SceneComponent
 	{
@@ -124,7 +134,8 @@ namespace Pinecone
 	};
 
 	using AllComponents =
-		ComponentGroup<TransformComponent, SpriteComponent,
+		ComponentGroup<TransformComponent, 
+		SpriteComponent, TextComponent,
 		CameraComponent,
 		NativeScriptComponent, ScriptComponent>;
 }

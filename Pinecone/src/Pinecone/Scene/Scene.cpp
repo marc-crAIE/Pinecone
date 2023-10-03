@@ -156,6 +156,17 @@ namespace Pinecone
 				}
 			}
 
+			// Draw text
+			{
+				auto view = m_Registry.view<TransformComponent, TextComponent>();
+				for (auto gameObject : view)
+				{
+					auto [transform, text] = view.get<TransformComponent, TextComponent>(gameObject);
+
+					Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)gameObject);
+				}
+			}
+
 			Renderer2D::EndScene();
 		}
 
@@ -347,6 +358,17 @@ namespace Pinecone
 				auto [transform, sprite] = group.get<TransformComponent, SpriteComponent>(gameObject);
 
 				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)gameObject);
+			}
+		}
+
+		// Draw text
+		{
+			auto view = m_Registry.view<TransformComponent, TextComponent>();
+			for (auto gameObject : view)
+			{
+				auto [transform, text] = view.get<TransformComponent, TextComponent>(gameObject);
+
+				Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)gameObject);
 			}
 		}
 

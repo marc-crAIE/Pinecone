@@ -12,9 +12,12 @@
 
 namespace Pinecone
 {
+	static Ref<Font> s_Font;
+
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer")
 	{
+		s_Font = Font::GetDefault();
 	}
 
 	void EditorLayer::OnAttach()

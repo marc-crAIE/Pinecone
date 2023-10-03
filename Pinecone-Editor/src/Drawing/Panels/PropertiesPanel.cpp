@@ -7,6 +7,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../UIWidgets.h"
@@ -126,6 +127,7 @@ namespace Pinecone
 			DisplayAddComponentEntry<CameraComponent>(gameObject, "Camera");
 			DisplayAddComponentEntry<SpriteComponent>(gameObject, "Sprite Renderer");
 			DisplayAddComponentEntry<ScriptComponent>(gameObject, "Script");
+			DisplayAddComponentEntry<TextComponent>(gameObject, "Text Component");
 
 			ImGui::EndPopup();
 		}
@@ -162,6 +164,14 @@ namespace Pinecone
 				}
 
 				ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
+			});
+
+		DrawComponent<TextComponent>("Text Renderer", gameObject, (ImTextureID)m_SpriteRendererIcon->GetRendererID(), [](auto& component)
+			{
+				ImGui::InputTextMultiline("Text String", &component.TextString);
+				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Kerning", &component.Kerning, 0.025f);
+				ImGui::DragFloat("Line Spacing", &component.LineSpacing, 0.025f);
 			});
 
 		DrawComponent<CameraComponent>("Camera", gameObject, (ImTextureID)m_CameraIcon->GetRendererID(), [](auto& component)
