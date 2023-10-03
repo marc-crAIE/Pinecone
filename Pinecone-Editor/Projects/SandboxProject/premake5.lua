@@ -22,7 +22,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 project "Assembly-CSharp"
 	kind "SharedLib"
 	language "C#"
-	dotnetframework "4.7.2"
+	dotnetframework "4.8.1"
 
 	targetdir ("Bin")
 	objdir ("Bin-Int")

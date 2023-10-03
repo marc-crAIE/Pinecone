@@ -1,7 +1,7 @@
 project "Pinecone-ScriptCore"
 	kind "SharedLib"
 	language "C#"
-	dotnetframework "4.7.2"
+	dotnetframework "4.8.1"
 
 	targetdir ("../Pinecone-Editor/Resources/Scripts")
 	objdir ("../Pinecone-Editor/Resources/Scripts/Intermediates")

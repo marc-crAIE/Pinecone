@@ -158,6 +158,9 @@ namespace Pinecone
         // We cannot round to more decimals than 15 according to docs for System.Math.Round.
         internal const int kMaxDecimals = 15;
 
+        // A tiny floating point value (RO).
+        public static readonly float Epsilon = 1e-38f;
+
         // Clamps a value between a minimum float and maximum float value.
         public static float Clamp(float value, float min, float max)
         {
@@ -216,9 +219,9 @@ namespace Pinecone
         // Moves a value /current/ towards /target/.
         static public float MoveTowards(float current, float target, float maxDelta)
         {
-            if (Mathf.Abs(target - current) <= maxDelta)
+            if (MathF.Abs(target - current) <= maxDelta)
                 return target;
-            return current + Mathf.Sign(target - current) * maxDelta;
+            return current + MathF.Sign(target - current) * maxDelta;
         }
 
         // Same as ::ref::MoveTowards but makes sure the values interpolate correctly when they wrap around 360 degrees.
@@ -234,7 +237,7 @@ namespace Pinecone
         // Interpolates between /min/ and /max/ with smoothing at the limits.
         public static float SmoothStep(float from, float to, float t)
         {
-            t = Mathf.Clamp01(t);
+            t = MathF.Clamp01(t);
             t = -2.0F * t * t * t + 3.0F * t * t;
             return to * t + from * (1F - t);
         }
@@ -261,7 +264,7 @@ namespace Pinecone
             // 1.000001f can be represented while 1.0000001f is rounded to zero,
             // thus we could use an epsilon of 0.000001f for comparing values close to 1.
             // We multiply this epsilon by the biggest magnitude of a and b.
-            return Abs(b - a) < Max(0.000001f * Max(Abs(a), Abs(b)), 1e-38f * 8);
+            return Abs(b - a) < Max(0.000001f * Max(Abs(a), Abs(b)), Epsilon * 8);
         }
 
        //public static float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed)
@@ -273,7 +276,7 @@ namespace Pinecone
         //public static float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime)
         //{
         //    float deltaTime = Time.deltaTime;
-        //    float maxSpeed = Mathf.Infinity;
+        //    float maxSpeed = MathF.Infinity;
         //    return SmoothDamp(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
         //}
 
@@ -281,7 +284,7 @@ namespace Pinecone
         public static float SmoothDamp(float current, float target, ref float currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
         {
             // Based on Game Programming Gems 4 Chapter 1.10
-            smoothTime = Mathf.Max(0.0001F, smoothTime);
+            smoothTime = MathF.Max(0.0001F, smoothTime);
             float omega = 2F / smoothTime;
 
             float x = omega * deltaTime;
@@ -291,7 +294,7 @@ namespace Pinecone
 
             // Clamp maximum speed
             float maxChange = maxSpeed * smoothTime;
-            change = Mathf.Clamp(change, -maxChange, maxChange);
+            change = MathF.Clamp(change, -maxChange, maxChange);
             target = current - change;
 
             float temp = (currentVelocity + omega * change) * deltaTime;
@@ -317,7 +320,7 @@ namespace Pinecone
         //public static float SmoothDampAngle(float current, float target, ref float currentVelocity, float smoothTime)
         //{
         //    float deltaTime = Time.deltaTime;
-        //    float maxSpeed = Mathf.Infinity;
+        //    float maxSpeed = MathF.Infinity;
         //    return SmoothDampAngle(current, target, ref currentVelocity, smoothTime, maxSpeed, deltaTime);
         //}
 
@@ -331,14 +334,14 @@ namespace Pinecone
         // Loops the value t, so that it is never larger than length and never smaller than 0.
         public static float Repeat(float t, float length)
         {
-            return Clamp(t - Mathf.Floor(t / length) * length, 0.0f, length);
+            return Clamp(t - MathF.Floor(t / length) * length, 0.0f, length);
         }
 
         // PingPongs the value t, so that it is never larger than length and never smaller than 0.
         public static float PingPong(float t, float length)
         {
             t = Repeat(t, length * 2F);
-            return length - Mathf.Abs(t - length);
+            return length - MathF.Abs(t - length);
         }
 
         // Calculates the ::ref::Lerp parameter between of two values.
@@ -353,7 +356,7 @@ namespace Pinecone
         // Calculates the shortest difference between two given angles.
         public static float DeltaAngle(float current, float target)
         {
-            float delta = Mathf.Repeat((target - current), 360.0F);
+            float delta = MathF.Repeat((target - current), 360.0F);
             if (delta > 180.0F)
                 delta -= 360.0F;
             return delta;
@@ -460,19 +463,19 @@ namespace Pinecone
         {
             if (roundingValue == 0)
                 return value;
-            return Mathf.Round(value / roundingValue) * roundingValue;
+            return MathF.Round(value / roundingValue) * roundingValue;
         }
 
         internal static float GetClosestPowerOfTen(float positiveNumber)
         {
             if (positiveNumber <= 0)
                 return 1;
-            return Mathf.Pow(10, Mathf.RoundToInt(Mathf.Log10(positiveNumber)));
+            return MathF.Pow(10, MathF.RoundToInt(MathF.Log10(positiveNumber)));
         }
 
         internal static int GetNumberOfDecimalsForMinimumDifference(float minDifference)
         {
-            return Mathf.Clamp(-Mathf.FloorToInt(Mathf.Log10(Mathf.Abs(minDifference))), 0, kMaxDecimals);
+            return MathF.Clamp(-MathF.FloorToInt(MathF.Log10(MathF.Abs(minDifference))), 0, kMaxDecimals);
         }
 
         internal static int GetNumberOfDecimalsForMinimumDifference(double minDifference)
@@ -498,7 +501,7 @@ namespace Pinecone
 
         internal static float DiscardLeastSignificantDecimal(float v)
         {
-            int decimals = Mathf.Clamp((int)(5 - Mathf.Log10(Mathf.Abs(v))), 0, kMaxDecimals);
+            int decimals = MathF.Clamp((int)(5 - MathF.Log10(MathF.Abs(v))), 0, kMaxDecimals);
             return (float)System.Math.Round(v, decimals, System.MidpointRounding.AwayFromZero);
         }
 

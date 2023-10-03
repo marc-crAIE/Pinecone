@@ -1,13 +1,20 @@
-﻿namespace Pinecone
+﻿using System;
+using System.IO;
+
+namespace Pinecone
 {
-    public class Vector4
+    public struct Vector4
     {
+        public const float kEpsilon = 0.00001F;
+        public const float kEpsilonNormalSqrt = 1e-15f;
+
+
         public float X, Y, Z, W;
 
         public static Vector4 Zero => new Vector4(0.0f);
         public static Vector4 One => new Vector4(1.0f);
-        public static Vector4 NegativeInfinity = new Vector4(float.NegativeInfinity);
-        public static Vector4 PositiveInfinity = new Vector4(float.PositiveInfinity);
+        public static Vector4 NegativeInfinity => new Vector4(float.NegativeInfinity);
+        public static Vector4 PositiveInfinity => new Vector4(float.PositiveInfinity);
 
         #region Constructors
 
@@ -61,17 +68,17 @@
         }
 
         public float Magnitude => MathF.Sqrt(X * X + Y * Y + Z * Z + W * W);
+        public float SqrMagnitude => X * X + Y * Y + Z * Z + W * W;
 
         public Vector4 Normalized
         {
             get
             {
                 float mag = Magnitude;
-
-                if (mag == 0.0f)
+                if (mag > kEpsilon)
+                    return this / mag;
+                else
                     return Zero;
-
-                return this / mag;
             }
         }
 
@@ -85,8 +92,9 @@
                     case 1: return Y;
                     case 2: return Z;
                     case 3: return W;
+                    default:
+                        throw new IndexOutOfRangeException("Invalid Vector4 index!");
                 }
-                return 0;
             }
             set
             {
@@ -96,9 +104,75 @@
                     case 1: Y = value; break;
                     case 2: Z = value; break;
                     case 3: W = value; break;
+                    default:
+                        throw new IndexOutOfRangeException("Invalid Vector4 index!");
                 }
             }
         }
+
+        #endregion
+
+        #region Methods
+
+        public void Normalize()
+        {
+            this = Normalized;
+        }
+
+        public void Scale(Vector4 scale)
+        {
+            X *= scale.X; 
+            Y *= scale.Y;
+            Z *= scale.Z;
+            W *= scale.W;
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        public static Vector4 Normalize(Vector4 value)
+        {
+            float mag = value.Magnitude;
+            if (mag > kEpsilon)
+                return value / mag;
+            else
+                return Zero;
+        }
+
+        public static Vector4 Scale(Vector4 v1, Vector4 v2) => new Vector4(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z, v1.W * v2.W);
+
+        public static float Dot(Vector4 a, Vector4 b) => a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+
+        public static float Distance(Vector4 a, Vector4 b) => (a - b).Magnitude;
+
+        public static Vector4 Project(Vector4 a, Vector4 b) { return b * (Dot(a, b) / Dot(b, b)); }
+
+        public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
+        {
+            t = MathF.Clamp01(t);
+            return new Vector4(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Z + (b.Z - a.Z) * t,
+                a.W + (b.W - a.W) * t
+            );
+        }
+
+        public static Vector4 LerpUnclamped(Vector4 a, Vector4 b, float t)
+        {
+            return new Vector4(
+                a.X + (b.X - a.X) * t,
+                a.Y + (b.Y - a.Y) * t,
+                a.Z + (b.Z - a.Z) * t,
+                a.W + (b.W - a.W) * t
+            );
+        }
+
+        public static Vector4 Min(Vector4 lhs, Vector4 rhs) =>
+            new Vector4(MathF.Min(lhs.X, rhs.X), MathF.Min(lhs.Y, rhs.Y), MathF.Min(lhs.Z, rhs.Z), MathF.Min(lhs.W, rhs.W));
+        public static Vector4 Max(Vector4 lhs, Vector4 rhs) =>
+            new Vector4(MathF.Max(lhs.X, rhs.X), MathF.Max(lhs.Y, rhs.Y), MathF.Max(lhs.Z, rhs.Z), MathF.Max(lhs.W, rhs.W));
 
         #endregion
 
@@ -171,11 +245,31 @@
 
         #endregion
 
+        #region Comparison Operators
+
+        public static bool operator ==(Vector4 v1, Vector4 v2) =>
+            MathF.Approximately(v1.X, v2.X) &&
+            MathF.Approximately(v1.Y, v2.Y) &&
+            MathF.Approximately(v1.Z, v2.Z) &&
+            MathF.Approximately(v1.W, v2.W);
+        public static bool operator !=(Vector4 v1, Vector4 v2) => !(v1 == v2);
+
+        #endregion
+
         #endregion
 
         #region Function Overloads
 
         public override string ToString() => $"( {X}, {Y}, {Z}, {W} )";
+
+        public override int GetHashCode() => X.GetHashCode() ^ (Y.GetHashCode() << 2) ^ (Z.GetHashCode() >> 2) ^ (W.GetHashCode() >> 1);
+        public override bool Equals(object other)
+        {
+            if (!(other is Vector4)) return false;
+            return Equals((Vector4)other);
+        }
+
+        public bool Equals(Vector4 other) => this == other;
 
         #endregion
     }
