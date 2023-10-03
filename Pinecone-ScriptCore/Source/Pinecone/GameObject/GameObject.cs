@@ -50,6 +50,15 @@ namespace Pinecone
             return new GameObject(gameObjectID);
         }
 
+        public GameObject GetGameObjectByUUID(ulong uuid)
+        {
+            ulong gameObjectID = InternalCalls.GameObject_GetGameObjectByUUID(uuid);
+            if (gameObjectID == 0)
+                return null;
+
+            return new GameObject(gameObjectID);
+        }
+
         public T As<T>() where T : GameObject, new()
         {
             object instance = InternalCalls.GameObject_GetScriptInstance(ID);

@@ -59,6 +59,18 @@ namespace Pinecone
 		return gameObject.GetUUID();
 	}
 
+	static uint64_t GameObject_GetGameObjectByUUID(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+
+		if (!gameObject)
+			return 0;
+
+		return gameObject.GetUUID();
+	}
+
 	static MonoObject* GameObject_GetScriptInstance(UUID gameObjectID)
 	{
 		return ScriptEngine::GetManagedInstance(gameObjectID);
@@ -86,6 +98,46 @@ namespace Pinecone
 		PC_CORE_ASSERT(gameObject);
 
 		gameObject.GetComponent<TransformComponent>().Translation = *translation;
+	}
+
+	static void TransformComponent_GetRotation(UUID gameObjectID, glm::vec3* outRotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		*outRotation = gameObject.GetComponent<TransformComponent>().Rotation;
+	}
+
+	static void TransformComponent_SetRotation(UUID gameObjectID, glm::vec3* rotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		gameObject.GetComponent<TransformComponent>().Rotation = *rotation;
+	}
+
+	static void TransformComponent_GetScale(UUID gameObjectID, glm::vec3* outScale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		*outScale = gameObject.GetComponent<TransformComponent>().Scale;
+	}
+
+	static void TransformComponent_SetScale(UUID gameObjectID, glm::vec3* scale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		gameObject.GetComponent<TransformComponent>().Scale = *scale;
 	}
 
 #pragma endregion
@@ -197,6 +249,26 @@ namespace Pinecone
 		return Input::IsKeyPressed(keycode);
 	}
 
+	static bool Input_IsMouseButtonPressed(MouseCode button)
+	{
+		return Input::IsMouseButtonPressed(button);
+	}
+
+	static void Input_GetMousePosition(glm::vec2* position)
+	{
+		*position = Input::GetMousePosition();
+	}
+
+	static void Input_GetMouseX(float* xPosition)
+	{
+		*xPosition = Input::GetMouseX();
+	}
+
+	static void Input_GetMouseY(float* yPosition)
+	{
+		*yPosition = Input::GetMouseY();
+	}
+
 #pragma endregion
 
 	template<typename... Component>
@@ -239,10 +311,15 @@ namespace Pinecone
 
 		PC_ADD_INTERNAL_CALL(GameObject_HasComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_FindGameObjectByName);
+		PC_ADD_INTERNAL_CALL(GameObject_GetGameObjectByUUID);
 		PC_ADD_INTERNAL_CALL(GameObject_GetScriptInstance);
 
 		PC_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		PC_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
+		PC_ADD_INTERNAL_CALL(TransformComponent_GetRotation);
+		PC_ADD_INTERNAL_CALL(TransformComponent_SetRotation);
+		PC_ADD_INTERNAL_CALL(TransformComponent_GetScale);
+		PC_ADD_INTERNAL_CALL(TransformComponent_SetScale);
 
 		PC_ADD_INTERNAL_CALL(TextComponent_GetText);
 		PC_ADD_INTERNAL_CALL(TextComponent_SetText);
@@ -254,5 +331,9 @@ namespace Pinecone
 		PC_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
 
 		PC_ADD_INTERNAL_CALL(Input_IsKeyDown);
+		PC_ADD_INTERNAL_CALL(Input_IsMouseButtonPressed);
+		PC_ADD_INTERNAL_CALL(Input_GetMousePosition);
+		PC_ADD_INTERNAL_CALL(Input_GetMouseX);
+		PC_ADD_INTERNAL_CALL(Input_GetMouseY);
 	}
 }
