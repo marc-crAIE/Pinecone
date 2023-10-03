@@ -1,0 +1,5 @@
+Project:
+  Name: Sandbox
+  StartScene: "Scenes/Square.pscene"
+  AssetDirectory: "Assets"
+  ScriptModulePath: "Bin/Assembly-CSharp.dll"

@@ -19,6 +19,8 @@
 #include "Pinecone/Scene/Components.h"
 #include "Pinecone/Scene/ScriptableGameObject.h"
 
+#include "Pinecone/Project/Project.h"
+
 //// Renderer
 #include "Pinecone/Renderer/Renderer.h"
 #include "Pinecone/Renderer/Renderer2D.h"

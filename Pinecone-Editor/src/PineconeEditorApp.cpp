@@ -8,8 +8,8 @@ namespace Pinecone
 	class PineconeEditor : public Application
 	{
 	public:
-		PineconeEditor()
-			: Application()
+		PineconeEditor(const ApplicationSpecification& spec)
+			: Application(spec)
 		{
 			PushLayer(new EditorLayer());
 		}
@@ -18,8 +18,12 @@ namespace Pinecone
 		{}
 	};
 
-	Application* Pinecone::CreateApplication()
+	Application* Pinecone::CreateApplication(ApplicationCommandLineArgs args)
 	{
-		return new PineconeEditor();
+		ApplicationSpecification spec;
+		spec.Name = "Pinecone Editor";
+		spec.CommandLineArgs = args;
+
+		return new PineconeEditor(spec);
 	}
 }

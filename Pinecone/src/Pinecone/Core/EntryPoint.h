@@ -4,7 +4,7 @@
 #include "Pinecone/Core/Application.h"
 
 // This function MUST be defined in the client program
-extern Pinecone::Application* Pinecone::CreateApplication();
+extern Pinecone::Application* Pinecone::CreateApplication(ApplicationCommandLineArgs args);
 
 int main(int argc, char** argv)
 {
@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
 	PC_PROFILE_BEGIN_SESSION("Startup", "PineconeProfile-Startup.json");
 	// Call the create application function
-	auto app = Pinecone::CreateApplication();
+	auto app = Pinecone::CreateApplication({ argc, argv });
 	PC_PROFILE_END_SESSION();
 
 	PC_PROFILE_BEGIN_SESSION("Runtime", "PineconeProfile-Runtime.json");

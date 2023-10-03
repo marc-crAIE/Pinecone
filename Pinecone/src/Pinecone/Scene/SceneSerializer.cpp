@@ -6,6 +6,8 @@
 #include "Pinecone/Scene/GameObject.h"
 #include "Pinecone/Scene/Components.h"
 
+#include "Pinecone/Project/Project.h"
+
 #include "Pinecone/Scripting/ScriptEngine.h"
 
 #include <fstream>
@@ -358,8 +360,12 @@ namespace Pinecone
 				{
 					auto& src = deserializedGO.AddComponent<SpriteComponent>();
 					src.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-					if (spriteRendererComponent["TexturePath"])
-						src.Texture = Texture2D::Create(spriteRendererComponent["TexturePath"].as<std::string>());
+					if (spriteRendererComponent["TexturePath"]) 
+					{
+						std::string texturePath = spriteRendererComponent["TexturePath"].as<std::string>();
+						auto path = Project::GetAssetFileSystemPath(texturePath);
+						src.Texture = Texture2D::Create(path.string());
+					}
 
 					if (spriteRendererComponent["TilingFactor"])
 						src.TilingFactor = spriteRendererComponent["TilingFactor"].as<float>();

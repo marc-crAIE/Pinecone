@@ -8,6 +8,8 @@
 #include "Pinecone/Core/Buffer.h"
 #include "Pinecone/Core/FileSystem.h"
 
+#include "Pinecone/Project/Project.h"
+
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/object.h>
@@ -133,7 +135,11 @@ namespace Pinecone
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyReloadPending = false;
 
+#ifdef PC_DEBUG
 		bool EnableDebugging = true;
+#else
+		bool EnableDebugging = false;
+#endif
 
 		// Runtime
 		Scene* SceneContext = nullptr;
@@ -168,7 +174,9 @@ namespace Pinecone
 			PC_CORE_ERROR("[ScriptEngine] Could not load Pinecone-ScriptCore assembly.");
 			return;
 		}
-		status = LoadAppAssembly("Projects/SandboxProject/Bin/Assembly-CSharp.dll");
+
+		auto scriptModulePath = Project::GetProjectDirectory() / Project::GetActive()->GetConfig().ScriptModulePath;
+		status = LoadAppAssembly(scriptModulePath);
 		if (!status)
 		{
 			PC_CORE_ERROR("[ScriptEngine] Could not load app assembly.");

@@ -14,13 +14,32 @@ int main(int argc, char** argv);
 
 namespace Pinecone
 {
+	struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			PC_CORE_ASSERT(index < Count);
+			return Args[index];
+		}
+	};
+
+	struct ApplicationSpecification
+	{
+		std::string Name = "Pinecone Application";
+		std::string WorkingDirectory;
+		ApplicationCommandLineArgs CommandLineArgs;
+	};
+
 	class Application
 	{
 	public:
 		/// <summary>
 		/// The Application constructor
 		/// </summary>
-		Application();
+		Application(const ApplicationSpecification& specification);
 		/// <summary>
 		/// The Application destructor
 		/// </summary>
@@ -62,6 +81,8 @@ namespace Pinecone
 		/// <returns></returns>
 		static Application& Get() { return *s_Instance; }
 
+		const ApplicationSpecification& GetSpecification() const { return m_Specification; }
+
 		void SubmitToMainThread(const std::function<void()>& function);
 	private:
 		/// <summary>
@@ -83,6 +104,8 @@ namespace Pinecone
 
 		void ExecuteMainThreadQueue();
 	private:
+		ApplicationSpecification m_Specification;
+
 		Scope<Window> m_Window;
 		bool m_Running = true;
 		bool m_Minimized = false;
@@ -100,5 +123,5 @@ namespace Pinecone
 	};
 
 	// To be defined in the client program
-	Application* CreateApplication();
+	Application* CreateApplication(ApplicationCommandLineArgs args);
 }

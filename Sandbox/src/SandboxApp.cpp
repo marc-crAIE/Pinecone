@@ -10,15 +10,20 @@ namespace Sandbox
 	class SandboxApp : public Application
 	{
 	public:
-		SandboxApp()
-			: Application()
+		SandboxApp(const ApplicationSpecification& specification)
+			: Application(specification)
 		{
 			PushLayer(new SandboxLayer());
 		}
 	};
 }
 
-Application* Pinecone::CreateApplication()
+Application* Pinecone::CreateApplication(ApplicationCommandLineArgs args)
 {
-	return new Sandbox::SandboxApp();
+	ApplicationSpecification spec;
+	spec.Name = "Sandbox";
+	spec.WorkingDirectory = "../Pinecone-Editor";
+	spec.CommandLineArgs = args;
+
+	return new Sandbox::SandboxApp(spec);
 }

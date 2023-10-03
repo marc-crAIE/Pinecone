@@ -50,6 +50,8 @@ namespace Pinecone
 		/// <param name="gameObject">The game object to be destroyed</param>
 		void DestroyGameObject(GameObject gameObject);
 
+		GameObject DuplicateGameObject(GameObject gameObject);
+
 		/// <summary>
 		/// Get the first game object with the specified tag.
 		/// The entity handle of the game object returned is null if no game objects

@@ -12,6 +12,43 @@ namespace Pinecone
 {
 	static std::unordered_map<UUID, Scene*> s_ActiveScenes;
 
+	template<typename... Component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		([&]()
+			{
+				auto view = src.view<Component>();
+				for (auto srcGameObject : view)
+				{
+					entt::entity dstGameObject = enttMap.at(src.get<IDComponent>(srcGameObject));
+
+					auto& srcComponent = src.get<Component>(srcGameObject);
+					dst.emplace_or_replace<Component>(dstGameObject, srcComponent);
+				}
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+	{
+		CopyComponent<Component...>(dst, src, enttMap);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(GameObject dst, GameObject src)
+	{
+		([&]()
+			{
+				if (src.HasComponent<Component>())
+					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+			}(), ...);
+	}
+
+	template<typename... Component>
+	static void CopyComponentIfExists(ComponentGroup<Component...>, GameObject dst, GameObject src)
+	{
+		CopyComponentIfExists<Component...>(dst, src);
+	}
 
 	Scene::Scene(const std::string& name)
 		: m_Name(name)
@@ -177,6 +214,15 @@ namespace Pinecone
 		m_Registry.destroy(gameObject);
 	}
 
+	GameObject Scene::DuplicateGameObject(GameObject gameObject)
+	{
+		// Copy name because we're going to modify component data structure
+		std::string name = gameObject.GetName();
+		GameObject newGameObject = CreateGameObject(name);
+		CopyComponentIfExists(AllComponents{}, newGameObject, gameObject);
+		return newGameObject;
+	}
+
 	GameObject Scene::GetGameObjectByTag(std::string_view name)
 	{
 		// Get all game objects with a tag component
@@ -255,43 +301,6 @@ namespace Pinecone
 			if (!cameraComponent.FixedAspectRatio)
 				cameraComponent.Camera.SetViewportSize(width, height);
 		}
-	}
-	template<typename... Component>
-	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
-	{
-		([&]()
-			{
-				auto view = src.view<Component>();
-				for (auto srcGameObject : view)
-				{
-					entt::entity dstGameObject = enttMap.at(src.get<IDComponent>(srcGameObject));
-
-					auto& srcComponent = src.get<Component>(srcGameObject);
-					dst.emplace_or_replace<Component>(dstGameObject, srcComponent);
-				}
-			}(), ...);
-	}
-
-	template<typename... Component>
-	static void CopyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
-	{
-		CopyComponent<Component...>(dst, src, enttMap);
-	}
-
-	template<typename... Component>
-	static void CopyComponentIfExists(GameObject dst, GameObject src)
-	{
-		([&]()
-			{
-				if (src.HasComponent<Component>())
-					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
-			}(), ...);
-	}
-
-	template<typename... Component>
-	static void CopyComponentIfExists(ComponentGroup<Component...>, GameObject dst, GameObject src)
-	{
-		CopyComponentIfExists<Component...>(dst, src);
 	}
 
 	void Scene::Step(int frames)

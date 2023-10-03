@@ -29,7 +29,14 @@ namespace Pinecone
 		void OnSceneStop();
 		void OnScenePause();
 
+		void OnDuplicateGameObject();
+
 		void OnOverlayRender();
+
+		void NewProject();
+		bool OpenProject();
+		void OpenProject(const std::filesystem::path& path);
+		void SaveProject();
 
 		void NewScene();
 		void OpenScene();
@@ -64,7 +71,7 @@ namespace Pinecone
 		// Panels
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 		PropertiesPanel m_PropertiesPanel;
-		ContentBrowserPanel m_ContentBrowserPanel;
+		Scope<ContentBrowserPanel> m_ContentBrowserPanel;
 
 		bool m_ViewportOpen = true;
 		bool m_StatsOpen = true;

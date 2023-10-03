@@ -2,6 +2,7 @@
 
 #include <Pinecone/Scene/Components.h>
 #include <Pinecone/Scripting/ScriptEngine.h>
+#include <Pinecone/ImGui/ImGuiUI.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -12,8 +13,6 @@
 
 namespace Pinecone
 {
-	extern const std::filesystem::path g_AssetPath;
-
 	PropertiesPanel::PropertiesPanel()
 	{
 		m_TransformIcon = Texture2D::Create("Resources/Icons/Panels/Properties/Components/TransformIcon.png");
@@ -152,7 +151,7 @@ namespace Pinecone
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 					{
 						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path texturePath = std::filesystem::path(g_AssetPath) / path;
+						std::filesystem::path texturePath(path);
 						Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
 						if (texture->IsLoaded())
 							component.Texture = texture;
@@ -231,17 +230,13 @@ namespace Pinecone
 				static char buffer[64];
 				strcpy_s(buffer, sizeof(buffer), component.ClassName.c_str());
 
-				if (!scriptClassExists)
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+				UI::ScopedStyleColor textColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f), !scriptClassExists);
 
 				if (ImGui::InputText("Class", buffer, sizeof(buffer)))
+				{
 					component.ClassName = buffer;
-
-				if (!scriptClassExists)
-					ImGui::PopStyleColor();
-
-				// Needs to be checked again
-				scriptClassExists = ScriptEngine::GameObjectClassExists(component.ClassName);
+					return;
+				}
 
 				// Fields
 				bool sceneRunning = scene->IsRunning();
