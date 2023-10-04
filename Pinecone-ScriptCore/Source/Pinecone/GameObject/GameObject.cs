@@ -11,6 +11,11 @@ namespace Pinecone
             ID = id;
         }
 
+        public GameObject(string name = "GameObject")
+        {
+            InternalCalls.GameObject_New(name);
+        }
+
         public readonly ulong ID;
 
         public Vector3 Translation

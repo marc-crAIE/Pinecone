@@ -9,7 +9,7 @@ namespace Sandbox
 
         void OnCreate()
         {
-
+            var testGO = new GameObject("CSharp Test");
         }
 
         void OnUpdate(float ts)

@@ -248,6 +248,25 @@ namespace Pinecone
             );
         }
 
+        public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDistanceDelta)
+        {
+            float toVectorX = target.X - current.X;
+            float toVectorY = target.Y - current.Y;
+            float toVectorZ = target.Z - current.Z;
+
+            float sqdist = toVectorX * toVectorX + toVectorY * toVectorY + toVectorZ * toVectorZ;
+
+            if (sqdist == 0 || (maxDistanceDelta >= 0 && sqdist <= maxDistanceDelta * maxDistanceDelta))
+                return target;
+            var dist = MathF.Sqrt(sqdist);
+
+            return new Vector3(
+                current.X + toVectorX / dist * maxDistanceDelta,
+                current.Y + toVectorY / dist * maxDistanceDelta,
+                current.Z + toVectorZ / dist * maxDistanceDelta
+            );
+        }
+
         public static Vector3 Min(Vector3 lhs, Vector3 rhs) => new Vector3(MathF.Min(lhs.X, rhs.X), MathF.Min(lhs.Y, rhs.Y), MathF.Min(lhs.Z, rhs.Z));
         public static Vector3 Max(Vector3 lhs, Vector3 rhs) => new Vector3(MathF.Max(lhs.X, rhs.X), MathF.Max(lhs.Y, rhs.Y), MathF.Max(lhs.Z, rhs.Z));
 
@@ -328,6 +347,13 @@ namespace Pinecone
         public static bool operator !=(Vector3 v1, Vector3 v2) => !(v1 == v2);
 
         #endregion
+
+        #endregion
+
+        #region Type Conversion
+
+        public static implicit operator Vector3(Vector2 v) => new Vector3(v, 0.0f);
+        public static implicit operator Vector3(Vector4 v) => new Vector3(v, v.Z);
 
         #endregion
 

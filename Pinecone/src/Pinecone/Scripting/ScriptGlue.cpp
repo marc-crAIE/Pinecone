@@ -32,6 +32,16 @@ namespace Pinecone
 
 #pragma region GameObject
 
+	static uint64_t GameObject_New(MonoString* name)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->CreateGameObject(Utils::MonoStringToString(name));
+		PC_CORE_ASSERT(gameObject);
+
+		return gameObject.GetUUID();
+	}
+
 	static bool GameObject_HasComponent(UUID gameObjectID, MonoReflectionType* componentType)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
@@ -46,12 +56,9 @@ namespace Pinecone
 
 	static uint64_t GameObject_FindGameObjectByName(MonoString* name)
 	{
-		char* nameCStr = mono_string_to_utf8(name);
-
 		Scene* scene = ScriptEngine::GetSceneContext();
 		PC_CORE_ASSERT(scene);
-		GameObject gameObject = scene->GetGameObjectByTag(nameCStr);
-		mono_free(nameCStr);
+		GameObject gameObject = scene->GetGameObjectByTag(Utils::MonoStringToString(name));
 
 		if (!gameObject)
 			return 0;
@@ -309,6 +316,7 @@ namespace Pinecone
 	{
 		PC_CORE_INFO("Registering C# internal functions");
 
+		PC_ADD_INTERNAL_CALL(GameObject_New);
 		PC_ADD_INTERNAL_CALL(GameObject_HasComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_FindGameObjectByName);
 		PC_ADD_INTERNAL_CALL(GameObject_GetGameObjectByUUID);

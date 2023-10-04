@@ -167,6 +167,24 @@ namespace Pinecone
             );
         }
 
+        public static Vector2 MoveTowards(Vector2 current, Vector2 target, float maxDistanceDelta)
+        {
+            float toVectorX = target.X - current.X;
+            float toVectorY = target.Y - current.Y;
+
+            float sqDist = toVectorX * toVectorX + toVectorY * toVectorY;
+
+            if (sqDist == 0 || (maxDistanceDelta >= 0 && sqDist <= maxDistanceDelta * maxDistanceDelta))
+                return target;
+
+            float dist = MathF.Sqrt(sqDist);
+
+            return new Vector2(
+                current.X + toVectorX / dist * maxDistanceDelta,
+                current.Y + toVectorY / dist * maxDistanceDelta
+            );
+        }
+
         public static Vector2 Min(Vector2 lhs, Vector2 rhs) { return new Vector2(MathF.Min(lhs.X, rhs.X), MathF.Min(lhs.Y, rhs.Y)); }
         public static Vector2 Max(Vector2 lhs, Vector2 rhs) { return new Vector2(MathF.Max(lhs.X, rhs.X), MathF.Max(lhs.Y, rhs.Y)); }
 
@@ -241,6 +259,13 @@ namespace Pinecone
         public static bool operator !=(Vector2 v1, Vector2 v2) => !(v1 == v2);
 
         #endregion
+
+        #endregion
+
+        #region Type Conversion
+
+        public static implicit operator Vector2(Vector3 v) => new Vector2(v.X, v.Y);
+        public static implicit operator Vector2(Vector4 v) => new Vector2(v.X, v.Y);
 
         #endregion
 
