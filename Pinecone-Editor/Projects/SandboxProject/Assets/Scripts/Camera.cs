@@ -10,6 +10,14 @@ namespace Sandbox
         void OnCreate()
         {
             var testGO = new GameObject("CSharp Test");
+
+            var square = GameObject.FindGameObjectByName("Square");
+            var squareSprite = square.GetComponent<SpriteComponent>();
+
+            Texture2D texture = new Texture2D("Textures/Duck.png");
+            squareSprite.Texture = texture;
+
+            Console.WriteLine(texture.Width);
         }
 
         void OnUpdate(float ts)

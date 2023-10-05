@@ -53,7 +53,7 @@ namespace Pinecone
 		return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
 	}
 
-	void EditorAssetManager::ImportAsset(const std::filesystem::path& filepath)
+	AssetHandle EditorAssetManager::ImportAsset(const std::filesystem::path& filepath)
 	{
 		AssetHandle handle; // Generate new handle
 		AssetMetadata metadata;
@@ -66,7 +66,9 @@ namespace Pinecone
 			m_LoadedAssets[handle] = asset;
 			m_AssetRegistry[handle] = metadata;
 			SerializeAssetRegistry();
+			return handle;
 		}
+		return 0;
 	}
 
 	const AssetMetadata& EditorAssetManager::GetMetadata(AssetHandle handle) const

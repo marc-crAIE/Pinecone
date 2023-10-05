@@ -21,6 +21,8 @@ namespace Pinecone
 
         #endregion
 
+        #region Components
+
         #region TransformComponent
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -35,6 +37,23 @@ namespace Pinecone
         internal extern static void TransformComponent_GetScale(ulong gameObjectID, out Vector3 scale);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TransformComponent_SetScale(ulong gameObjectID, ref Vector3 scale);
+
+        #endregion
+
+        #region SpriteComponent
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteComponent_GetColor(ulong gameObjectID, out Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteComponent_SetColor(ulong gameObjectID, ref Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static ulong SpriteComponent_GetTexture(ulong gameObjectID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteComponent_SetTexture(ulong gameObjectID, ulong texture);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float SpriteComponent_GetTilingFactor(ulong gameObjectID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteComponent_SetTilingFactor(ulong gameObjectID, float kerning);
 
         #endregion
 
@@ -56,6 +75,21 @@ namespace Pinecone
         internal extern static float TextComponent_GetLineSpacing(ulong gameObjectID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TextComponent_SetLineSpacing(ulong gameObjectID, float lineSpacing);
+
+        #endregion
+
+        #endregion
+
+        #region Graphics
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static ulong Texture2D_New(string name);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Texture2D_GetRendererID(ulong texture);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Texture2D_GetWidth(ulong texture);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Texture2D_GetHeight(ulong texture);
 
         #endregion
 

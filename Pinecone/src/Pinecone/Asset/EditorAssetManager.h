@@ -17,7 +17,7 @@ namespace Pinecone
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
 		virtual bool IsAssetLoaded(AssetHandle handle) const override;
 
-		void ImportAsset(const std::filesystem::path& filepath);
+		AssetHandle ImportAsset(const std::filesystem::path& filepath) override;
 
 		const AssetMetadata& GetMetadata(AssetHandle handle) const;
 

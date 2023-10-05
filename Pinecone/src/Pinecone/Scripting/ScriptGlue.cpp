@@ -10,6 +10,9 @@
 #include "Pinecone/Scene/Scene.h"
 #include "Pinecone/Scene/GameObject.h"
 
+#include "Pinecone/Asset/AssetManager.h"
+#include "Pinecone/Project/Project.h"
+
 #include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
 
@@ -85,6 +88,8 @@ namespace Pinecone
 
 #pragma endregion
 
+#pragma region Components
+
 #pragma region TransformComponent
 
 	static void TransformComponent_GetTranslation(UUID gameObjectID, glm::vec3* outTranslation)
@@ -145,6 +150,70 @@ namespace Pinecone
 		PC_CORE_ASSERT(gameObject);
 
 		gameObject.GetComponent<TransformComponent>().Scale = *scale;
+	}
+
+#pragma endregion
+
+#pragma region SpriteComponent
+
+	static void SpriteComponent_GetColor(UUID gameObjectID, glm::vec4* outColor)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		*outColor = gameObject.GetComponent<SpriteComponent>().Color;
+	}
+
+	static void SpriteComponent_SetColor(UUID gameObjectID, glm::vec4* color)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		gameObject.GetComponent<SpriteComponent>().Color = *color;
+	}
+
+	static uint64_t SpriteComponent_GetTexture(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		return gameObject.GetComponent<SpriteComponent>().Texture;
+	}
+
+	static void SpriteComponent_SetTexture(UUID gameObjectID, AssetHandle texture)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		gameObject.GetComponent<SpriteComponent>().Texture = texture;
+	}
+
+	static float SpriteComponent_GetTilingFactor(UUID gameObjectID)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		return gameObject.GetComponent<SpriteComponent>().TilingFactor;
+	}
+
+	static void SpriteComponent_SetTilingFactor(UUID gameObjectID, float tilingFactor)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		PC_CORE_ASSERT(scene);
+		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
+		PC_CORE_ASSERT(gameObject);
+
+		gameObject.GetComponent<SpriteComponent>().TilingFactor = tilingFactor;
 	}
 
 #pragma endregion
@@ -249,6 +318,50 @@ namespace Pinecone
 
 #pragma endregion
 
+#pragma endregion
+
+#pragma region Graphics
+
+#pragma region Texture2D
+
+	static uint64_t Texture2D_New(MonoString* path)
+	{
+		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
+		return Project::GetActive()->GetAssetManager()->ImportAsset(Utils::MonoStringToString(path));
+	}
+
+	static uint32_t Texture2D_GetRendererID(AssetHandle texture)
+	{
+		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
+		Ref<Texture2D> tex = AssetManager::GetAsset<Texture2D>(texture);
+		if (!tex)
+			return -1;
+		return tex->GetRendererID();
+	}
+
+	static uint32_t Texture2D_GetWidth(AssetHandle texture)
+	{
+		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
+		Ref<Texture2D> tex = AssetManager::GetAsset<Texture2D>(texture);
+		if (!tex)
+			return -1;
+		return tex->GetWidth();
+	}
+
+	static uint32_t Texture2D_GetHeight(AssetHandle texture)
+	{
+		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
+		Ref<Texture2D> tex = AssetManager::GetAsset<Texture2D>(texture);
+		if (!tex)
+			return -1;
+		return tex->GetHeight();
+	}
+
+#pragma endregion
+
+#pragma endregion
+
+
 #pragma region Input
 
 	static bool Input_IsKeyDown(KeyCode keycode)
@@ -329,6 +442,13 @@ namespace Pinecone
 		PC_ADD_INTERNAL_CALL(TransformComponent_GetScale);
 		PC_ADD_INTERNAL_CALL(TransformComponent_SetScale);
 
+		PC_ADD_INTERNAL_CALL(SpriteComponent_GetColor);
+		PC_ADD_INTERNAL_CALL(SpriteComponent_SetColor);
+		PC_ADD_INTERNAL_CALL(SpriteComponent_GetTexture);
+		PC_ADD_INTERNAL_CALL(SpriteComponent_SetTexture);
+		PC_ADD_INTERNAL_CALL(SpriteComponent_GetTilingFactor);
+		PC_ADD_INTERNAL_CALL(SpriteComponent_SetTilingFactor);
+
 		PC_ADD_INTERNAL_CALL(TextComponent_GetText);
 		PC_ADD_INTERNAL_CALL(TextComponent_SetText);
 		PC_ADD_INTERNAL_CALL(TextComponent_GetColor);
@@ -337,6 +457,11 @@ namespace Pinecone
 		PC_ADD_INTERNAL_CALL(TextComponent_SetKerning);
 		PC_ADD_INTERNAL_CALL(TextComponent_GetLineSpacing);
 		PC_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
+
+		PC_ADD_INTERNAL_CALL(Texture2D_New);
+		PC_ADD_INTERNAL_CALL(Texture2D_GetRendererID);
+		PC_ADD_INTERNAL_CALL(Texture2D_GetWidth);
+		PC_ADD_INTERNAL_CALL(Texture2D_GetHeight);
 
 		PC_ADD_INTERNAL_CALL(Input_IsKeyDown);
 		PC_ADD_INTERNAL_CALL(Input_IsMouseButtonPressed);

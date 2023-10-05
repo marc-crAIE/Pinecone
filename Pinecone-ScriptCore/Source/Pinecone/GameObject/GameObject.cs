@@ -46,7 +46,7 @@ namespace Pinecone
             return component;
         }
 
-        public GameObject FindGameObjectByName(string name)
+        public static GameObject FindGameObjectByName(string name)
         {
             ulong gameObjectID = InternalCalls.GameObject_FindGameObjectByName(name);
             if (gameObjectID == 0)
@@ -55,7 +55,7 @@ namespace Pinecone
             return new GameObject(gameObjectID);
         }
 
-        public GameObject GetGameObjectByUUID(ulong uuid)
+        public static GameObject GetGameObjectByUUID(ulong uuid)
         {
             ulong gameObjectID = InternalCalls.GameObject_GetGameObjectByUUID(uuid);
             if (gameObjectID == 0)
