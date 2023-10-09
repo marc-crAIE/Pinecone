@@ -12,6 +12,11 @@ namespace Sandbox
         void OnCreate()
         {
             var testGO = new GameObject("CSharp Test");
+            Console.WriteLine(testGO.ID);
+            testGO.Translation = new Vector3(-5, -5, 0);
+            var testSprite = testGO.AddComponent<SpriteComponent>();
+
+            testSprite.Texture = new Texture2D("Textures/pinecone.png");
 
             var square = GameObject.FindGameObjectByName("Square");
             var squareSprite = square.GetComponent<SpriteComponent>();

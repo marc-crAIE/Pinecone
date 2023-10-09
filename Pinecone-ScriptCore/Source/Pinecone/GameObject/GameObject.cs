@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Pinecone
 {
     public class GameObject
     {
+        private Dictionary<Type, Component> m_ComponentCache = new Dictionary<Type, Component>();
+
         protected GameObject() { ID = 0; }
 
         internal GameObject(ulong id)
@@ -13,7 +16,7 @@ namespace Pinecone
 
         public GameObject(string name = "GameObject")
         {
-            InternalCalls.GameObject_New(name);
+            ID = InternalCalls.GameObject_New(name);
         }
 
         public readonly ulong ID;
@@ -29,6 +32,18 @@ namespace Pinecone
             {
                 InternalCalls.TransformComponent_SetTranslation(ID, ref value);
             }
+        }
+
+        public T AddComponent<T>() where T : Component, new()
+        {
+            if (HasComponent<T>())
+                return GetComponent<T>();
+
+            Type componentType = typeof(T);
+            InternalCalls.GameObject_AddComponent(ID, componentType);
+            T component = new T { GameObject = this };
+            m_ComponentCache.Add(componentType, component);
+            return component;
         }
 
         public bool HasComponent<T>() where T : Component, new()

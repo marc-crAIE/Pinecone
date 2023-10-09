@@ -30,12 +30,29 @@ namespace Pinecone
 			mono_free(cStr);
 			return str;
 		}
+
+		static inline GameObject GetGameObject(UUID gameObjectID)
+		{
+			Scene* scene = ScriptEngine::GetSceneContext();
+			PC_CORE_VERIFY(scene, "No active scene!");
+			return scene->GetGameObjectByUUID(gameObjectID);
+		}
 	}
 
+	static std::unordered_map<MonoType*, std::function<void(GameObject)>> s_GameObjectAddComponentFuncs;
 	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> s_GameObjectHasComponentFuncs;
 
 #define PC_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Pinecone.InternalCalls::" #Name, Name)
 
+#define PC_FUNCTION_NAME __func__
+
+//#ifdef PC_DIST
+//	#define PC_ICALL_VALIDATE_PARAM(param) PC_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'", PC_FUNCTION_NAME, param, #param)
+//	#define PC_ICALL_VALIDATE_PARAM_V(param, value) PC_CORE_VERIFY(param, "{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", PC_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace())
+//#else
+//	#define PC_ICALL_VALIDATE_PARAM(param) { if (!(param)) { PC_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'", PC_FUNCTION_NAME, param, #param); } }
+//	#define PC_ICALL_VALIDATE_PARAM_V(param, value) { if (!(param)) { PC_CONSOLE_LOG_ERROR("{} called with an invalid value ({}) for parameter '{}'.\nStack Trace: {}", PC_FUNCTION_NAME, value, #param, ScriptUtils::GetCurrentStackTrace()); } }
+//#endif
 
 #pragma region GameObject
 
@@ -47,6 +64,35 @@ namespace Pinecone
 		PC_CORE_ASSERT(gameObject);
 
 		return gameObject.GetUUID();
+	}
+
+	static void GameObject_AddComponent(UUID gameObjectID, MonoReflectionType* componentType)
+	{
+		if (componentType == nullptr)
+			PC_CORE_ASSERT("Cannot add a null component to a game object.");
+
+		MonoType* managedComponentType = mono_reflection_type_get_type(componentType);
+		char* componentTypeName = mono_type_get_name(managedComponentType);
+
+		auto gameObject = Utils::GetGameObject(gameObjectID);
+		//PC_ICALL_VALIDATE_PARAM_V(gameObject, gameObjectID);
+
+		if (s_GameObjectAddComponentFuncs.find(managedComponentType) == s_GameObjectAddComponentFuncs.end())
+		{
+			PC_CORE_ASSERT("That component hasn't been registered with the engine.");
+			mono_free(componentTypeName);
+			return;
+		}
+		
+		if (s_GameObjectHasComponentFuncs.at(managedComponentType)(gameObject))
+		{
+			// TODO: Log duplication attempt to a console
+			mono_free(componentTypeName);
+			return;
+		}
+
+		s_GameObjectAddComponentFuncs.at(managedComponentType)(gameObject);
+		mono_free(componentTypeName);
 	}
 
 	static bool GameObject_HasComponent(UUID gameObjectID, MonoReflectionType* componentType)
@@ -446,6 +492,8 @@ namespace Pinecone
 					PC_CORE_ERROR("Could not find C# component type {}", managedTypename);
 					return;
 				}
+
+				s_GameObjectAddComponentFuncs[managedType] = [](GameObject gameObject) { gameObject.AddComponent<Component>(); };
 				s_GameObjectHasComponentFuncs[managedType] = [](GameObject gameObject) { return gameObject.HasComponent<Component>(); };
 			}(), ...);
 	}
@@ -469,6 +517,7 @@ namespace Pinecone
 		PC_CORE_INFO("Registering C# internal functions");
 
 		PC_ADD_INTERNAL_CALL(GameObject_New);
+		PC_ADD_INTERNAL_CALL(GameObject_AddComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_HasComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_FindGameObjectByName);
 		PC_ADD_INTERNAL_CALL(GameObject_GetGameObjectByUUID);
