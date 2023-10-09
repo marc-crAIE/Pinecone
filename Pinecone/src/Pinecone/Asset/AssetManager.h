@@ -15,5 +15,15 @@ namespace Pinecone
 			Ref<Asset> asset = Project::GetActive()->GetAssetManager()->GetAsset(handle);
 			return std::static_pointer_cast<T>(asset);
 		}
+
+		template<typename T>
+		static AssetHandle AddMemoryOnlyAsset(Ref<T> asset)
+		{
+			static_assert(std::is_base_of<Asset, T>::value, "AddMemoryOnlyAsset only works for types derived from Asset");
+			asset->Handle = AssetHandle();
+
+			Project::GetActive()->GetAssetManager()->AddMemoryOnlyAsset(asset);
+			return asset->Handle;
+		}
 	};
 }

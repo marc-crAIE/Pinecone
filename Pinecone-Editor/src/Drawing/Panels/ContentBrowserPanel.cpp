@@ -43,9 +43,10 @@ namespace Pinecone
 			}
 		}
 
+		ImGui::Separator();
 
 		static float padding = 16.0f;
-		static float thumbnailSize = 128.0f;
+		static float thumbnailSize = 64.0f;
 		float cellSize = thumbnailSize + padding;
 
 		float panelWidth = ImGui::GetContentRegionAvail().x;
@@ -73,6 +74,10 @@ namespace Pinecone
 				}
 				else
 				{
+					/*while (node->Children.find(p) == node->Children.end())
+						m_CurrentDirectory = m_CurrentDirectory.parent_path();
+
+					node = &m_TreeNodes[node->Children[p]];*/
 					// Can't find path
 					PC_CORE_ASSERT(false);
 				}
@@ -161,11 +166,6 @@ namespace Pinecone
 
 		ImGui::Columns(1);
 
-		ImGui::Separator();
-
-		ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
-		ImGui::SliderFloat("Padding", &padding, 0, 32);
-
 		// TODO: status bar
 		ImGui::End();
 	}
@@ -186,7 +186,7 @@ namespace Pinecone
 				}
 				else
 				{
-					// add node
+					// Add node
 					TreeNode newNode(p);
 					newNode.Parent = currentNodeIndex;
 					m_TreeNodes.push_back(newNode);

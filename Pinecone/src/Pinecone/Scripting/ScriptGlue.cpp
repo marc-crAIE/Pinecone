@@ -7,10 +7,13 @@
 #include "Pinecone/Core/KeyCodes.h"
 #include "Pinecone/Core/Input.h"
 
+#include "Pinecone/Renderer/Renderer2D.h"
+
 #include "Pinecone/Scene/Scene.h"
 #include "Pinecone/Scene/GameObject.h"
 
 #include "Pinecone/Asset/AssetManager.h"
+#include "Pinecone/Asset/TextureImporter.h"
 #include "Pinecone/Project/Project.h"
 
 #include <mono/metadata/object.h>
@@ -30,6 +33,7 @@ namespace Pinecone
 	}
 
 	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> s_GameObjectHasComponentFuncs;
+
 #define PC_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Pinecone.InternalCalls::" #Name, Name)
 
 
@@ -322,12 +326,48 @@ namespace Pinecone
 
 #pragma region Graphics
 
+#pragma region Graphics2D
+
+	static void Graphics2D_DrawQuad(glm::vec3* position, glm::vec2* size, glm::vec4* color)
+	{
+		Renderer2D::DrawQuad(*position, *size, *color);
+	}
+
+	static void Graphics2D_DrawRotatedQuad(glm::vec3* position, glm::vec2* size, float rotation, glm::vec4* color)
+	{
+		Renderer2D::DrawRotatedQuad(*position, *size, rotation, *color);
+	}
+
+	static void Graphics2D_DrawTexture(glm::vec3* position, glm::vec2* size, AssetHandle texture, float tilingFactor, glm::vec2* flipAxies, glm::vec4* tintColor)
+	{
+		Ref<Texture2D> tex = AssetManager::GetAsset<Texture2D>(texture);
+		PC_ASSERT(tex);
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), *position)
+			* glm::scale(glm::mat4(1.0f), { size->x, size->y, 1.0f });
+		Renderer2D::DrawQuad(transform, tex, tilingFactor, *tintColor, *flipAxies);
+	}
+
+	static void Graphics2D_DrawRotatedTexture(glm::vec3* position, glm::vec2* size, float rotation, AssetHandle texture, float tilingFactor, glm::vec2* flipAxies, glm::vec4* tintColor)
+	{
+		Ref<Texture2D> tex = AssetManager::GetAsset<Texture2D>(texture);
+		PC_ASSERT(tex);
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), *position)
+			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), { size->x, size->y, 1.0f });
+		Renderer2D::DrawQuad(transform, tex, tilingFactor, *tintColor, *flipAxies);
+	}
+
+#pragma endregion
+
 #pragma region Texture2D
 
 	static uint64_t Texture2D_New(MonoString* path)
 	{
 		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
-		return Project::GetActive()->GetAssetManager()->ImportAsset(Utils::MonoStringToString(path));
+
+		auto texture = TextureImporter::LoadTexture2D(Project::GetAssetDirectory() / Utils::MonoStringToString(path));
+		auto handle = AssetManager::AddMemoryOnlyAsset<Texture2D>(texture);
+		return handle;
 	}
 
 	static uint32_t Texture2D_GetRendererID(AssetHandle texture)
@@ -360,7 +400,6 @@ namespace Pinecone
 #pragma endregion
 
 #pragma endregion
-
 
 #pragma region Input
 
@@ -457,6 +496,11 @@ namespace Pinecone
 		PC_ADD_INTERNAL_CALL(TextComponent_SetKerning);
 		PC_ADD_INTERNAL_CALL(TextComponent_GetLineSpacing);
 		PC_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
+
+		PC_ADD_INTERNAL_CALL(Graphics2D_DrawQuad);
+		PC_ADD_INTERNAL_CALL(Graphics2D_DrawRotatedQuad);
+		PC_ADD_INTERNAL_CALL(Graphics2D_DrawTexture);
+		PC_ADD_INTERNAL_CALL(Graphics2D_DrawRotatedTexture);
 
 		PC_ADD_INTERNAL_CALL(Texture2D_New);
 		PC_ADD_INTERNAL_CALL(Texture2D_GetRendererID);

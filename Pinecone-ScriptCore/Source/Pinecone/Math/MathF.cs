@@ -104,6 +104,14 @@ namespace Pinecone
             return m;
         }
 
+        public static Vector2 Sin(Vector2 v) => new Vector2(MathF.Sin(v.X), MathF.Sin(v.Y));
+        public static Vector3 Sin(Vector3 v) => new Vector3(MathF.Sin(v.X), MathF.Sin(v.Y), MathF.Sin(v.Z));
+        public static Vector4 Sin(Vector4 v) => new Vector4(MathF.Sin(v.X), MathF.Sin(v.Y), MathF.Sin(v.Z), MathF.Sin(v.W));
+
+        public static Vector2 Cos(Vector2 v) => new Vector2(MathF.Cos(v.X), MathF.Cos(v.Y));
+        public static Vector3 Cos(Vector3 v) => new Vector3(MathF.Cos(v.X), MathF.Cos(v.Y), MathF.Cos(v.Z));
+        public static Vector4 Cos(Vector4 v) => new Vector4(MathF.Cos(v.X), MathF.Cos(v.Y), MathF.Cos(v.Z), MathF.Cos(v.W));
+
         // Returns /f/ raised to power /p/.
         public static float Pow(float f, float p) { return (float)Math.Pow(f, p); }
 

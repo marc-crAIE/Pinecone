@@ -14,19 +14,24 @@ namespace Pinecone
 	public:
 		virtual Ref<Asset> GetAsset(AssetHandle handle) const override;
 
+		virtual void AddMemoryOnlyAsset(Ref<Asset> asset) override;
+
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
+		virtual bool IsMemoryAsset(AssetHandle handle) const override;
 		virtual bool IsAssetLoaded(AssetHandle handle) const override;
 
-		AssetHandle ImportAsset(const std::filesystem::path& filepath) override;
+		AssetHandle ImportAsset(const std::filesystem::path& filepath);
 
 		const AssetMetadata& GetMetadata(AssetHandle handle) const;
+		AssetType GetAssetTypeFromExtension(const std::string& extension);
 
 		const AssetRegistry& GetAssetRegistry() const { return m_AssetRegistry; }
 
 		void SerializeAssetRegistry();
 		bool DeserializeAssetRegistry();
 	private:
-		AssetRegistry m_AssetRegistry;
 		AssetMap m_LoadedAssets;
+		AssetMap m_MemoryAssets;
+		AssetRegistry m_AssetRegistry;
 	};
 }

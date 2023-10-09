@@ -1,26 +1,28 @@
 #pragma once
 
 #include "Pinecone/Core/UUID.h"
+#include "Pinecone/Asset/AssetTypes.h"
 
 namespace Pinecone
 {
 	using AssetHandle = UUID;
-
-	enum class AssetType : uint16_t
-	{
-		None = 0,
-		Scene,
-		Texture2D
-	};
-
-	std::string_view AssetTypeToString(AssetType type);
-	AssetType AssetTypeFromString(std::string_view assetType);
 
 	class Asset
 	{
 	public:
 		AssetHandle Handle; // Generate handle
 
-		virtual AssetType GetType() const = 0;
+		static AssetType GetStaticType() { return AssetType::None; }
+		virtual AssetType GetType() const { return GetStaticType(); }
+
+		virtual bool operator==(const Asset& other) const
+		{
+			return Handle == other.Handle;
+		}
+
+		virtual bool operator!=(const Asset& other) const
+		{
+			return !(*this == other);
+		}
 	};
 }

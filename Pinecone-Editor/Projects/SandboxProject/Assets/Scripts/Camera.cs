@@ -7,6 +7,8 @@ namespace Sandbox
     {
         public float Speed = 3.0f;
 
+        private Texture2D duckTexture;
+
         void OnCreate()
         {
             var testGO = new GameObject("CSharp Test");
@@ -14,10 +16,8 @@ namespace Sandbox
             var square = GameObject.FindGameObjectByName("Square");
             var squareSprite = square.GetComponent<SpriteComponent>();
 
-            Texture2D texture = new Texture2D("Textures/Duck.png");
-            squareSprite.Texture = texture;
-
-            Console.WriteLine(texture.Width);
+            duckTexture = new Texture2D("Textures/Duck.png");
+            squareSprite.Texture = duckTexture;
         }
 
         void OnUpdate(float ts)
@@ -37,6 +37,8 @@ namespace Sandbox
             Vector3 translation = Translation;
             translation += velocity * Speed * ts;
             Translation = translation;
+
+            Graphics2D.DrawTexture(new Vector3(2.0f, 5.0f, 0.0f), Vector2.One, duckTexture);
         }
     }
 }

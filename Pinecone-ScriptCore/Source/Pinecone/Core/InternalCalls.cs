@@ -82,6 +82,21 @@ namespace Pinecone
 
         #region Graphics
 
+        #region Graphics2D
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Graphics2D_DrawQuad(ref Vector3 position, ref Vector2 size, ref Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Graphics2D_DrawRotatedQuad(ref Vector3 position, ref Vector2 size, float rotation, ref Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Graphics2D_DrawTexture(ref Vector3 position, ref Vector2 size, ulong texture, float tilingFactor, ref Vector2 flipAxies, ref Vector4 tintColor);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Graphics2D_DrawRotatedTexture(ref Vector3 position, ref Vector2 size, float rotation, ulong texture, float tilingFactor, ref Vector2 flipAxies, ref Vector4 tintColor);
+
+        #endregion
+
+        #region Texture2D
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static ulong Texture2D_New(string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -90,6 +105,8 @@ namespace Pinecone
         internal extern static uint Texture2D_GetWidth(ulong texture);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Texture2D_GetHeight(ulong texture);
+
+        #endregion
 
         #endregion
 

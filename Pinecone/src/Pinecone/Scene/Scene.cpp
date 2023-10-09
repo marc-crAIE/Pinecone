@@ -89,40 +89,7 @@ namespace Pinecone
 	}
 
 	void Scene::OnUpdateRuntime(Timestep ts)
-	{
-		if (!m_Paused || m_StepFrames-- > 0)
-		{
-			// Update scripts
-			{
-				// C# GameObject OnUpdate
-				auto view = m_Registry.view<ScriptComponent>();
-				for (auto e : view)
-				{
-					GameObject gameObject = { e, this };
-					ScriptEngine::OnUpdateGameObject(gameObject, ts);
-				}
-
-				m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
-					{
-						// Check to make sure if the script component is not properly instantiated yet
-						if (!nsc.Instantiated)
-						{
-							// If it is in fact not, set the game object to the one it is attached to and the scene in which
-							// the game object exists in
-							nsc.Instance->m_GameObject = GameObject{ gameObject, this };
-							nsc.Instance->m_SceneContext = this;
-							nsc.Instantiated = true;
-
-							// Call the scripts OnCreate function
-							nsc.Instance->OnCreate();
-						}
-
-						// Call the scripts OnUpdate function
-						nsc.Instance->OnUpdate(ts);
-					});
-			}
-		}
-
+	{		
 		// Render 2D
 		Camera* mainCamera = nullptr;
 		glm::mat4 cameraTransform;
@@ -144,6 +111,39 @@ namespace Pinecone
 		if (mainCamera)
 		{
 			Renderer2D::BeginScene(*mainCamera, cameraTransform);
+
+			if (!m_Paused || m_StepFrames-- > 0)
+			{
+				// Update scripts
+				{
+					// C# GameObject OnUpdate
+					auto view = m_Registry.view<ScriptComponent>();
+					for (auto e : view)
+					{
+						GameObject gameObject = { e, this };
+						ScriptEngine::OnUpdateGameObject(gameObject, ts);
+					}
+
+					m_Registry.view<NativeScriptComponent>().each([=](auto gameObject, auto& nsc)
+						{
+							// Check to make sure if the script component is not properly instantiated yet
+							if (!nsc.Instantiated)
+							{
+								// If it is in fact not, set the game object to the one it is attached to and the scene in which
+								// the game object exists in
+								nsc.Instance->m_GameObject = GameObject{ gameObject, this };
+								nsc.Instance->m_SceneContext = this;
+								nsc.Instantiated = true;
+
+								// Call the scripts OnCreate function
+								nsc.Instance->OnCreate();
+							}
+
+							// Call the scripts OnUpdate function
+							nsc.Instance->OnUpdate(ts);
+						});
+				}
+			}
 
 			// Draw sprites
 			{

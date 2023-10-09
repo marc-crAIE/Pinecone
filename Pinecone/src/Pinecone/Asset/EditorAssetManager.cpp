@@ -2,6 +2,8 @@
 #include "EditorAssetManager.h"
 
 #include "Pinecone/Asset/AssetImporter.h"
+#include "Pinecone/Asset/AssetExtensions.h"
+
 #include "Pinecone/Project/Project.h"
 
 #include <fstream>
@@ -9,6 +11,8 @@
 
 namespace Pinecone
 {
+	static AssetMetadata s_NullMetadata;
+
 	YAML::Emitter& operator<<(YAML::Emitter& out, const std::string_view& v)
 	{
 		out << std::string(v.data(), v.size());
@@ -17,6 +21,10 @@ namespace Pinecone
 
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle) const
 	{
+		// Check if the asset handle is from memory
+		if (IsMemoryAsset(handle))
+			return m_MemoryAssets.at(handle);
+
 		// Check if the asset handle is valid
 		if (!IsAssetHandleValid(handle))
 			return nullptr;
@@ -43,9 +51,26 @@ namespace Pinecone
 		return asset;
 	}
 
+	void EditorAssetManager::AddMemoryOnlyAsset(Ref<Asset> asset)
+	{
+		AssetMetadata metadata;
+		metadata.Handle = asset->Handle;
+		metadata.IsDataLoaded = true;
+		metadata.Type = asset->GetType();
+		metadata.IsMemoryAsset = true;
+		m_AssetRegistry[metadata.Handle] = metadata;
+
+		m_MemoryAssets[asset->Handle] = asset;
+	}
+
 	bool EditorAssetManager::IsAssetHandleValid(AssetHandle handle) const
 	{
 		return handle != 0 && m_AssetRegistry.find(handle) != m_AssetRegistry.end();
+	}
+
+	bool EditorAssetManager::IsMemoryAsset(AssetHandle handle) const
+	{
+		return m_MemoryAssets.find(handle) != m_MemoryAssets.end();
 	}
 
 	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const
@@ -58,7 +83,7 @@ namespace Pinecone
 		AssetHandle handle; // Generate new handle
 		AssetMetadata metadata;
 		metadata.FilePath = filepath;
-		metadata.Type = AssetType::Texture2D; // TODO: Grab this from extension and try to load, for now it will just be a texture
+		metadata.Type = GetAssetTypeFromExtension(filepath.extension().string());
 		Ref<Asset> asset = AssetImporter::ImportAsset(handle, metadata);
 		asset->Handle = handle;
 		if (asset)
@@ -73,12 +98,20 @@ namespace Pinecone
 
 	const AssetMetadata& EditorAssetManager::GetMetadata(AssetHandle handle) const
 	{
-		static AssetMetadata s_NullMetadata;
 		auto it = m_AssetRegistry.find(handle);
 		if (it == m_AssetRegistry.end())
 			return s_NullMetadata;
 
 		return it->second;
+	}
+
+	AssetType EditorAssetManager::GetAssetTypeFromExtension(const std::string& extension)
+	{
+		// TODO: Ensure that the extension is lower case
+		if (s_AssetExtensionMap.find(extension) == s_AssetExtensionMap.end())
+			return AssetType::None;
+
+		return s_AssetExtensionMap.at(extension.c_str());
 	}
 
 	void EditorAssetManager::SerializeAssetRegistry()
@@ -97,7 +130,7 @@ namespace Pinecone
 				out << YAML::Key << "Handle" << YAML::Value << handle;
 				std::string filepathStr = metadata.FilePath.generic_string();
 				out << YAML::Key << "FilePath" << YAML::Value << filepathStr;
-				out << YAML::Key << "Type" << YAML::Value << AssetTypeToString(metadata.Type);
+				out << YAML::Key << "Type" << YAML::Value << Utils::AssetTypeToString(metadata.Type);
 				out << YAML::EndMap;
 			}
 			out << YAML::EndSeq;
@@ -134,7 +167,7 @@ namespace Pinecone
 			AssetHandle handle = node["Handle"].as<uint64_t>();
 			auto& metadata = m_AssetRegistry[handle];
 			metadata.FilePath = node["FilePath"].as<std::string>();
-			metadata.Type = AssetTypeFromString(node["Type"].as<std::string>());
+			metadata.Type = Utils::AssetTypeFromString(node["Type"].as<std::string>());
 		}
 
 		return true;

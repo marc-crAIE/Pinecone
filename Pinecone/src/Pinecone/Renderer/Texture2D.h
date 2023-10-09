@@ -63,7 +63,7 @@ namespace Pinecone
 		static Ref<Texture2D> Create(const TextureSpecification& specification, Buffer data = Buffer());
 
 		static AssetType GetStaticType() { return AssetType::Texture2D; }
-		virtual AssetType GetType() const { return GetStaticType(); }
+		virtual AssetType GetType() const override { return GetStaticType(); }
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Width, m_Height;

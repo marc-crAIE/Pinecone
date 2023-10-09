@@ -13,9 +13,11 @@ namespace Pinecone
 	{
 	public:
 		virtual Ref<Asset> GetAsset(AssetHandle handle) const = 0;
-		virtual AssetHandle ImportAsset(const std::filesystem::path& filepath) = 0;
+
+		virtual void AddMemoryOnlyAsset(Ref<Asset> asset) = 0;
 
 		virtual bool IsAssetHandleValid(AssetHandle handle) const = 0;
+		virtual bool IsMemoryAsset(AssetHandle handle) const = 0;
 		virtual bool IsAssetLoaded(AssetHandle handle) const = 0;
 	};
 }

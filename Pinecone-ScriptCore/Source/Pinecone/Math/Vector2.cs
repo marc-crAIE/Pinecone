@@ -5,8 +5,8 @@ namespace Pinecone
 {
     public struct Vector2
     {
-        public const float kEpsilon = 0.00001F;
-        public const float kEpsilonNormalSqrt = 1e-15f;
+        private const float kEpsilon = 0.00001F;
+        private const float kEpsilonNormalSqrt = 1e-15f;
 
 
         public float X, Y;
