@@ -39,8 +39,9 @@ namespace Pinecone
 		}
 	}
 
-	static std::unordered_map<MonoType*, std::function<void(GameObject)>> s_GameObjectAddComponentFuncs;
-	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> s_GameObjectHasComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<void(GameObject&)>> s_GameObjectAddComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<bool(GameObject&)>> s_GameObjectHasComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<void(GameObject&)>> s_GameObjectRemoveComponentFuncs;
 
 #define PC_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Pinecone.InternalCalls::" #Name, Name)
 
@@ -97,6 +98,12 @@ namespace Pinecone
 
 	static bool GameObject_HasComponent(UUID gameObjectID, MonoReflectionType* componentType)
 	{
+		if (componentType == nullptr)
+		{
+			PC_CORE_ASSERT("Attempting to check if game object has a component of a null type.");
+			return false;
+		}
+
 		Scene* scene = ScriptEngine::GetSceneContext();
 		PC_CORE_ASSERT(scene);
 		GameObject gameObject = scene->GetGameObjectByUUID(gameObjectID);
@@ -105,6 +112,38 @@ namespace Pinecone
 		MonoType* managedType = mono_reflection_type_get_type(componentType);
 		PC_CORE_ASSERT(s_GameObjectHasComponentFuncs.find(managedType) != s_GameObjectHasComponentFuncs.end());
 		return s_GameObjectHasComponentFuncs.at(managedType)(gameObject);
+	}
+
+	static bool GameObject_RemoveComponent(UUID gameObjectID, MonoReflectionType* componentType)
+	{
+		if (componentType == nullptr)
+		{
+			PC_CORE_ASSERT("Attempting to remove a component of a null type from a game object.");
+			return false;
+		}
+
+		auto gameObject = Utils::GetGameObject(gameObjectID);
+		//PC_ICALL_VALIDATE_PARAM_V(gameObject, gameObjectID);
+
+		MonoType* managedComponentType = mono_reflection_type_get_type(componentType);
+		char* componentTypeName = mono_type_get_name(managedComponentType);
+		if (s_GameObjectRemoveComponentFuncs.find(managedComponentType) == s_GameObjectRemoveComponentFuncs.end())
+		{
+			PC_CORE_ASSERT("That component hasn't been registered with the engine.");
+			mono_free(componentTypeName);
+			return false;
+		}
+
+		if (!s_GameObjectHasComponentFuncs.at(managedComponentType)(gameObject))
+		{
+			// TODO: Log removal attempt to the console
+			mono_free(componentTypeName);
+			return false;
+		}
+
+		s_GameObjectRemoveComponentFuncs.at(managedComponentType)(gameObject);
+		mono_free(componentTypeName);
+		return true;
 	}
 
 	static uint64_t GameObject_FindGameObjectByName(MonoString* name)
@@ -493,8 +532,9 @@ namespace Pinecone
 					return;
 				}
 
-				s_GameObjectAddComponentFuncs[managedType] = [](GameObject gameObject) { gameObject.AddComponent<Component>(); };
-				s_GameObjectHasComponentFuncs[managedType] = [](GameObject gameObject) { return gameObject.HasComponent<Component>(); };
+				s_GameObjectAddComponentFuncs[managedType] = [](GameObject& gameObject) { gameObject.AddComponent<Component>(); };
+				s_GameObjectHasComponentFuncs[managedType] = [](GameObject& gameObject) { return gameObject.HasComponent<Component>(); };
+				s_GameObjectRemoveComponentFuncs[managedType] = [](GameObject& gameObject) { gameObject.RemoveComponent<Component>(); };
 			}(), ...);
 	}
 
@@ -519,6 +559,7 @@ namespace Pinecone
 		PC_ADD_INTERNAL_CALL(GameObject_New);
 		PC_ADD_INTERNAL_CALL(GameObject_AddComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_HasComponent);
+		PC_ADD_INTERNAL_CALL(GameObject_RemoveComponent);
 		PC_ADD_INTERNAL_CALL(GameObject_FindGameObjectByName);
 		PC_ADD_INTERNAL_CALL(GameObject_GetGameObjectByUUID);
 		PC_ADD_INTERNAL_CALL(GameObject_GetScriptInstance);

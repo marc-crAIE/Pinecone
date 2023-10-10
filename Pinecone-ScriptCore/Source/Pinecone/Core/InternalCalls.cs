@@ -11,9 +11,11 @@ namespace Pinecone
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static ulong GameObject_New(string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool GameObject_AddComponent(ulong gameObjectID, Type componentType);
+        internal extern static void GameObject_AddComponent(ulong gameObjectID, Type componentType);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool GameObject_HasComponent(ulong gameObjectID, Type componentType);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool GameObject_RemoveComponent(ulong gameObjectID, Type componentType);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static ulong GameObject_FindGameObjectByName(string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

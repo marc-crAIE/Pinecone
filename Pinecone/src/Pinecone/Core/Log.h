@@ -15,16 +15,34 @@ namespace Pinecone {
 	class Log
 	{
 	public:
+		enum class Type : uint8_t
+		{
+			Core = 0, Client = 1
+		};
+		enum class Level : uint8_t
+		{
+			Trace = 0, Info, Warn, Error, Fatal
+		};
+		struct TagDetails
+		{
+			bool Enabled = true;
+			Level LevelFilter = Level::Trace;
+		};
+
+	public:
 		/// <summary>
 		/// Initialize the logger. Needs to be called before using logging functions/macros
 		/// </summary>
 		static void Init();
+		static void Shutdown();
 
 		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
 		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static Ref<spdlog::logger>& GetEditorConsoleLogger() { return s_EditorConsoleLogger; }
 	private:
 		static Ref<spdlog::logger> s_CoreLogger;
 		static Ref<spdlog::logger> s_ClientLogger;
+		static Ref<spdlog::logger> s_EditorConsoleLogger;
 	};
 }
 
@@ -62,3 +80,10 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 #define PC_WARN(...)			::Pinecone::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define PC_ERROR(...)			::Pinecone::Log::GetClientLogger()->error(__VA_ARGS__)
 #define PC_CRITICAL(...)		::Pinecone::Log::GetClientLogger()->critical(__VA_ARGS__)
+
+// Editor Console log macros 
+#define PC_CONSOLE_LOG_TRACE(...)			::Pinecone::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
+#define PC_CONSOLE_LOG_INFO(...)			::Pinecone::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
+#define PC_CONSOLE_LOG_WARN(...)			::Pinecone::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
+#define PC_CONSOLE_LOG_ERROR(...)			::Pinecone::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
+#define PC_CONSOLE_LOG_CRITICAL(...)		::Pinecone::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)

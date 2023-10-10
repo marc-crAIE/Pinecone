@@ -25,5 +25,7 @@ int main(int argc, char** argv)
 	PC_PROFILE_BEGIN_SESSION("Shutdown", "PineconeProfile-Shutdown.json");
 	// Delete the application after it has exited
 	delete app;
+
+	Pinecone::Log::Shutdown();
 	PC_PROFILE_END_SESSION();
 }

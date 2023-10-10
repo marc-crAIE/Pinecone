@@ -5,7 +5,7 @@ namespace Pinecone
 {
     public class GameObject
     {
-        private Dictionary<Type, Component> m_ComponentCache = new Dictionary<Type, Component>();
+        private Dictionary<Type, Component> ComponentCache = new Dictionary<Type, Component>();
 
         protected GameObject() { ID = 0; }
 
@@ -42,7 +42,7 @@ namespace Pinecone
             Type componentType = typeof(T);
             InternalCalls.GameObject_AddComponent(ID, componentType);
             T component = new T { GameObject = this };
-            m_ComponentCache.Add(componentType, component);
+            ComponentCache.Add(componentType, component);
             return component;
         }
 
@@ -54,11 +54,40 @@ namespace Pinecone
 
         public T GetComponent<T>() where T : Component, new()
         {
-            if (!HasComponent<T>())
-                return null;
+            Type componentType = typeof(T);
 
-            T component = new T() { GameObject = this };
-            return component;
+            if (!HasComponent<T>())
+            {
+                // Check to make sure our component cache does not still have the component
+                if (ComponentCache.ContainsKey(componentType))
+                    ComponentCache.Remove(componentType);
+
+                return null;
+            }
+
+            // Check if our component cache does not have our component
+            if (!ComponentCache.ContainsKey(componentType))
+            {
+                // Add it and return the component
+                T component = new T { GameObject = this };
+                ComponentCache.Add(componentType, component);
+                return component;
+            }
+
+            // Return the stored component
+            return ComponentCache[componentType] as T;
+        }
+
+        public bool RemoveComponent<T>() where T : Component
+        {
+            Type componentType = typeof(T);
+            bool removed = InternalCalls.GameObject_RemoveComponent(ID, componentType);
+
+            // Ensure that the component is also removed from the cache
+            if (removed && ComponentCache.ContainsKey(componentType))
+                ComponentCache.Remove(componentType);
+
+            return removed;
         }
 
         public static GameObject FindGameObjectByName(string name)
