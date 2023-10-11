@@ -450,7 +450,7 @@ namespace Pinecone
 	{
 		PC_ASSERT(Project::GetActive() && Project::GetActive()->GetAssetManager());
 
-		auto texture = TextureImporter::LoadTexture2D(Project::GetAssetDirectory() / Utils::MonoStringToString(path));
+		auto texture = TextureImporter::LoadTexture2D(Project::GetActiveAssetDirectory() / Utils::MonoStringToString(path));
 		auto handle = AssetManager::AddMemoryOnlyAsset<Texture2D>(texture);
 		return handle;
 	}

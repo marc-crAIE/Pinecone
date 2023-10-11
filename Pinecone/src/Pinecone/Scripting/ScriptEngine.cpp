@@ -176,7 +176,7 @@ namespace Pinecone
 			return;
 		}
 
-		auto scriptModulePath = Project::GetProjectDirectory() / Project::GetActive()->GetConfig().ScriptModulePath;
+		auto scriptModulePath = Project::GetActiveProjectDirectory() / Project::GetActive()->GetConfig().ScriptModulePath;
 		status = LoadAppAssembly(scriptModulePath);
 		if (!status)
 		{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorPanel.h"
+#include "ThumbnailCache.h"
 
 #include <map>
 #include <set>
@@ -14,7 +15,7 @@ namespace Pinecone
 	class ContentBrowserPanel : public EditorPanel
 	{
 	public:
-		ContentBrowserPanel();
+		ContentBrowserPanel(Ref<Project> project);
 
 		void OnImGuiRender() override;
 
@@ -22,6 +23,9 @@ namespace Pinecone
 	private:
 		void RefreshAssetTree();
 	private:
+		Ref<Project> m_Project;
+		Ref<ThumbnailCache> m_ThumbnailCache;
+
 		std::filesystem::path m_BaseDirectory;
 		std::filesystem::path m_CurrentDirectory;
 

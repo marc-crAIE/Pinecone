@@ -132,7 +132,7 @@ namespace Pinecone
 
 	void EditorAssetManager::SerializeAssetRegistry()
 	{
-		auto path = Project::GetAssetRegistryPath();
+		auto path = Project::GetActiveAssetRegistryPath();
 
 		YAML::Emitter out;
 		{
@@ -159,7 +159,7 @@ namespace Pinecone
 
 	bool EditorAssetManager::DeserializeAssetRegistry()
 	{
-		auto path = Project::GetAssetRegistryPath();
+		auto path = Project::GetActiveAssetRegistryPath();
 		YAML::Node data;
 		try
 		{
