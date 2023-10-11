@@ -12,18 +12,20 @@ namespace Pinecone
 	class EditorAssetManager : public AssetManagerBase
 	{
 	public:
-		virtual Ref<Asset> GetAsset(AssetHandle handle) const override;
+		virtual Ref<Asset> GetAsset(AssetHandle handle) override;
 
 		virtual void AddMemoryOnlyAsset(Ref<Asset> asset) override;
 
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
 		virtual bool IsMemoryAsset(AssetHandle handle) const override;
 		virtual bool IsAssetLoaded(AssetHandle handle) const override;
+		virtual AssetType GetAssetType(AssetHandle handle) const override;
 
 		AssetHandle ImportAsset(const std::filesystem::path& filepath);
 
 		const AssetMetadata& GetMetadata(AssetHandle handle) const;
 		AssetType GetAssetTypeFromExtension(const std::string& extension);
+		const std::filesystem::path& GetFilePath(AssetHandle handle) const;
 
 		const AssetRegistry& GetAssetRegistry() const { return m_AssetRegistry; }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorPanel.h"
+
 #include <Pinecone/Core/Base.h>
 #include <Pinecone/Scene/Scene.h>
 #include <Pinecone/Scene/GameObject.h>
@@ -8,7 +10,7 @@
 
 namespace Pinecone
 {
-	class SceneHierarchyPanel
+	class SceneHierarchyPanel : public EditorPanel
 	{
 	public:
 		SceneHierarchyPanel();
@@ -16,7 +18,7 @@ namespace Pinecone
 
 		void SetContext(const Ref<Scene>& context);
 
-		void OnImGuiRender();
+		void OnImGuiRender() override;
 
 		GameObject GetSelectedGameObject() const { return m_SelectionContext; }
 		void SetSelectedGameObject(GameObject gameObject);

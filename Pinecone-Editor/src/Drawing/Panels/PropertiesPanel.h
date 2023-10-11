@@ -1,12 +1,14 @@
 #pragma once
 
+#include "EditorPanel.h"
+
 #include <Pinecone/Core/Base.h>
 #include <Pinecone/Scene/GameObject.h>
 #include <Pinecone/Renderer/Texture2D.h>
 
 namespace Pinecone
 {
-	class PropertiesPanel
+	class PropertiesPanel : public EditorPanel
 	{
 	public:
 		PropertiesPanel();
@@ -14,6 +16,7 @@ namespace Pinecone
 
 		void SetSceneContext(const Ref<Scene>& sceneContext);
 
+		void OnImGuiRender() override;
 		void OnImGuiRender(const GameObject& context);
 
 		void Open() { m_Open = true; }

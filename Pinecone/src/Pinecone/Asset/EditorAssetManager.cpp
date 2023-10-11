@@ -19,7 +19,7 @@ namespace Pinecone
 		return out;
 	}
 
-	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle) const
+	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle)
 	{
 		// Check if the asset handle is from memory
 		if (IsMemoryAsset(handle))
@@ -45,6 +45,7 @@ namespace Pinecone
 				// The import failed!
 				PC_CORE_ERROR("EditorAssetManager::GetAsset - asset import failed!");
 			}
+			m_LoadedAssets[handle] = asset;
 		}
 
 		// Return the asset
@@ -57,6 +58,7 @@ namespace Pinecone
 		metadata.Handle = asset->Handle;
 		metadata.IsDataLoaded = true;
 		metadata.Type = asset->GetType();
+		PC_CORE_ASSERT(metadata.Type != AssetType::None);
 		metadata.IsMemoryAsset = true;
 		m_AssetRegistry[metadata.Handle] = metadata;
 
@@ -78,16 +80,25 @@ namespace Pinecone
 		return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
 	}
 
+	AssetType EditorAssetManager::GetAssetType(AssetHandle handle) const
+	{
+		if (!IsAssetHandleValid(handle))
+			return AssetType::None;
+
+		return m_AssetRegistry.at(handle).Type;
+	}
+
 	AssetHandle EditorAssetManager::ImportAsset(const std::filesystem::path& filepath)
 	{
 		AssetHandle handle; // Generate new handle
 		AssetMetadata metadata;
 		metadata.FilePath = filepath;
 		metadata.Type = GetAssetTypeFromExtension(filepath.extension().string());
+		PC_CORE_ASSERT(metadata.Type != AssetType::None);
 		Ref<Asset> asset = AssetImporter::ImportAsset(handle, metadata);
-		asset->Handle = handle;
 		if (asset)
 		{
+			asset->Handle = handle;
 			m_LoadedAssets[handle] = asset;
 			m_AssetRegistry[handle] = metadata;
 			SerializeAssetRegistry();
@@ -112,6 +123,11 @@ namespace Pinecone
 			return AssetType::None;
 
 		return s_AssetExtensionMap.at(extension.c_str());
+	}
+
+	const std::filesystem::path& EditorAssetManager::GetFilePath(AssetHandle handle) const
+	{
+		return GetMetadata(handle).FilePath;
 	}
 
 	void EditorAssetManager::SerializeAssetRegistry()

@@ -5,7 +5,9 @@
 #include <Pinecone/Utils/PlatformUtils.h>
 #include <Pinecone/Scripting/ScriptEngine.h>
 
+#include <Pinecone/Asset/AssetManager.h>
 #include <Pinecone/Asset/TextureImporter.h>
+#include <Pinecone/Asset/SceneImporter.h>
 
 #include <imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -287,31 +289,24 @@ namespace Pinecone
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 				{
-					const wchar_t* path = (const wchar_t*)payload->Data;
-					auto& file = std::filesystem::path(path);
+					AssetHandle handle = *(AssetHandle*)payload->Data;
+					AssetType type = AssetManager::GetAssetType(handle);
 
-					if (file.extension() == ".pscene")
-						OpenScene(file);
-					else if (
-						file.extension() == ".png" ||
-						file.extension() == ".jpg" ||
-						file.extension() == ".bmp"
-						)
+					switch (type)
 					{
-						if (m_HoveredGameObject)
+					case Pinecone::AssetType::Scene:
+					{
+						OpenScene(handle);
+						break;
+					}
+					case Pinecone::AssetType::Texture2D:
+					{
+						if (m_HoveredGameObject && m_HoveredGameObject.HasComponent<SpriteComponent>())
 						{
-							if (m_HoveredGameObject.HasComponent<SpriteComponent>())
-							{
-#if 0
-								auto& src = m_HoveredGameObject.GetComponent<SpriteComponent>();
-								Ref<Texture2D> texture = Texture2D::Create(file.string());
-								if (texture->IsLoaded())
-									src.Texture = texture;
-								else
-									PC_WARN("Could not load texture {0}", file.filename().string());
-#endif
-							}
+							m_HoveredGameObject.GetComponent<SpriteComponent>().Texture = handle;
 						}
+						break;
+					}
 					}
 				}
 				ImGui::EndDragDropTarget();
@@ -607,8 +602,9 @@ namespace Pinecone
 		{
 			ScriptEngine::Init();
 
-			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
-			OpenScene(startScenePath);
+			AssetHandle startScene = Project::GetActive()->GetConfig().StartScene;
+			if (startScene)
+				OpenScene(startScene);
 			m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
 		}
 	}
@@ -629,34 +625,27 @@ namespace Pinecone
 
 	void EditorLayer::OpenScene()
 	{
-		OnSceneStop();
-		std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
-		if (!filepath.empty())
-			OpenScene(filepath);
+		//OnSceneStop();
+		//std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
+		//if (!filepath.empty())
+		//	OpenScene(filepath);
 	}
 
-	void EditorLayer::OpenScene(const std::filesystem::path& path)
+	void EditorLayer::OpenScene(AssetHandle handle)
 	{
+		PC_CORE_ASSERT(handle);
+
 		if (m_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		if (path.extension().string() != ".pscene")
-		{
-			PC_WARN("Could not load {0} as the file is not a scene file", path.filename().string());
-			return;
-		}
+		Ref<Scene> readOnlyScene = AssetManager::GetAsset<Scene>(handle);
+		Ref<Scene> newScene = Scene::Copy(readOnlyScene);
 
-		Ref<Scene> newScene = CreateRef<Scene>();
-		SceneSerializer serializer(newScene);
-		if (serializer.Deserialize(path.string()))
-		{
-			m_EditorScene = newScene;
-			m_SceneHierarchyPanel.SetContext(m_EditorScene);
-			m_PropertiesPanel.SetSceneContext(m_EditorScene);
+		m_EditorScene = newScene;
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
 
-			m_ActiveScene = m_EditorScene;
-			m_EditorScenePath = path;
-		}
+		m_ActiveScene = m_EditorScene;
+		m_EditorScenePath = Project::GetActive()->GetEditorAssetManager()->GetFilePath(handle);
 	}
 
 	void EditorLayer::SaveScene()
@@ -679,8 +668,7 @@ namespace Pinecone
 
 	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
 	{
-		SceneSerializer serializer(scene);
-		serializer.Serialize(path.string());
+		SceneImporter::SaveScene(scene, path);
 	}
 
 	void EditorLayer::UIToolbar()

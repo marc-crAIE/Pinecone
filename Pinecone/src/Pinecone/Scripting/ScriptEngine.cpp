@@ -163,6 +163,7 @@ namespace Pinecone
 
 	void ScriptEngine::Init()
 	{
+		PC_CORE_ASSERT(!s_Data, "[ScriptEngine]: Trying to call ScriptEngine::Init multiple times!");
 		s_Data = new ScriptEngineData();
 
 		InitMono();
@@ -171,7 +172,7 @@ namespace Pinecone
 		bool status = LoadAssembly("Resources/Scripts/Pinecone-ScriptCore.dll");
 		if (!status)
 		{
-			PC_CORE_ERROR("[ScriptEngine] Could not load Pinecone-ScriptCore assembly.");
+			PC_CORE_ERROR_TAG("ScriptEngine", "Could not load Pinecone-ScriptCore assembly.");
 			return;
 		}
 
@@ -179,7 +180,7 @@ namespace Pinecone
 		status = LoadAppAssembly(scriptModulePath);
 		if (!status)
 		{
-			PC_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
+			PC_CORE_ERROR_TAG("ScriptEngine", "Could not load app assembly.");
 			return;
 		}
 
@@ -339,7 +340,7 @@ namespace Pinecone
 		}
 		else
 		{
-			PC_CORE_ERROR("Could not find ScriptInstance for entity {}", gameObjectUUID);
+			PC_CORE_ERROR_TAG("ScriptEngine", "Could not find ScriptInstance for entity {}", gameObjectUUID);
 		}
 	}
 
@@ -371,7 +372,7 @@ namespace Pinecone
 
 	void ScriptEngine::LoadAssemblyClasses()
 	{
-		PC_CORE_INFO("Loading C# assembly classes");
+		PC_CORE_INFO_TAG("ScriptEngine", "Loading C# assembly classes");
 
 		s_Data->GameObjectClasses.clear();
 
@@ -410,7 +411,7 @@ namespace Pinecone
 			// to iterate over all of the elements. When no more values are available, the return value is NULL.
 
 			int fieldCount = mono_class_num_fields(monoClass);
-			PC_CORE_TRACE("{} has {} fields:", className, fieldCount);
+			PC_CORE_TRACE_TAG("ScriptEngine", "{} has {} fields:", className, fieldCount);
 			void* iterator = nullptr;
 			while (MonoClassField* field = mono_class_get_fields(monoClass, &iterator))
 			{
@@ -420,7 +421,7 @@ namespace Pinecone
 				{
 					MonoType* type = mono_field_get_type(field);
 					ScriptFieldType fieldType = Utils::MonoTypeToScriptFieldType(type);
-					PC_CORE_TRACE("  {} ({})", fieldName, Utils::ScriptFieldTypeToString(fieldType));
+					PC_CORE_TRACE_TAG("ScriptEngine", "  {} ({})", fieldName, Utils::ScriptFieldTypeToString(fieldType));
 
 					scriptClass->m_Fields[fieldName] = { fieldType, fieldName, field };
 				}
@@ -428,7 +429,7 @@ namespace Pinecone
 		}
 
 		auto& gameObjectClasses = s_Data->GameObjectClasses;
-		PC_CORE_WARN("Finished loading C# assembly classes");
+		PC_CORE_WARN_TAG("ScriptEngine", "Finished loading C# assembly classes");
 	}
 
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()

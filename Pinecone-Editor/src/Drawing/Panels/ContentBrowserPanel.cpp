@@ -2,16 +2,18 @@
 
 #include <Pinecone/Project/Project.h>
 #include <Pinecone/Asset/TextureImporter.h>
+#include <Pinecone/ImGui/UICore.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 namespace Pinecone
 {
 	ContentBrowserPanel::ContentBrowserPanel()
 		: m_BaseDirectory(Project::GetAssetDirectory()), m_CurrentDirectory(m_BaseDirectory)
 	{
-		m_TreeNodes.push_back(TreeNode("."));
+		m_TreeNodes.push_back(TreeNode(".", 0));
 
 		m_DirectoryIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/DirectoryIcon.png");
 		m_SceneIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/ContentBrowser/SceneIcon.png");
@@ -43,7 +45,6 @@ namespace Pinecone
 			}
 		}
 
-		ImGui::Separator();
 
 		static float padding = 16.0f;
 		static float thumbnailSize = 64.0f;
@@ -63,7 +64,7 @@ namespace Pinecone
 			auto currentDir = std::filesystem::relative(m_CurrentDirectory, Project::GetAssetDirectory());
 			for (const auto& p : currentDir)
 			{
-				// If only one level
+				// if only one level
 				if (node->Path == currentDir)
 					break;
 
@@ -74,11 +75,7 @@ namespace Pinecone
 				}
 				else
 				{
-					/*while (node->Children.find(p) == node->Children.end())
-						m_CurrentDirectory = m_CurrentDirectory.parent_path();
-
-					node = &m_TreeNodes[node->Children[p]];*/
-					// Can't find path
+					// can't find path
 					PC_CORE_ASSERT(false);
 				}
 
@@ -97,13 +94,20 @@ namespace Pinecone
 
 				if (ImGui::BeginPopupContextItem())
 				{
-					if (ImGui::MenuItem("Import"))
+					if (ImGui::MenuItem("Delete"))
 					{
-						auto relativePath = std::filesystem::relative(item, Project::GetAssetDirectory());
-						Project::GetActive()->GetEditorAssetManager()->ImportAsset(relativePath);
+						PC_CORE_ASSERT(false, "Not implemented");
 					}
 					ImGui::EndPopup();
 				}
+
+				if (ImGui::BeginDragDropSource())
+				{
+					AssetHandle handle = m_TreeNodes[treeNodeIndex].Handle;
+					ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", &handle, sizeof(AssetHandle));
+					ImGui::EndDragDropSource();
+				}
+
 
 				ImGui::PopStyleColor();
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -137,16 +141,9 @@ namespace Pinecone
 					{
 						auto relativePath = std::filesystem::relative(path, Project::GetAssetDirectory());
 						Project::GetActive()->GetEditorAssetManager()->ImportAsset(relativePath);
+						RefreshAssetTree();
 					}
 					ImGui::EndPopup();
-				}
-
-				if (ImGui::BeginDragDropSource())
-				{
-					std::filesystem::path relativePath(path);
-					const wchar_t* itemPath = relativePath.c_str();
-					ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
-					ImGui::EndDragDropSource();
 				}
 
 				ImGui::PopStyleColor();
@@ -187,7 +184,7 @@ namespace Pinecone
 				else
 				{
 					// Add node
-					TreeNode newNode(p);
+					TreeNode newNode(p, handle);
 					newNode.Parent = currentNodeIndex;
 					m_TreeNodes.push_back(newNode);
 

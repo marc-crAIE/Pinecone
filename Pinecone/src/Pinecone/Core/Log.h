@@ -84,42 +84,42 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 *		TAGGED LOGS
 */
 
-#define PC_CORE_TRACE_TAG(tag, ...) ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Trace, tag, __VA_ARGS__)
-#define PC_CORE_INFO_TAG(tag, ...)  ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Info, tag, __VA_ARGS__)
-#define PC_CORE_WARN_TAG(tag, ...)  ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Warn, tag, __VA_ARGS__)
-#define PC_CORE_ERROR_TAG(tag, ...) ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
-#define PC_CORE_FATAL_TAG(tag, ...) ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
+#define PC_CORE_TRACE_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Trace, tag, __VA_ARGS__)
+#define PC_CORE_INFO_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Info, tag, __VA_ARGS__)
+#define PC_CORE_WARN_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Warn, tag, __VA_ARGS__)
+#define PC_CORE_ERROR_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
+#define PC_CORE_FATAL_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
 
-#define PC_TRACE_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Trace, tag, __VA_ARGS__)
-#define PC_INFO_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Info, tag, __VA_ARGS__)
-#define PC_WARN_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Warn, tag, __VA_ARGS__)
-#define PC_ERROR_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
-#define PC_FATAL_TAG(tag, ...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
+#define PC_TRACE_TAG(tag, ...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Trace, tag, __VA_ARGS__)
+#define PC_INFO_TAG(tag, ...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Info, tag, __VA_ARGS__)
+#define PC_WARN_TAG(tag, ...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Warn, tag, __VA_ARGS__)
+#define PC_ERROR_TAG(tag, ...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
+#define PC_FATAL_TAG(tag, ...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, tag, __VA_ARGS__)
 
 /*
 *		NORMAL LOGS
 */
 
 // Core log macros 
-#define PC_CORE_TRACE(...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Trace, "", __VA_ARGS__)
-#define PC_CORE_INFO(...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Info, "", __VA_ARGS__)
-#define PC_CORE_WARN(...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Warn, "", __VA_ARGS__)
-#define PC_CORE_ERROR(...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
-#define PC_CORE_CRITICAL(...)   ::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
+#define PC_CORE_TRACE(...)				::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Trace, "", __VA_ARGS__)
+#define PC_CORE_INFO(...)				::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Info, "", __VA_ARGS__)
+#define PC_CORE_WARN(...)				::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Warn, "", __VA_ARGS__)
+#define PC_CORE_ERROR(...)				::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
+#define PC_CORE_CRITICAL(...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Core, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
 
 // Client log macros 
-#define PC_TRACE(...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Trace, "", __VA_ARGS__)
-#define PC_INFO(...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Info, "", __VA_ARGS__)
-#define PC_WARN(...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Warn, "", __VA_ARGS__)
-#define PC_ERROR(...)			::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
-#define PC_CRITICAL(...)		::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
+#define PC_TRACE(...)					::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Trace, "", __VA_ARGS__)
+#define PC_INFO(...)					::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Info, "", __VA_ARGS__)
+#define PC_WARN(...)					::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Warn, "", __VA_ARGS__)
+#define PC_ERROR(...)					::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
+#define PC_CRITICAL(...)				::Pinecone::Log::PrintMessage(::Pinecone::Log::Type::Client, ::Pinecone::Log::Level::Error, "", __VA_ARGS__)
 
 // Editor Console log macros 
-#define PC_CONSOLE_LOG_TRACE(...)			::Pinecone::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
-#define PC_CONSOLE_LOG_INFO(...)			::Pinecone::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
-#define PC_CONSOLE_LOG_WARN(...)			::Pinecone::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
-#define PC_CONSOLE_LOG_ERROR(...)			::Pinecone::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
-#define PC_CONSOLE_LOG_CRITICAL(...)		::Pinecone::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
+#define PC_CONSOLE_LOG_TRACE(...)		::Pinecone::Log::GetEditorConsoleLogger()->trace(__VA_ARGS__)
+#define PC_CONSOLE_LOG_INFO(...)		::Pinecone::Log::GetEditorConsoleLogger()->info(__VA_ARGS__)
+#define PC_CONSOLE_LOG_WARN(...)		::Pinecone::Log::GetEditorConsoleLogger()->warn(__VA_ARGS__)
+#define PC_CONSOLE_LOG_ERROR(...)		::Pinecone::Log::GetEditorConsoleLogger()->error(__VA_ARGS__)
+#define PC_CONSOLE_LOG_CRITICAL(...)	::Pinecone::Log::GetEditorConsoleLogger()->critical(__VA_ARGS__)
 
 namespace Pinecone
 {

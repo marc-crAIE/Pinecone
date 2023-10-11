@@ -1,6 +1,6 @@
 Project:
   Name: Sandbox
-  StartScene: "Scenes/Square.pscene"
+  StartScene: 10290014399425898415
   AssetDirectory: "Assets"
   AssetRegistryPath: "Assets.pcreg"
   ScriptModulePath: "Bin/Assembly-CSharp.dll"

@@ -11,6 +11,8 @@ namespace Pinecone::UI
 	struct ScopedStyleColor
 	{
 		ScopedStyleColor() = default;
+		ScopedStyleColor(const ScopedStyleColor&) = delete;
+
 		ScopedStyleColor(ImGuiCol idx, ImVec4 color, bool predicate = true);
 		ScopedStyleColor(ImGuiCol idx, ImU32 color, bool predicate = true);
 

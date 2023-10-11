@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Pinecone/Asset/Asset.h"
 #include "Pinecone/Core/UUID.h"
 #include "Pinecone/Core/Timestep.h"
 #include "Pinecone/Renderer/EditorCamera.h"
@@ -10,7 +11,7 @@ namespace Pinecone
 {
 	class GameObject;
 
-	class Scene
+	class Scene : public Asset
 	{
 	public:
 		/// <summary>
@@ -99,6 +100,8 @@ namespace Pinecone
 		void Step(int frames = 1);
 
 		static Ref<Scene> Copy(Ref<Scene> other);
+
+		virtual AssetType GetType() const { return AssetType::Scene; }
 	private:
 		void RenderScene(EditorCamera& camera);
 	private:
