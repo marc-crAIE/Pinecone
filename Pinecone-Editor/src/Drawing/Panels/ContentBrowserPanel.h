@@ -22,6 +22,7 @@ namespace Pinecone
 		void Open() { m_Open = true; }
 	private:
 		void RefreshAssetTree();
+		void RenderDirectoryHierarchy(std::filesystem::path& path);
 	private:
 		Ref<Project> m_Project;
 		Ref<ThumbnailCache> m_ThumbnailCache;
