@@ -240,6 +240,8 @@ namespace Pinecone
 			ImGui::EndMenuBar();
 		}
 
+		ImGui::ShowDemoWindow();
+
 		m_SceneHierarchyPanel.OnImGuiRender();
 		m_PropertiesPanel.OnImGuiRender(m_SceneHierarchyPanel.GetSelectedGameObject());
 		if (m_ContentBrowserPanel) m_ContentBrowserPanel->OnImGuiRender();

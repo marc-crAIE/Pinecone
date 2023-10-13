@@ -46,7 +46,6 @@ namespace Pinecone
 			}
 		}
 
-
 		static float padding = 16.0f;
 		static float thumbnailSize = 64.0f;
 		float cellSize = thumbnailSize + padding;
@@ -182,9 +181,6 @@ namespace Pinecone
 			}
 		}
 
-		ImGui::Columns(1);
-
-		// TODO: status bar
 		ImGui::End();
 	}
 
