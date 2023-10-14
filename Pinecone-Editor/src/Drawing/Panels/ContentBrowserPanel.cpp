@@ -93,6 +93,7 @@ namespace Pinecone
 
 				if (m_Mode == Mode::Asset)
 				{
+					bool assetDirectoryExists = true;
 					TreeNode* node = &m_TreeNodes[0];
 
 					auto currentDir = std::filesystem::relative(m_CurrentDirectory, Project::GetActiveAssetDirectory());
@@ -110,64 +111,67 @@ namespace Pinecone
 						else
 						{
 							// can't find path
-							PC_CORE_ASSERT(false);
+							assetDirectoryExists = false;
 						}
 					}
 
-					for (const auto& [item, treeNodeIndex] : node->Children)
+					if (assetDirectoryExists)
 					{
-						bool isDirectory = std::filesystem::is_directory(Project::GetActiveAssetDirectory() / item);
-
-						std::string itemStr = item.generic_string();
-
-						ImGui::PushID(itemStr.c_str());
-
-						// THUMBNAIL
-						AssetHandle handle = m_TreeNodes[treeNodeIndex].Handle;
-						auto relativePath = m_Project->GetEditorAssetManager()->GetFilePath(handle);
-						Ref<Texture2D> thumbnail = isDirectory ? m_DirectoryIcon : m_FileIcon;
-						if (!isDirectory)
+						for (const auto& [item, treeNodeIndex] : node->Children)
 						{
-							thumbnail = m_ThumbnailCache->GetOrCreateThumbnail(relativePath);
-							if (!thumbnail)
-								thumbnail = m_FileIcon;
-						}
+							bool isDirectory = std::filesystem::is_directory(Project::GetActiveAssetDirectory() / item);
 
-						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-						ImGui::ImageButton((ImTextureID)thumbnail->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+							std::string itemStr = item.generic_string();
 
-						if (ImGui::BeginPopupContextItem())
-						{
-							if (ImGui::MenuItem("Delete"))
-							{
-								PC_CORE_ASSERT(false, "Not implemented");
-							}
-							ImGui::EndPopup();
-						}
+							ImGui::PushID(itemStr.c_str());
 
-						if (ImGui::BeginDragDropSource())
-						{
+							// THUMBNAIL
 							AssetHandle handle = m_TreeNodes[treeNodeIndex].Handle;
-							ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", &handle, sizeof(AssetHandle));
-							ImGui::Image((ImTextureID)thumbnail->GetRendererID(), ImVec2{ 16.0f, 16.0f }, ImVec2(0, 1), ImVec2(1, 0));
-							ImGui::SameLine();
-							ImGui::Text(relativePath.string().c_str());
-							ImGui::EndDragDropSource();
+							auto relativePath = m_Project->GetEditorAssetManager()->GetFilePath(handle);
+							Ref<Texture2D> thumbnail = isDirectory ? m_DirectoryIcon : m_FileIcon;
+							if (!isDirectory)
+							{
+								thumbnail = m_ThumbnailCache->GetOrCreateThumbnail(relativePath);
+								if (!thumbnail)
+									thumbnail = m_FileIcon;
+							}
+
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+							ImGui::ImageButton((ImTextureID)thumbnail->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+
+							if (ImGui::BeginPopupContextItem())
+							{
+								if (ImGui::MenuItem("Delete"))
+								{
+									PC_CORE_ASSERT(false, "Not implemented");
+								}
+								ImGui::EndPopup();
+							}
+
+							if (ImGui::BeginDragDropSource())
+							{
+								AssetHandle handle = m_TreeNodes[treeNodeIndex].Handle;
+								ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", &handle, sizeof(AssetHandle));
+								ImGui::Image((ImTextureID)thumbnail->GetRendererID(), ImVec2{ 16.0f, 16.0f }, ImVec2(0, 1), ImVec2(1, 0));
+								ImGui::SameLine();
+								ImGui::Text(relativePath.string().c_str());
+								ImGui::EndDragDropSource();
+							}
+
+
+							ImGui::PopStyleColor();
+							if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+							{
+								if (isDirectory)
+									m_CurrentDirectory /= item.filename();
+							}
+
+							ImGui::TextWrapped(itemStr.c_str());
+
+							ImGui::NextColumn();
+
+							ImGui::PopID();
 						}
-
-
-						ImGui::PopStyleColor();
-						if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-						{
-							if (isDirectory)
-								m_CurrentDirectory /= item.filename();
-						}
-
-						ImGui::TextWrapped(itemStr.c_str());
-
-						ImGui::NextColumn();
-
-						ImGui::PopID();
 					}
 				}
 				else
@@ -249,7 +253,6 @@ namespace Pinecone
 					m_TreeNodes[currentNodeIndex].Children[p] = m_TreeNodes.size() - 1;
 					currentNodeIndex = m_TreeNodes.size() - 1;
 				}
-
 			}
 		}
 	}
@@ -264,7 +267,14 @@ namespace Pinecone
 				auto path = dirEntry.path();
 				std::string name = path.filename().string();
 				std::string id = name + "_TreeNode";
-				if (UI::DrawTreeNodeWithImage((ImTextureID)m_DirectoryIcon->GetRendererID(), (void*)ImGui::GetID(id.c_str()), flags, name.c_str()))
+				bool opened = UI::DrawTreeNodeWithImage((ImTextureID)m_DirectoryIcon->GetRendererID(), (void*)ImGui::GetID(id.c_str()), flags, name.c_str());
+
+				if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0))
+				{
+					m_CurrentDirectory = path;
+				}
+
+				if (opened)
 				{
 					RenderDirectoryHierarchy(path);
 					ImGui::TreePop();
