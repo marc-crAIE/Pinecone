@@ -11,7 +11,7 @@ namespace Pinecone
 		PineconeEditor(const ApplicationSpecification& spec)
 			: Application(spec)
 		{
-			PushLayer(new EditorLayer());
+			PushLayer(new RuntimeLayer());
 		}
 
 		~PineconeEditor()

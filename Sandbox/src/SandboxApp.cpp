@@ -22,7 +22,7 @@ Application* Pinecone::CreateApplication(ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
 	spec.Name = "Sandbox";
-	spec.WorkingDirectory = "../Pinecone-Editor";
+	//spec.WorkingDirectory = "../Pinecone-Editor";
 	spec.CommandLineArgs = args;
 
 	return new Sandbox::SandboxApp(spec);

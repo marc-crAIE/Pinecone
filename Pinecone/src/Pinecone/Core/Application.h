@@ -45,6 +45,9 @@ namespace Pinecone
 		/// </summary>
 		virtual ~Application();
 
+		virtual void OnInit() {};
+		virtual void OnShutdown() {};
+
 		/// <summary>
 		/// Called when an event occurs
 		/// </summary>
@@ -120,6 +123,8 @@ namespace Pinecone
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
+	protected:
+		inline static bool s_IsRuntime = false;
 	};
 
 	// To be defined in the client program

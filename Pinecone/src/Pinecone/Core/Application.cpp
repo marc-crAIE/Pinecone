@@ -102,6 +102,8 @@ namespace Pinecone
 	{
 		PC_PROFILE_FUNCTION();
 
+		OnInit();
+
 		while (m_Running)
 		{
 			PC_PROFILE_SCOPE("RunLoop");
@@ -137,6 +139,8 @@ namespace Pinecone
 			// Update the window
 			m_Window->OnUpdate();
 		}
+
+		OnShutdown();
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)

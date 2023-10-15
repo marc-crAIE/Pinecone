@@ -42,6 +42,10 @@ group "Tools"
 	include "Pinecone-Editor"
 group ""
 
+group "Runtime"
+	include "Pinecone-Runtime"
+group ""
+
 group "Misc"
 	include "Sandbox"
 group ""

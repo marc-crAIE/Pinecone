@@ -9,11 +9,11 @@
 
 namespace Pinecone
 {
-	class EditorLayer : public Layer
+	class RuntimeLayer : public Layer
 	{
 	public:
-		EditorLayer();
-		virtual ~EditorLayer() = default;
+		RuntimeLayer();
+		virtual ~RuntimeLayer() = default;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
