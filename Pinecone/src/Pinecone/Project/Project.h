@@ -18,6 +18,7 @@ namespace Pinecone
 
 		std::filesystem::path AssetDirectory;
 		std::filesystem::path AssetRegistryPath; // Relative to AssetDirectory
+		std::filesystem::path ScriptCorePath;
 		std::filesystem::path ScriptModulePath;
 	};
 

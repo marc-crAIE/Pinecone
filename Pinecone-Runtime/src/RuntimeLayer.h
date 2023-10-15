@@ -8,7 +8,7 @@ namespace Pinecone
 	class RuntimeLayer : public Layer
 	{
 	public:
-		RuntimeLayer();
+		RuntimeLayer(std::string_view projectPath);
 		virtual ~RuntimeLayer() = default;
 
 		virtual void OnAttach() override;
@@ -37,6 +37,8 @@ namespace Pinecone
 		void OpenScene();
 		void OpenScene(AssetHandle handle);
 	private:
+		std::string m_ProjectPath;
+
 		EditorCamera m_EditorCamera;
 
 		int m_GizmoType = -1;

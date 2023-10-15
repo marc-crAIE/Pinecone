@@ -67,6 +67,13 @@ namespace Pinecone
 		/// </summary>
 		/// <returns>True if v-sync is enabled</returns>
 		bool IsVSync() const { return m_Data.VSync; }
+		void SetResizable(bool resizable) const;
+
+		void Maximize();
+		void CenterWindow();
+
+		const std::string& GetTitle() const { return m_Data.Title; }
+		void SetTitle(const std::string& title);
 
 		/// <summary>
 		/// Get the native GLFW window handle

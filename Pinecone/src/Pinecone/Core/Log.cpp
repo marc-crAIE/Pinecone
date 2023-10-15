@@ -18,14 +18,16 @@ namespace Pinecone
 		// These are setup as sinks that are then used by the actual loggers to output data
 		// https://github.com/gabime/spdlog/wiki/2.-Creating-loggers
 		std::vector<spdlog::sink_ptr> logSinks;
+		logSinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("Pinecone.log", true));
 #if PC_HAS_CONSOLE
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 #endif
-		logSinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("Pinecone.log", true));
 
 		// Set the log format (reference https://github.com/gabime/spdlog/wiki/3.-Custom-formatting)
-		logSinks[0]->set_pattern("%^[%T] %n: %$%v");
-		logSinks[1]->set_pattern("[%T] [%l] %n: %$%v");
+		logSinks[0]->set_pattern("[%T] [%l] %n: %$%v");
+#if PC_HAS_CONSOLE
+		logSinks[1]->set_pattern("%^[%T] %n: %$%v");
+#endif
 
 		// Create the core logger, this is to be used internally by the engine itself
 		s_CoreLogger = std::make_shared<spdlog::logger>("PINECONE", begin(logSinks), end(logSinks));

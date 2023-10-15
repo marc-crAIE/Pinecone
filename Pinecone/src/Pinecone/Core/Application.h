@@ -72,6 +72,10 @@ namespace Pinecone
 		Window& GetWindow() { return *m_Window; }
 
 		/// <summary>
+		/// Start the application run loop
+		/// </summary>
+		void Run();
+		/// <summary>
 		/// Close the application
 		/// </summary>
 		void Close();
@@ -88,10 +92,6 @@ namespace Pinecone
 
 		void SubmitToMainThread(const std::function<void()>& function);
 	private:
-		/// <summary>
-		/// Start the application run loop
-		/// </summary>
-		void Run();
 		/// <summary>
 		/// Handle the WindowClose event
 		/// </summary>
@@ -122,7 +122,6 @@ namespace Pinecone
 		std::mutex m_MainThreadQueueMutex;
 	private:
 		static Application* s_Instance;
-		friend int ::main(int argc, char** argv);
 	protected:
 		inline static bool s_IsRuntime = false;
 	};

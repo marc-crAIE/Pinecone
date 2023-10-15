@@ -68,7 +68,7 @@ namespace Pinecone
 				{
 					ScopedBuffer pdbFileData = FileSystem::ReadFileBinary(pdbPath);
 					mono_debug_open_image_from_memory(image, pdbFileData.As<const mono_byte>(), pdbFileData.Size());
-					PC_CORE_INFO("Loaded PDB {}", pdbPath);
+					PC_CORE_INFO_TAG("ScriptEngine", "Loaded PDB {}", pdbPath);
 				}
 			}
 
@@ -93,7 +93,7 @@ namespace Pinecone
 				const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
 				const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
 
-				PC_CORE_TRACE("{}.{}", nameSpace, name);
+				PC_CORE_TRACE_TAG("ScriptEngine", "{}.{}", nameSpace, name);
 			}
 		}
 
@@ -104,7 +104,7 @@ namespace Pinecone
 			auto it = s_ScriptFieldTypeMap.find(typeName);
 			if (it == s_ScriptFieldTypeMap.end())
 			{
-				PC_CORE_ERROR("Unknown type: {}", typeName);
+				PC_CORE_ERROR_TAG("ScriptEngine", "Unknown type: {}", typeName);
 				return ScriptFieldType::None;
 			}
 
@@ -169,7 +169,8 @@ namespace Pinecone
 		InitMono();
 		ScriptGlue::RegisterFunctions();
 
-		bool status = LoadAssembly("Resources/Scripts/Pinecone-ScriptCore.dll");
+		auto scriptCorePath = Project::GetActiveProjectDirectory() / Project::GetActive()->GetConfig().ScriptCorePath;
+		bool status = LoadAssembly(scriptCorePath);
 		if (!status)
 		{
 			PC_CORE_ERROR_TAG("ScriptEngine", "Could not load Pinecone-ScriptCore assembly.");

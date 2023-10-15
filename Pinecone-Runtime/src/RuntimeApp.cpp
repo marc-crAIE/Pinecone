@@ -14,7 +14,7 @@ public:
 
 	virtual void OnInit() override
 	{
-		PushLayer(new Pinecone::RuntimeLayer());
+		PushLayer(new Pinecone::RuntimeLayer(m_ProjectPath));
 	}
 private:
 	std::string m_ProjectPath;
@@ -23,6 +23,10 @@ private:
 Pinecone::Application* Pinecone::CreateApplication(ApplicationCommandLineArgs args)
 {
 	std::string_view projectPath = "App.pcproj";
+
+#ifdef PC_DEBUG
+	projectPath = "";
+#endif
 
 	Pinecone::ApplicationSpecification spec;
 	spec.Name = "Pinecone Runtime";

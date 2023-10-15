@@ -18,8 +18,8 @@ namespace Pinecone
 {
 	static Ref<Font> s_Font;
 
-	RuntimeLayer::RuntimeLayer()
-		: Layer("EditorLayer")
+	RuntimeLayer::RuntimeLayer(std::string_view projectPath)
+		: Layer("RuntimeLayer"), m_ProjectPath(projectPath)
 	{
 		s_Font = Font::GetDefault();
 	}
@@ -31,15 +31,20 @@ namespace Pinecone
 		m_RuntimeScene = CreateRef<Scene>();
 
 		auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
-		if (commandLineArgs.Count > 1)
+		if (!m_ProjectPath.empty())
 		{
-			auto projectFilePath = commandLineArgs[1];
-			OpenProject(projectFilePath);
+			OpenProject(m_ProjectPath);
 		}
 		else
 		{
+#ifdef PC_DEBUG
+			if (!OpenProject())
+#endif
 			Application::Get().Close();
 		}
+
+		// Set the window title
+		Application::Get().GetWindow().SetTitle(Project::GetActive()->GetConfig().Name);
 
 		m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 

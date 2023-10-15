@@ -252,6 +252,30 @@ namespace Pinecone
 		m_Data.VSync = enabled;
 	}
 
+	void Window::SetResizable(bool resizable) const
+	{
+		glfwSetWindowAttrib(m_Window, GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+	}
+
+	void Window::Maximize()
+	{
+		glfwMaximizeWindow(m_Window);
+	}
+
+	void Window::CenterWindow()
+	{
+		const GLFWvidmode* videmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		int x = (videmode->width / 2) - (m_Data.Width / 2);
+		int y = (videmode->height / 2) - (m_Data.Height / 2);
+		glfwSetWindowPos(m_Window, x, y);
+	}
+
+	void Window::SetTitle(const std::string& title)
+	{
+		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
+	}
+
 	Scope<Window> Pinecone::Window::Create(const WindowProps& props)
 	{
 		return CreateScope<Window>(props);

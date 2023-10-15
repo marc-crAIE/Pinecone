@@ -3,4 +3,5 @@ Project:
   StartScene: 10290014399425898415
   AssetDirectory: "Assets"
   AssetRegistryPath: "Assets.pcreg"
+  ScriptCorePath: "Bin/Pinecone-ScriptCore.dll"
   ScriptModulePath: "Bin/Assembly-CSharp.dll"
