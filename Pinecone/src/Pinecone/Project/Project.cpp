@@ -34,12 +34,13 @@ namespace Pinecone
 		return nullptr;
 	}
 
-	bool Project::SaveActive(const std::filesystem::path& path)
+	bool Project::SaveActive(const std::filesystem::path& path, bool overwitePath)
 	{
 		ProjectSerializer serializer(s_ActiveProject);
 		if (serializer.Serialize(path))
 		{
-			s_ActiveProject->m_ProjectDirectory = path.parent_path();
+			if (overwitePath)
+				s_ActiveProject->m_ProjectDirectory = path.parent_path();
 			return true;
 		}
 

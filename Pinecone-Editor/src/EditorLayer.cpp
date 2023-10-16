@@ -14,6 +14,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <ImGuizmo.h>
 
+#include <iostream>
+
 namespace Pinecone
 {
 	static Ref<Font> s_Font;
@@ -202,6 +204,16 @@ namespace Pinecone
 
 				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Build"))
+					BuildProject();
+
+				if (ImGui::MenuItem("Build and Run", "", false, false))
+				{
+
+				}
 
 				ImGui::Separator();
 
@@ -612,6 +624,40 @@ namespace Pinecone
 	void RuntimeLayer::SaveProject()
 	{
 		// Project::SaveActive();
+	}
+
+	std::filesystem::path& RuntimeLayer::BuildProject()
+	{
+		std::string filepath = FileDialogs::SaveFile("Pinecone Project (*.pcproj)\0*.pcproj\0");
+		auto basePath = std::filesystem::path(filepath).parent_path();
+
+		Project::SaveActive(basePath / "App.pcproj", false);
+		// Make sure that the asset registry has been saved
+		Project::GetActive()->GetEditorAssetManager()->SerializeAssetRegistry();
+
+		auto copyOptions = std::filesystem::copy_options::recursive | std::filesystem::copy_options::update_existing;
+		// Copy mono files
+		std::filesystem::copy("mono", basePath / "mono", copyOptions);
+		// Copy core assets (TEMPORARY)
+		std::filesystem::copy("assets", basePath / "Assets", copyOptions);
+		// Copy application assets
+		auto assetsDir = Project::GetActiveProjectDirectory() / Project::GetActiveAssetDirectory();
+		std::filesystem::copy(assetsDir, basePath / "Assets", copyOptions);
+
+		// Copy application scripts
+		auto scriptCorePath = Project::GetActiveProjectDirectory() / Project::GetActive()->GetConfig().ScriptCorePath;
+		std::filesystem::create_directories((basePath / Project::GetActive()->GetConfig().ScriptCorePath).parent_path());
+		std::filesystem::copy(scriptCorePath, basePath / Project::GetActive()->GetConfig().ScriptCorePath, std::filesystem::copy_options::update_existing);
+
+		auto scriptModulePath = Project::GetActiveProjectDirectory() / Project::GetActive()->GetConfig().ScriptModulePath;
+		std::filesystem::create_directories((basePath / Project::GetActive()->GetConfig().ScriptModulePath).parent_path());
+		std::filesystem::copy(scriptModulePath, basePath / Project::GetActive()->GetConfig().ScriptModulePath, std::filesystem::copy_options::update_existing);
+
+		// Copy the runtime application
+		std::filesystem::copy("Resources/Runtime/Pinecone-Runtime.exe", basePath / (Project::GetActive()->GetConfig().Name + ".exe"), std::filesystem::copy_options::update_existing);
+
+		// Return the path the project was built to
+		return basePath;
 	}
 
 	void RuntimeLayer::NewScene()

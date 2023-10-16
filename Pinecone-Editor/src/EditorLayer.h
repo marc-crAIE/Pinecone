@@ -39,6 +39,8 @@ namespace Pinecone
 		void OpenProject(const std::filesystem::path& path);
 		void SaveProject();
 
+		std::filesystem::path& BuildProject();
+
 		void NewScene();
 		void OpenScene();
 		void OpenScene(AssetHandle handle);

@@ -66,7 +66,7 @@ namespace Pinecone
 
 		static Ref<Project> New();
 		static Ref<Project> Load(const std::filesystem::path& path);
-		static bool SaveActive(const std::filesystem::path& path);
+		static bool SaveActive(const std::filesystem::path& path, bool overwitePath = true);
 	private:
 		ProjectConfig m_Config;
 		std::filesystem::path m_ProjectDirectory;

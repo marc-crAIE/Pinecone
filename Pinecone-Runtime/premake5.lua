@@ -4,8 +4,8 @@ project "Pinecone-Runtime"
 	cppdialect "C++17"
 	staticruntime "off"
 
-	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../Pinecone-Editor/Resources/Runtime")
+	objdir ("../Pinecone-Editor/Resources/Runtime/Intermediates")
 
 	files
 	{
