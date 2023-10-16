@@ -3,6 +3,7 @@
 #include <Pinecone/Scene/Components.h>
 #include <Pinecone/Scripting/ScriptEngine.h>
 #include <Pinecone/ImGui/ImGuiUI.h>
+#include <Pinecone/ImGui/UICore.h>
 
 #include <Pinecone/Asset/AssetManager.h>
 #include <Pinecone/Asset/AssetMetadata.h>
@@ -39,19 +40,29 @@ namespace Pinecone
 		m_SceneContext = sceneContext;
 	}
 
-	void PropertiesPanel::OnImGuiRender()
+	void PropertiesPanel::SetSelection(const SelectionContext& context, const UUID& selectionID)
 	{
-		OnImGuiRender({});
+		m_Selection.Context = context;
+		m_Selection.ID = selectionID;
 	}
 
-	void PropertiesPanel::OnImGuiRender(const GameObject& context)
+	void PropertiesPanel::OnImGuiRender()
 	{
 		if (m_Open)
 		{
 			ImGui::Begin("Properties", &m_Open);
-			if (context)
+
+			if (m_Selection.Context == SelectionContext::Scene)
 			{
-				DrawComponents(context);
+				GameObject& go = m_SceneContext->GetGameObjectByUUID(m_Selection.ID);
+				if (go)
+					DrawComponents(go);
+			}
+			else if (m_Selection.Context == SelectionContext::ContentBrowser)
+			{
+				AssetHandle handle = m_Selection.ID;
+				if (AssetManager::IsAssetHandleValid(handle))
+					DrawAssetEditor(handle);
 			}
 
 			ImGui::End();
@@ -214,69 +225,64 @@ namespace Pinecone
 
 		DrawComponent<TextComponent>("Text Renderer", gameObject, (ImTextureID)m_SpriteRendererIcon->GetRendererID(), [](auto& component)
 			{
-				ImGui::InputTextMultiline("Text String", &component.TextString);
-				ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-				ImGui::DragFloat("Kerning", &component.Kerning, 0.025f);
-				ImGui::DragFloat("Line Spacing", &component.LineSpacing, 0.025f);
+				UI::BeginPropertyGrid();
+
+				UI::PropertyMultiline("Text String", component.TextString);
+				UI::PropertyColor("Color", component.Color);
+				UI::Property("Kerning", component.Kerning, 0.025f);
+				UI::Property("Line Spacing", component.LineSpacing, 0.025f);
+
+				UI::EndPropertyGrid();
 			});
 
 		DrawComponent<CameraComponent>("Camera", gameObject, (ImTextureID)m_CameraIcon->GetRendererID(), [](auto& component)
 			{
+				UI::BeginPropertyGrid();
+
 				auto& camera = component.Camera;
 
-				ImGui::Checkbox("Primary", &component.Primary);
+				UI::Property("Primary", component.Primary);
 
 				const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
-				const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
-				if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
-				{
-					for (int i = 0; i < 2; i++)
-					{
-						bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];
-						if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
-						{
-							currentProjectionTypeString = projectionTypeStrings[i];
-							camera.SetProjectionType((SceneCamera::ProjectionType)i);
-						}
-
-						if (isSelected)
-							ImGui::SetItemDefaultFocus();
-					}
-
-					ImGui::EndCombo();
+				int currentProj = (int)camera.GetProjectionType();
+				if (UI::PropertyDropdown("Projection", projectionTypeStrings, 2, &currentProj))
+				{					
+					camera.SetProjectionType((SceneCamera::ProjectionType)currentProj);
 				}
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
 				{
 					float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());
-					if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))
+					if (UI::Property("Vertical FOV", perspectiveVerticalFov))
 						camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));
 
 					float perspectiveNear = camera.GetPerspectiveNearClip();
-					if (ImGui::DragFloat("Near", &perspectiveNear))
+					if (UI::Property("Near", perspectiveNear))
 						camera.SetPerspectiveNearClip(perspectiveNear);
 
 					float perspectiveFar = camera.GetPerspectiveFarClip();
-					if (ImGui::DragFloat("Far", &perspectiveFar))
+					if (UI::Property("Far", perspectiveFar))
 						camera.SetPerspectiveFarClip(perspectiveFar);
 				}
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
 				{
 					float orthoSize = camera.GetOrthographicSize();
-					if (ImGui::DragFloat("Size", &orthoSize))
+					if (UI::Property("Size", orthoSize))
 						camera.SetOrthographicSize(orthoSize);
 
 					float orthoNear = camera.GetOrthographicNearClip();
-					if (ImGui::DragFloat("Near", &orthoNear))
+					if (UI::Property("Near", orthoNear))
 						camera.SetOrthographicNearClip(orthoNear);
 
 					float orthoFar = camera.GetOrthographicFarClip();
-					if (ImGui::DragFloat("Far", &orthoFar))
+					if (UI::Property("Far", orthoFar))
 						camera.SetOrthographicFarClip(orthoFar);
 
-					ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
+					UI::Property("Fixed Aspect Ratio", component.FixedAspectRatio);
 				}
+
+				UI::EndPropertyGrid();
 			});
 
 		DrawComponent<ScriptComponent>("Script", gameObject, (ImTextureID)m_SpriteRendererIcon->GetRendererID(), [gameObject, scene = m_SceneContext](auto& component) mutable
@@ -382,5 +388,33 @@ namespace Pinecone
 					}
 				}
 			});
+	}
+
+	void PropertiesPanel::DrawAssetEditor(AssetHandle handle)
+	{
+		AssetType type = AssetManager::GetAssetType(handle);
+
+		switch (type)
+		{
+		case AssetType::Texture2D:
+		{
+			Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
+			uint32_t textureWidth = texture->GetWidth();
+			uint32_t textureHeight = texture->GetHeight();
+
+			float imageSize = ImGui::GetWindowWidth() - 10;
+			imageSize = glm::min(imageSize, 500.0f);
+
+			ImGui::Image((ImTextureID)texture->GetRendererID(), { imageSize, imageSize }, { 0, 1 }, { 1, 0 });
+
+			UI::BeginPropertyGrid();
+			UI::BeginDisabled();
+			UI::Property("Width", textureWidth);
+			UI::Property("Height", textureHeight);
+			UI::EndDisabled();
+			UI::EndPropertyGrid();
+			break;
+		}
+		}
 	}
 }

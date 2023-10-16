@@ -21,6 +21,7 @@ project "Pinecone-Editor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.filewatch}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}"
 	}
 

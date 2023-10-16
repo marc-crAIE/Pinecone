@@ -1,7 +1,8 @@
 #include "SceneHeirarchyPanel.h"
 
-#include <Pinecone/Scene/Components.h>
 #include <Pinecone/Asset/TextureImporter.h>
+#include <Pinecone/Editor/SelectionManager.h>
+#include <Pinecone/Scene/Components.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -16,6 +17,7 @@ namespace Pinecone
 		m_SceneIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/SceneHierachy/SceneIcon.png");
 		m_GameObjectIcon = TextureImporter::LoadTexture2D("Resources/Icons/Panels/SceneHierachy/GameObjectIcon.png");
 	}
+
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
 		SetContext(context);
@@ -54,7 +56,10 @@ namespace Pinecone
 				}
 
 				if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+				{
+					SelectionManager::DeselectAll(SelectionContext::Scene);
 					m_SelectionContext = {};
+				}
 
 				// Right-click on blank space
 				if (ImGui::BeginPopupContextWindow(0, 1))
@@ -72,6 +77,11 @@ namespace Pinecone
 
 	void SceneHierarchyPanel::SetSelectedGameObject(GameObject gameObject)
 	{
+		SelectionManager::DeselectAll(SelectionContext::Scene);
+		if (gameObject != GameObject{})
+		{
+			SelectionManager::Select(SelectionContext::Scene, gameObject.GetUUID());
+		}
 		m_SelectionContext = gameObject;
 	}
 
@@ -89,6 +99,8 @@ namespace Pinecone
 		bool opened = UI::DrawTreeNodeWithImage((ImTextureID)m_GameObjectIcon->GetRendererID(), (void*)(uint64_t)(uint32_t)gameObject, node_flags, tag.c_str());
 		if (ImGui::IsItemClicked())
 		{
+			SelectionManager::DeselectAll(SelectionContext::Scene);
+			SelectionManager::Select(SelectionContext::Scene, gameObject.GetUUID());
 			m_SelectionContext = gameObject;
 		}
 
@@ -115,7 +127,10 @@ namespace Pinecone
 		{
 			m_Context->DestroyGameObject(gameObject);
 			if (m_SelectionContext == gameObject)
+			{
+				SelectionManager::Deselect(SelectionContext::Scene, gameObject.GetUUID());
 				m_SelectionContext = {};
+			}
 		}
 	}
 }

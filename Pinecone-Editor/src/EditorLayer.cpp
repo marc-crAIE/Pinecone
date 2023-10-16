@@ -4,6 +4,7 @@
 #include <Pinecone/Scene/SceneSerializer.h>
 #include <Pinecone/Utils/PlatformUtils.h>
 #include <Pinecone/Scripting/ScriptEngine.h>
+#include <Pinecone/Events/EditorEvent.h>
 
 #include <Pinecone/Asset/AssetManager.h>
 #include <Pinecone/Asset/TextureImporter.h>
@@ -252,7 +253,7 @@ namespace Pinecone
 		}
 
 		m_SceneHierarchyPanel.OnImGuiRender();
-		m_PropertiesPanel.OnImGuiRender(m_SceneHierarchyPanel.GetSelectedGameObject());
+		m_PropertiesPanel.OnImGuiRender();
 		if (m_ContentBrowserPanel) m_ContentBrowserPanel->OnImGuiRender();
 
 		// Stats
@@ -392,6 +393,7 @@ namespace Pinecone
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<KeyPressedEvent>(PC_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 		dispatcher.Dispatch<MouseButtonPressedEvent>(PC_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+		dispatcher.Dispatch<EditorSelectionChangedEvent>(PC_BIND_EVENT_FN(EditorLayer::OnSelectionChanged));
 	}
 
 	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -515,6 +517,12 @@ namespace Pinecone
 	{
 		//AssetManager::ImportAsset();
 
+		return true;
+	}
+
+	bool EditorLayer::OnSelectionChanged(EditorSelectionChangedEvent& e)
+	{
+		m_PropertiesPanel.SetSelection(e.GetContextID(), e.GetSelectionID());
 		return true;
 	}
 

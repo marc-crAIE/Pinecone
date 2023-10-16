@@ -13,7 +13,8 @@ namespace Pinecone
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowDrop,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+		EditorSelectionChanged
 	};
 
 	// The different event categories
@@ -25,6 +26,8 @@ namespace Pinecone
 		EventCategoryKeyboard	 = BIT(2),
 		EventCategoryMouse		 = BIT(3),
 		EventCategoryMouseButton = BIT(4),
+		EventCategoryScene		 = BIT(5),
+		EventCategoryEditor		 = BIT(6),
 	};
 
 	// Used as a shortcut for defining these functions when creating the event types

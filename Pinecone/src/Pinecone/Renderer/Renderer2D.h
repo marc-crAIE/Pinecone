@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Pinecone/Renderer/Camera.h"
-#include "Pinecone/Renderer/EditorCamera.h"
 #include "Pinecone/Renderer/Texture2D.h"
 #include "Pinecone/Renderer/Font.h"
 
+#include "Pinecone/Editor/EditorCamera.h"
 #include "Pinecone/Scene/Components.h"
 
 namespace Pinecone

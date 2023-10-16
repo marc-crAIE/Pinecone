@@ -54,6 +54,15 @@ namespace Pinecone
 		/// <param name="e">The event</param>
 		void OnEvent(Event& e);
 
+		template<typename TEvent, typename... EventArgs>
+		void DispatchEvent(EventArgs&&... args)
+		{
+			static_assert(std::is_assignable_v<Event, TEvent>);
+
+			std::shared_ptr<TEvent> event = std::make_shared<TEvent>(std::forward<EventArgs>(args)...);
+			OnEvent(*event);
+		}
+
 		/// <summary>
 		/// Push a layer onto the layer stack
 		/// </summary>

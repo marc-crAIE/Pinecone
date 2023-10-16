@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Pinecone.h>
-#include <Pinecone/Renderer/EditorCamera.h>
+#include <Pinecone/Editor/EditorCamera.h>
+#include <Pinecone/Events/EditorEvent.h>
 
 #include "Drawing/Panels/SceneHeirarchyPanel.h"
 #include "Drawing/Panels/PropertiesPanel.h"
@@ -25,6 +26,7 @@ namespace Pinecone
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 		bool OnWindowDrop(WindowDropEvent& e);
+		bool OnSelectionChanged(EditorSelectionChangedEvent& e);
 
 		void OnScenePlay();
 		void OnSceneStop();

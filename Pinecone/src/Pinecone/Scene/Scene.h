@@ -3,7 +3,7 @@
 #include "Pinecone/Asset/Asset.h"
 #include "Pinecone/Core/UUID.h"
 #include "Pinecone/Core/Timestep.h"
-#include "Pinecone/Renderer/EditorCamera.h"
+#include "Pinecone/Editor/EditorCamera.h"
 
 #include <entt.hpp>
 

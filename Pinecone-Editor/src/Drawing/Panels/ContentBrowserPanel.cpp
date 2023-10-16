@@ -6,6 +6,7 @@
 #include <Pinecone/Asset/AssetManager.h>
 #include <Pinecone/Asset/TextureImporter.h>
 #include <Pinecone/ImGui/UICore.h>
+#include <Pinecone/Editor/SelectionManager.h>
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui.h>
@@ -150,7 +151,6 @@ namespace Pinecone
 
 							if (ImGui::BeginDragDropSource())
 							{
-								AssetHandle handle = m_TreeNodes[treeNodeIndex].Handle;
 								ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", &handle, sizeof(AssetHandle));
 								ImGui::Image((ImTextureID)thumbnail->GetRendererID(), ImVec2{ 16.0f, 16.0f }, ImVec2(0, 1), ImVec2(1, 0));
 								ImGui::SameLine();
@@ -162,7 +162,14 @@ namespace Pinecone
 							if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 							{
 								if (isDirectory)
+								{
 									m_CurrentDirectory /= item.filename();
+								}
+								else
+								{
+									SelectionManager::DeselectAll(SelectionContext::ContentBrowser);
+									SelectionManager::Select(SelectionContext::ContentBrowser, handle);
+								}
 							}
 
 							ImGui::TextWrapped(itemStr.c_str());
