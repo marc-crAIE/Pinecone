@@ -20,13 +20,13 @@ namespace Pinecone
 {
 	static Ref<Font> s_Font;
 
-	RuntimeLayer::RuntimeLayer()
+	EditorLayer::EditorLayer()
 		: Layer("EditorLayer")
 	{
 		s_Font = Font::GetDefault();
 	}
 
-	void RuntimeLayer::OnAttach()
+	void EditorLayer::OnAttach()
 	{
 		PC_PROFILE_FUNCTION();
 
@@ -70,12 +70,12 @@ namespace Pinecone
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 	}
 
-	void RuntimeLayer::OnDetach()
+	void EditorLayer::OnDetach()
 	{
 		PC_PROFILE_FUNCTION();
 	}
 
-	void RuntimeLayer::OnUpdate(Timestep ts)
+	void EditorLayer::OnUpdate(Timestep ts)
 	{
 		PC_PROFILE_FUNCTION();
 
@@ -134,7 +134,7 @@ namespace Pinecone
 		m_Framebuffer->Unbind();
 	}
 
-	void RuntimeLayer::OnImGuiRender()
+	void EditorLayer::OnImGuiRender()
 	{
 		PC_PROFILE_FUNCTION();
 
@@ -212,9 +212,8 @@ namespace Pinecone
 
 				if (ImGui::MenuItem("Build and Run", "", false, false))
 				{
-
 				}
-
+				
 				ImGui::Separator();
 
 				if (ImGui::MenuItem("Exit")) 
@@ -383,7 +382,7 @@ namespace Pinecone
 		ImGui::End();
 	}
 
-	void RuntimeLayer::OnEvent(Event& e)
+	void EditorLayer::OnEvent(Event& e)
 	{
 		if (m_SceneState != SceneState::Play)
 		{
@@ -391,11 +390,11 @@ namespace Pinecone
 		}
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<KeyPressedEvent>(PC_BIND_EVENT_FN(RuntimeLayer::OnKeyPressed));
-		dispatcher.Dispatch<MouseButtonPressedEvent>(PC_BIND_EVENT_FN(RuntimeLayer::OnMouseButtonPressed));
+		dispatcher.Dispatch<KeyPressedEvent>(PC_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(PC_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
 	}
 
-	bool RuntimeLayer::OnKeyPressed(KeyPressedEvent& e)
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
 	{
 		// Shortcuts
 		if (e.IsRepeat())
@@ -502,7 +501,7 @@ namespace Pinecone
 		return false;
 	}
 
-	bool RuntimeLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 	{
 		if (e.GetMouseButton() == Mouse::ButtonLeft)
 		{
@@ -512,14 +511,14 @@ namespace Pinecone
 		return false;
 	}
 
-	bool RuntimeLayer::OnWindowDrop(WindowDropEvent& e)
+	bool EditorLayer::OnWindowDrop(WindowDropEvent& e)
 	{
 		//AssetManager::ImportAsset();
 
 		return true;
 	}
 
-	void RuntimeLayer::OnScenePlay()
+	void EditorLayer::OnScenePlay()
 	{
 		m_SceneState = SceneState::Play;
 
@@ -530,7 +529,7 @@ namespace Pinecone
 		m_PropertiesPanel.SetSceneContext(m_ActiveScene);
 	}
 
-	void RuntimeLayer::OnSceneStop()
+	void EditorLayer::OnSceneStop()
 	{
 		PC_CORE_ASSERT(m_SceneState == SceneState::Play);
 
@@ -545,7 +544,7 @@ namespace Pinecone
 		m_PropertiesPanel.SetSceneContext(m_ActiveScene);
 	}
 
-	void RuntimeLayer::OnScenePause()
+	void EditorLayer::OnScenePause()
 	{
 		if (m_SceneState == SceneState::Edit)
 			return;
@@ -553,7 +552,7 @@ namespace Pinecone
 		m_ActiveScene->SetPaused(true);
 	}
 
-	void RuntimeLayer::OnDuplicateGameObject()
+	void EditorLayer::OnDuplicateGameObject()
 	{
 		if (m_SceneState != SceneState::Edit)
 			return;
@@ -566,7 +565,7 @@ namespace Pinecone
 		}
 	}
 
-	void RuntimeLayer::OnOverlayRender()
+	void EditorLayer::OnOverlayRender()
 	{
 		if (m_SceneState == SceneState::Play)
 		{
@@ -593,12 +592,12 @@ namespace Pinecone
 		Renderer2D::EndScene();
 	}
 
-	void RuntimeLayer::NewProject()
+	void EditorLayer::NewProject()
 	{
 		Project::New();
 	}
 
-	bool RuntimeLayer::OpenProject()
+	bool EditorLayer::OpenProject()
 	{
 		std::string filepath = FileDialogs::OpenFile("Pinecone Project (*.pcproj)\0*.pcproj\0");
 		if (filepath.empty())
@@ -608,7 +607,7 @@ namespace Pinecone
 		return true;
 	}
 
-	void RuntimeLayer::OpenProject(const std::filesystem::path& path)
+	void EditorLayer::OpenProject(const std::filesystem::path& path)
 	{
 		if (Project::Load(path))
 		{
@@ -621,12 +620,12 @@ namespace Pinecone
 		}
 	}
 
-	void RuntimeLayer::SaveProject()
+	void EditorLayer::SaveProject()
 	{
 		// Project::SaveActive();
 	}
 
-	std::filesystem::path& RuntimeLayer::BuildProject()
+	std::filesystem::path EditorLayer::BuildProject()
 	{
 		std::string filepath = FileDialogs::SaveFile("Pinecone Project (*.pcproj)\0*.pcproj\0");
 		auto basePath = std::filesystem::path(filepath).parent_path();
@@ -660,7 +659,7 @@ namespace Pinecone
 		return basePath;
 	}
 
-	void RuntimeLayer::NewScene()
+	void EditorLayer::NewScene()
 	{
 		m_EditorScene = CreateRef<Scene>();
 		m_SceneHierarchyPanel.SetContext(m_EditorScene);
@@ -669,7 +668,7 @@ namespace Pinecone
 		m_ActiveScene = m_EditorScene;
 	}
 
-	void RuntimeLayer::OpenScene()
+	void EditorLayer::OpenScene()
 	{
 		//OnSceneStop();
 		//std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
@@ -677,7 +676,7 @@ namespace Pinecone
 		//	OpenScene(filepath);
 	}
 
-	void RuntimeLayer::OpenScene(AssetHandle handle)
+	void EditorLayer::OpenScene(AssetHandle handle)
 	{
 		PC_CORE_ASSERT(handle);
 
@@ -694,7 +693,7 @@ namespace Pinecone
 		m_EditorScenePath = Project::GetActive()->GetEditorAssetManager()->GetFilePath(handle);
 	}
 
-	void RuntimeLayer::SaveScene()
+	void EditorLayer::SaveScene()
 	{
 		if (m_EditorScenePath.empty())
 			SaveSceneAs();
@@ -702,7 +701,7 @@ namespace Pinecone
 			SerializeScene(m_ActiveScene, m_EditorScenePath);
 	}
 
-	void RuntimeLayer::SaveSceneAs()
+	void EditorLayer::SaveSceneAs()
 	{
 		std::string filepath = FileDialogs::SaveFile("Pinecone Scene (*.pscene)\0*.pscene\0");
 		if (!filepath.empty())
@@ -712,12 +711,12 @@ namespace Pinecone
 		}
 	}
 
-	void RuntimeLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
+	void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
 	{
 		SceneImporter::SaveScene(scene, path);
 	}
 
-	void RuntimeLayer::UIToolbar()
+	void EditorLayer::UIToolbar()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));

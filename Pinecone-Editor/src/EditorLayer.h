@@ -9,11 +9,11 @@
 
 namespace Pinecone
 {
-	class RuntimeLayer : public Layer
+	class EditorLayer : public Layer
 	{
 	public:
-		RuntimeLayer();
-		virtual ~RuntimeLayer() = default;
+		EditorLayer();
+		virtual ~EditorLayer() = default;
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
@@ -39,7 +39,7 @@ namespace Pinecone
 		void OpenProject(const std::filesystem::path& path);
 		void SaveProject();
 
-		std::filesystem::path& BuildProject();
+		std::filesystem::path BuildProject();
 
 		void NewScene();
 		void OpenScene();

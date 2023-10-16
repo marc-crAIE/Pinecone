@@ -158,7 +158,6 @@ namespace Pinecone
 								ImGui::EndDragDropSource();
 							}
 
-
 							ImGui::PopStyleColor();
 							if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 							{
